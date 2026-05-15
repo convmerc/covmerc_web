@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { FaNewspaper } from "react-icons/fa";
+import { FaNewspaper } from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";

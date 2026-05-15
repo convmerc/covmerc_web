@@ -7,7 +7,7 @@ import {
   FaMapMarkerAlt,
   FaPhone,
   FaTwitter
-} from "react-icons/fa";
+} from "@/components/ui/icons";
 
 export function Footer() {
   const socialLinks = [

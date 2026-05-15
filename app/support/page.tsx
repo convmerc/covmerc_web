@@ -4,7 +4,7 @@ import {
   FaLifeRing,
   FaComments,
   FaTruck
-} from "react-icons/fa";
+} from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";

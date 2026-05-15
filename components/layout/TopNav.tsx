@@ -17,7 +17,7 @@ import {
   FaSignInAlt,
   FaShieldAlt,
   FaUserPlus
-} from "react-icons/fa";
+} from "@/components/ui/icons";
 
 export function TopNav() {
   const pathname = usePathname();

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FaLeaf, FaMagic, FaShieldAlt } from "react-icons/fa";
+import { FaLeaf, FaMagic, FaShieldAlt } from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";

@@ -12,7 +12,7 @@ import {
   FaMagic,
   FaStar,
   FaTwitter
-} from "react-icons/fa";
+} from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniButton } from "@/components/ui/FurniButton";
