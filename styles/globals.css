@@ -3,28 +3,26 @@
 @tailwind utilities;
 
 :root {
-  --color-primary: #4e5a37;
-  --color-secondary: #36b4c9;
-  --color-bg: #f6f8fa;
-  --color-bg-dark: #020617;
+  --color-primary: #3b5d50;
+  --color-accent: #f9bf29;
+  --color-surface: #eff2f1;
+  --color-white: #ffffff;
+  --color-ink: #2f2f2f;
+  --color-muted: #6a6e6c;
 }
 
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background-color: var(--color-bg);
-  color: #303030;
+  font-family: var(--font-inter), Inter, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background-color: var(--color-surface);
+  color: var(--color-ink);
 }
 
 body {
-  @apply antialiased;
-}
-
-html.dark body {
-  background-color: var(--color-bg-dark);
-  color: #f8fafc;
+  @apply antialiased selection:bg-furni-accent/30;
 }
 
 a {
@@ -36,5 +34,9 @@ input,
 button,
 textarea {
   font-family: inherit;
+}
+
+* {
+  box-sizing: border-box;
 }
 

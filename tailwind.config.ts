@@ -9,26 +9,28 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        covmerc: {
-          primary: "#4E5A37",
-          secondary: "#36B4C9",
-          light: "#BCE6ED",
-          textLight: "#868C9C",
-          grayLight: "#F6F8FA",
-          blue: "#375DFB",
-          gray: "#808080",
-          white: "#ffffff",
-          black: "#303030",
-          success: "#27AE60",
-          warning: "#F4C790",
-          error: "#DF1C41"
+        furni: {
+          primary: "#3B5D50",
+          accent: "#F9BF29",
+          surface: "#EFF2F1",
+          white: "#FFFFFF",
+          ink: "#2F2F2F",
+          muted: "#6A6E6C",
+          success: "#2F855A",
+          warning: "#D69E2E",
+          danger: "#C53030"
         }
       },
       fontFamily: {
-        clash: ["ClashDisplay", "system-ui", "sans-serif"]
+        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"]
       },
       boxShadow: {
-        soft: "0 18px 35px rgba(0,0,0,0.08)"
+        soft: "0 18px 35px rgba(47, 47, 47, 0.08)"
+      },
+      borderRadius: {
+        xl: "0.75rem",
+        "2xl": "1rem",
+        "3xl": "1.5rem"
       }
     }
   },
