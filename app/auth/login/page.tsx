@@ -5,10 +5,10 @@ import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { getFirebase } from "@/lib/firebase";
+import { checkAdminAccess } from "@/lib/admin-firestore";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 export default function LoginPage() {
-  const { auth } = getFirebase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,8 +20,28 @@ export default function LoginPage() {
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email.trim(), password);
-      window.location.href = "/dashboard/customer";
+      const credentials = await signInWithEmailAndPassword(
+        getFirebase().auth,
+        email.trim(),
+        password
+      );
+      const access = await checkAdminAccess(credentials.user);
+      const nextPath =
+        typeof window !== "undefined"
+          ? new URLSearchParams(window.location.search).get("next")
+          : null;
+      const safeNextPath =
+        nextPath && nextPath.startsWith("/") && !nextPath.startsWith("//")
+          ? nextPath
+          : null;
+
+      if (safeNextPath) {
+        window.location.href = safeNextPath;
+      } else if (access.isAdmin) {
+        window.location.href = "/dashboard/admin";
+      } else {
+        window.location.href = "/dashboard/customer";
+      }
     } catch (err) {
       const message =
         (err as Error).message || "Unable to sign in. Please try again.";

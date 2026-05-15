@@ -1,4 +1,4 @@
-\"use client\";
+"use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -39,14 +39,13 @@ const demoProducts: Product[] = [
 ];
 
 export default function StorePage() {
-  const { auth } = getFirebase();
   const [user, setUser] = useState<User | null>(null);
   const [lastOrderMessage, setLastOrderMessage] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (next) => setUser(next));
+    const unsub = onAuthStateChanged(getFirebase().auth, (next) => setUser(next));
     return () => unsub();
-  }, [auth]);
+  }, []);
 
   function handleOrder(product: Product) {
     if (!user) {

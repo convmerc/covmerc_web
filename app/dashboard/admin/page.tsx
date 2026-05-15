@@ -1,94 +1,112 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
-import { getFirebase } from "@/lib/firebase";
-import { onAuthStateChanged, type User } from "firebase/auth";
+import Link from "next/link";
+import { fetchAdminMetrics, type MetricResult } from "@/lib/admin-firestore";
 
 export default function AdminDashboardPage() {
-  const { auth } = getFirebase();
-  const [user, setUser] = useState<User | null>(null);
+  const [metrics, setMetrics] = useState<MetricResult[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (next) => setUser(next));
-    return () => unsub();
-  }, [auth]);
+    let mounted = true;
+
+    async function loadMetrics() {
+      setIsLoading(true);
+      const nextMetrics = await fetchAdminMetrics();
+      if (mounted) {
+        setMetrics(nextMetrics);
+        setIsLoading(false);
+      }
+    }
+
+    loadMetrics();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-covmerc-grayLight">
-      <TopNav />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-4 py-8 md:px-6 lg:px-0">
-        <header className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-covmerc-textLight">
-              Admin dashboard
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-covmerc-black md:text-3xl">
-              Platform control center
-            </h1>
-            <p className="mt-2 max-w-xl text-sm text-covmerc-textLight">
-              Inspired by the Covmerc mobile admin experience: review businesses,
-              configure the system, and monitor performance for your marketplace.
-            </p>
-          </div>
-        </header>
+    <main className="space-y-6">
+      <header className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+        <p className="text-xs uppercase tracking-wide text-covmerc-textLight dark:text-slate-400">
+          Admin overview
+        </p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight">
+          Platform control center
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm text-covmerc-textLight dark:text-slate-300">
+          Metrics and collection management run against your existing Firebase
+          project. Shared mobile collections are read-only by default to reduce
+          schema drift risk.
+        </p>
+      </header>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <SummaryCard label="Pending business reviews" value="–" />
-          <SummaryCard label="Open support tickets" value="–" />
-          <SummaryCard label="Total vendors" value="–" />
-        </section>
+      <section className="grid gap-4 md:grid-cols-3">
+        {(isLoading ? [0, 1, 2] : metrics).map((entry, index) => (
+          <SummaryCard
+            key={typeof entry === "number" ? index : entry.id}
+            label={
+              typeof entry === "number" ? "Loading metric..." : entry.label
+            }
+            value={
+              typeof entry === "number"
+                ? "..."
+                : entry.status === "ok"
+                  ? String(entry.value)
+                  : "N/A"
+            }
+          />
+        ))}
+      </section>
 
-        <section className="grid gap-4 md:grid-cols-[1.4fr,1.1fr]">
-          <div className="rounded-3xl bg-white p-4 shadow-soft ring-1 ring-slate-100">
-            <h2 className="mb-2 text-sm font-semibold text-covmerc-black">
-              Businesses awaiting review
-            </h2>
-            <p className="text-xs text-covmerc-textLight">
-              Connect this view to the same Firestore collections used in the
-              mobile app&apos;s admin flows (e.g. `businesses` + status fields) to
-              approve or reject vendors from the web.
-            </p>
-          </div>
+      <section className="grid gap-4 lg:grid-cols-[1.5fr,1fr]">
+        <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-base font-semibold">Safety defaults for shared data</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-4 text-sm text-covmerc-textLight dark:text-slate-300">
+            <li>
+              Collections used by Flutter clients are marked read-only until you
+              explicitly permit writes.
+            </li>
+            <li>
+              Writable collections only accept allowlisted scalar fields to avoid
+              accidental nested schema changes.
+            </li>
+            <li>
+              “Delete” behavior archives a document instead of hard-deleting.
+            </li>
+          </ul>
+          <Link
+            href="/dashboard/admin/data"
+            className="mt-4 inline-flex rounded-full bg-covmerc-primary px-4 py-2 text-sm font-medium text-white transition hover:bg-covmerc-primary/90"
+          >
+            Open data manager
+          </Link>
+        </article>
 
-          <div className="space-y-4">
-            <div className="rounded-3xl bg-white p-4 shadow-soft ring-1 ring-slate-100">
-              <h2 className="mb-2 text-sm font-semibold text-covmerc-black">
-                Signed-in admin
-              </h2>
-              <p className="text-xs text-covmerc-textLight">
-                Restrict access here using custom claims or role documents in
-                Firestore; the component is wired to Firebase Auth and ready for
-                role checks.
-              </p>
-              <p className="mt-2 text-xs text-covmerc-textLight">
-                Current user: {user?.email ?? "not signed in"}
-              </p>
-            </div>
-
-            <div className="rounded-3xl bg-covmerc-secondary/95 p-4 text-xs text-white shadow-soft">
-              <p className="font-semibold">Next steps</p>
-              <p className="mt-1 text-white/90">
-                Map these admin cards to your existing Covmerc Flutter routes like
-                `ADMIN_DASHBOARD`, `ADMIN_BUSINESS_REVIEW`, and chat/analytics
-                screens by reusing the same Firebase collections.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </div>
+        <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="text-base font-semibold">Role check options</h2>
+          <p className="mt-3 text-sm text-covmerc-textLight dark:text-slate-300">
+            Access is granted if any one check passes:
+          </p>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-4 text-sm text-covmerc-textLight dark:text-slate-300">
+            <li>Custom claim: `admin: true` or `roles` includes `admin`</li>
+            <li>Document exists at `admins/{'{uid}'}`</li>
+            <li>Document at `users/{'{uid}'}` with `role: "admin"` or roles array</li>
+          </ol>
+        </article>
+      </section>
+    </main>
   );
 }
 
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl bg-white p-4 shadow-soft ring-1 ring-slate-100">
-      <p className="text-xs text-covmerc-textLight">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-covmerc-black">{value}</p>
-    </div>
+    <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
+      <p className="text-xs text-covmerc-textLight dark:text-slate-400">{label}</p>
+      <p className="mt-1 text-2xl font-semibold">{value}</p>
+    </article>
   );
 }
 

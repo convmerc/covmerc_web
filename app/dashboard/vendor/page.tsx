@@ -7,13 +7,12 @@ import { getFirebase } from "@/lib/firebase";
 import { onAuthStateChanged, type User } from "firebase/auth";
 
 export default function VendorDashboardPage() {
-  const { auth } = getFirebase();
   const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (next) => setUser(next));
+    const unsub = onAuthStateChanged(getFirebase().auth, (next) => setUser(next));
     return () => unsub();
-  }, [auth]);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-covmerc-grayLight">

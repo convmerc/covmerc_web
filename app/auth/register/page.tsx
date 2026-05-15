@@ -8,7 +8,6 @@ import { getFirebase } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 
 export default function RegisterPage() {
-  const { auth } = getFirebase();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,7 +21,7 @@ export default function RegisterPage() {
 
     try {
       const userCredential = await createUserWithEmailAndPassword(
-        auth,
+        getFirebase().auth,
         email.trim(),
         password
       );
