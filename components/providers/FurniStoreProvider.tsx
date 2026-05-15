@@ -188,7 +188,7 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
           day: "2-digit",
           year: "numeric"
         }),
-        author: "Furni Admin"
+        author: "Covmerc Admin"
       };
 
       setBlogPosts((current) => [nextPost, ...current]);

@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { Newspaper } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
@@ -14,13 +15,16 @@ export default function BlogPage() {
       <TopNav />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
         <header className="max-w-2xl">
-          <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">Blog</p>
-          <h1 className="mt-1 text-4xl font-semibold text-furni-primary">
+          <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-furni-muted">
+            <Newspaper className="h-3.5 w-3.5" />
+            Blog
+          </p>
+          <h1 className="mt-1 font-display text-5xl text-furni-primary">
             Sustainable Craftsmanship & Modern Living Tips
           </h1>
           <p className="mt-2 text-sm text-furni-muted">
             Explore design stories, home styling guidance, and material insights from
-            the Furni team.
+            the Covmerc team.
           </p>
         </header>
 

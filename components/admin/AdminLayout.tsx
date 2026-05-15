@@ -50,7 +50,7 @@ export function AdminLayout({
     <div className="min-h-screen bg-furni-surface">
       <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:grid-cols-[220px,1fr] md:px-6">
         <aside className="rounded-3xl bg-furni-primary p-5 text-white shadow-soft">
-          <p className="text-xl font-semibold">Furni Admin</p>
+          <p className="text-xl font-semibold">Covmerc Admin</p>
           <p className="mt-1 text-xs text-white/70">Internal operations dashboard</p>
 
           <nav className="mt-8 grid gap-2 text-sm">

@@ -45,23 +45,23 @@ type AuthSessionValue = {
 const demoUsers: PersistedUserRecord[] = [
   {
     id: "usr-admin",
-    name: "Furni Owner",
-    email: "owner@furni.com",
-    password: "Furni@2026",
+    name: "Covmerc Owner",
+    email: "owner@covmerc.com",
+    password: "Covmerc@2026",
     userType: "admin"
   },
   {
     id: "usr-customer",
-    name: "Furni Shopper",
-    email: "shopper@furni.com",
-    password: "Furni@2026",
+    name: "Covmerc Shopper",
+    email: "shopper@covmerc.com",
+    password: "Covmerc@2026",
     userType: "customer"
   }
 ];
 
 const sessionStorageKeys = {
-  users: "furni-auth-users",
-  sessionEmail: "furni-auth-session-email"
+  users: "covmerc-auth-users",
+  sessionEmail: "covmerc-auth-session-email"
 };
 
 const AuthSessionContext = createContext<AuthSessionValue | null>(null);
