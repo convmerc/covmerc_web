@@ -11,7 +11,7 @@ const adminLinks = [
   { href: "/admin/products", label: "Inventory" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/content", label: "Content" }
-];
+] as const;
 
 export function AdminLayout({
   title,

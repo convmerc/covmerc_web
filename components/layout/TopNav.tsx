@@ -13,7 +13,7 @@ export function TopNav() {
     { href: "/shop", label: "Shop" },
     { href: "/about", label: "About" },
     { href: "/blog", label: "Blog" }
-  ];
+  ] as const;
 
   return (
     <header className="sticky top-0 z-40 border-b border-furni-primary/10 bg-furni-primary text-white">
