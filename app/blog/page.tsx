@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Newspaper } from "lucide-react";
+import { FaRegNewspaper } from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
@@ -16,7 +16,7 @@ export default function BlogPage() {
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
         <header className="max-w-2xl">
           <p className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-furni-muted">
-            <Newspaper className="h-3.5 w-3.5" />
+            <FaRegNewspaper className="h-3.5 w-3.5" />
             Blog
           </p>
           <h1 className="mt-1 font-display text-5xl text-furni-primary">

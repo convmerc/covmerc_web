@@ -1,4 +1,4 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { FaEnvelope, FaLocationDot, FaPhone } from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -46,15 +46,15 @@ export default function ContactPage() {
               <h2 className="mb-3 text-lg font-semibold text-furni-primary">Contact Info</h2>
               <div className="space-y-2 text-sm text-furni-muted">
                 <p className="inline-flex items-center gap-2">
-                  <MapPin className="h-4 w-4 text-furni-primary" />
+                  <FaLocationDot className="h-4 w-4 text-furni-primary" />
                   18 Minimal Avenue, Victoria Island, Lagos
                 </p>
                 <p className="inline-flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-furni-primary" />
+                  <FaPhone className="h-4 w-4 text-furni-primary" />
                   +234 901 234 5678
                 </p>
                 <p className="inline-flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-furni-primary" />
+                  <FaEnvelope className="h-4 w-4 text-furni-primary" />
                   hello@covmerc.com
                 </p>
               </div>

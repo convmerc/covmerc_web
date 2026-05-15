@@ -1,5 +1,10 @@
 import Link from "next/link";
-import { CircleHelp, LifeBuoy, MessageCircleQuestion, Truck } from "lucide-react";
+import {
+  FaCircleQuestion,
+  FaLifeRing,
+  FaRegMessage,
+  FaTruckFast
+} from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -8,22 +13,22 @@ const supportItems = [
   {
     title: "Order Support",
     description: "Track order progress, delivery windows, and shipment updates.",
-    Icon: Truck
+    Icon: FaTruckFast
   },
   {
     title: "Product Guidance",
     description: "Get help selecting furniture size, finish, and material options.",
-    Icon: CircleHelp
+    Icon: FaCircleQuestion
   },
   {
     title: "Returns & Refunds",
     description: "Start return requests and review refund timelines.",
-    Icon: MessageCircleQuestion
+    Icon: FaRegMessage
   },
   {
     title: "Live Assistance",
     description: "Chat with a Covmerc specialist for urgent account issues.",
-    Icon: LifeBuoy
+    Icon: FaLifeRing
   }
 ] as const;
 

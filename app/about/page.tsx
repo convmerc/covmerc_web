@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { Leaf, ShieldCheck, Sparkles } from "lucide-react";
+import { BsShieldCheck, BsStars } from "react-icons/bs";
+import { FaLeaf } from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -36,7 +37,7 @@ export default function AboutPage() {
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <Leaf className="h-4 w-4" />
+              <FaLeaf className="h-4 w-4" />
               Sustainable sourcing
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -46,7 +47,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <Sparkles className="h-4 w-4" />
+              <BsStars className="h-4 w-4" />
               Thoughtful design
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -56,7 +57,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <ShieldCheck className="h-4 w-4" />
+              <BsShieldCheck className="h-4 w-4" />
               Modern living tips
             </h2>
             <p className="mt-2 text-sm text-furni-muted">

@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { Mail, MapPin, Phone } from "lucide-react";
 import {
+  FaEnvelope,
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
+  FaLocationDot,
+  FaPhone,
   FaXTwitter
 } from "react-icons/fa6";
 
@@ -42,15 +44,15 @@ export function Footer() {
           </p>
           <div className="space-y-1 text-xs">
             <p className="inline-flex items-center gap-2">
-              <MapPin className="h-3.5 w-3.5 text-furni-primary" />
+              <FaLocationDot className="h-3.5 w-3.5 text-furni-primary" />
               18 Minimal Avenue, Victoria Island, Lagos
             </p>
             <p className="inline-flex items-center gap-2">
-              <Phone className="h-3.5 w-3.5 text-furni-primary" />
+              <FaPhone className="h-3.5 w-3.5 text-furni-primary" />
               +234 901 234 5678
             </p>
             <p className="inline-flex items-center gap-2">
-              <Mail className="h-3.5 w-3.5 text-furni-primary" />
+              <FaEnvelope className="h-3.5 w-3.5 text-furni-primary" />
               hello@covmerc.com
             </p>
           </div>
