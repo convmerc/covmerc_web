@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BsShieldCheck, BsStars } from "react-icons/bs";
 import {
   FaArrowRightLong,
   FaFacebookF,
   FaInstagram,
   FaLeaf,
   FaLinkedinIn,
+  FaShieldHalved,
   FaStar,
+  FaWandMagicSparkles,
   FaXTwitter
 } from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
@@ -60,7 +61,7 @@ export default function HomePage() {
           <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-16">
             <div className="space-y-6 animate-fade-up">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent">
-                <BsStars className="h-3.5 w-3.5" />
+                <FaWandMagicSparkles className="h-3.5 w-3.5" />
                 Covmerc Signature Collection
               </span>
               <h1 className="font-display text-5xl leading-tight md:text-6xl">
@@ -165,7 +166,7 @@ export default function HomePage() {
               {whyChooseFeatures.map((feature) => (
                 <FurniCard key={feature.title} className="rounded-2xl p-4">
                   <h3 className="inline-flex items-center gap-2 text-base font-semibold text-furni-ink">
-                    <BsShieldCheck className="h-4 w-4 text-furni-primary" />
+                    <FaShieldHalved className="h-4 w-4 text-furni-primary" />
                     {feature.title}
                   </h3>
                   <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
@@ -218,11 +219,11 @@ export default function HomePage() {
                 Tested durability and finish quality
               </li>
               <li className="inline-flex items-start gap-2">
-                <BsStars className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <FaWandMagicSparkles className="mt-0.5 h-4 w-4 text-furni-primary" />
                 Space-savvy dimensions and proportions
               </li>
               <li className="inline-flex items-start gap-2">
-                <BsShieldCheck className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <FaShieldHalved className="mt-0.5 h-4 w-4 text-furni-primary" />
                 Thoughtful delivery and setup support
               </li>
             </ul>
