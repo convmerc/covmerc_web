@@ -4,10 +4,10 @@ import {
   FaFacebookF,
   FaInstagram,
   FaLinkedinIn,
-  FaLocationDot,
+  FaMapMarkerAlt,
   FaPhone,
-  FaXTwitter
-} from "react-icons/fa6";
+  FaTwitter
+} from "react-icons/fa";
 
 export function Footer() {
   const socialLinks = [
@@ -24,7 +24,7 @@ export function Footer() {
     {
       href: "https://x.com/covmerc",
       label: "X (Twitter)",
-      Icon: FaXTwitter
+      Icon: FaTwitter
     },
     {
       href: "https://linkedin.com/company/covmerc",
@@ -44,7 +44,7 @@ export function Footer() {
           </p>
           <div className="space-y-1 text-xs">
             <p className="inline-flex items-center gap-2">
-              <FaLocationDot className="h-3.5 w-3.5 text-furni-primary" />
+              <FaMapMarkerAlt className="h-3.5 w-3.5 text-furni-primary" />
               18 Minimal Avenue, Victoria Island, Lagos
             </p>
             <p className="inline-flex items-center gap-2">

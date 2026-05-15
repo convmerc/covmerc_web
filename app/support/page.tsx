@@ -1,10 +1,10 @@
 import Link from "next/link";
 import {
-  FaCircleQuestion,
+  FaQuestionCircle,
   FaLifeRing,
-  FaRegMessage,
-  FaTruckFast
-} from "react-icons/fa6";
+  FaComments,
+  FaTruck
+} from "react-icons/fa";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -13,17 +13,17 @@ const supportItems = [
   {
     title: "Order Support",
     description: "Track order progress, delivery windows, and shipment updates.",
-    Icon: FaTruckFast
+    Icon: FaTruck
   },
   {
     title: "Product Guidance",
     description: "Get help selecting furniture size, finish, and material options.",
-    Icon: FaCircleQuestion
+    Icon: FaQuestionCircle
   },
   {
     title: "Returns & Refunds",
     description: "Start return requests and review refund timelines.",
-    Icon: FaRegMessage
+    Icon: FaComments
   },
   {
     title: "Live Assistance",

@@ -3,16 +3,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import {
-  FaArrowRightLong,
+  FaArrowRight,
   FaFacebookF,
   FaInstagram,
   FaLeaf,
   FaLinkedinIn,
-  FaShieldHalved,
+  FaShieldAlt,
+  FaMagic,
   FaStar,
-  FaWandMagicSparkles,
-  FaXTwitter
-} from "react-icons/fa6";
+  FaTwitter
+} from "react-icons/fa";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -43,7 +43,7 @@ export default function HomePage() {
     {
       href: "https://x.com/covmerc",
       label: "X (Twitter)",
-      Icon: FaXTwitter
+      Icon: FaTwitter
     },
     {
       href: "https://linkedin.com/company/covmerc",
@@ -61,7 +61,7 @@ export default function HomePage() {
           <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-16">
             <div className="space-y-6 animate-fade-up">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent">
-                <FaWandMagicSparkles className="h-3.5 w-3.5" />
+                <FaMagic className="h-3.5 w-3.5" />
                 Covmerc Signature Collection
               </span>
               <h1 className="font-display text-5xl leading-tight md:text-6xl">
@@ -77,7 +77,7 @@ export default function HomePage() {
                 <Link href="/shop">
                   <FurniButton variant="accent" className="inline-flex items-center gap-1.5">
                     Shop Now
-                    <FaArrowRightLong className="h-4 w-4" />
+                    <FaArrowRight className="h-4 w-4" />
                   </FurniButton>
                 </Link>
                 <Link href="/about">
@@ -166,7 +166,7 @@ export default function HomePage() {
               {whyChooseFeatures.map((feature) => (
                 <FurniCard key={feature.title} className="rounded-2xl p-4">
                   <h3 className="inline-flex items-center gap-2 text-base font-semibold text-furni-ink">
-                    <FaShieldHalved className="h-4 w-4 text-furni-primary" />
+                    <FaShieldAlt className="h-4 w-4 text-furni-primary" />
                     {feature.title}
                   </h3>
                   <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
@@ -219,18 +219,18 @@ export default function HomePage() {
                 Tested durability and finish quality
               </li>
               <li className="inline-flex items-start gap-2">
-                <FaWandMagicSparkles className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <FaMagic className="mt-0.5 h-4 w-4 text-furni-primary" />
                 Space-savvy dimensions and proportions
               </li>
               <li className="inline-flex items-start gap-2">
-                <FaShieldHalved className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <FaShieldAlt className="mt-0.5 h-4 w-4 text-furni-primary" />
                 Thoughtful delivery and setup support
               </li>
             </ul>
             <Link href="/about">
               <FurniButton className="inline-flex items-center gap-1.5">
                 Explore Story
-                <FaArrowRightLong className="h-4 w-4" />
+                <FaArrowRight className="h-4 w-4" />
               </FurniButton>
             </Link>
           </div>
