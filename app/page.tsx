@@ -1,141 +1,223 @@
+"use client";
+
+import Image from "next/image";
 import Link from "next/link";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
+import { FurniButton } from "@/components/ui/FurniButton";
+import { FurniCard } from "@/components/ui/FurniCard";
+import { testimonials, whyChooseFeatures } from "@/lib/furni-data";
+import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 
-export default function LandingPage() {
+export default function HomePage() {
+  const { products, blogPosts, addToCart } = useFurniStore();
+  const featuredProducts = products.filter((item) => item.featured).slice(0, 3);
+  const latestPosts = blogPosts.slice(0, 3);
+
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-b from-white via-covmerc-grayLight to-covmerc-grayLight">
+    <div className="flex min-h-screen flex-col bg-furni-surface">
       <TopNav />
 
-      <main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-16 px-4 pt-10 pb-16 md:px-6 lg:px-8 lg:pt-16">
-        <section className="grid gap-10 md:grid-cols-[1.3fr,1fr] md:items-center">
-          <div className="space-y-6">
-            <span className="inline-flex items-center rounded-full bg-covmerc-primary/5 px-3 py-1 text-xs font-medium text-covmerc-primary ring-1 ring-covmerc-primary/15">
-              Omnichannel commerce · Web + Mobile
-            </span>
-
-            <h1 className="text-balance text-4xl font-semibold tracking-tight text-covmerc-black sm:text-5xl lg:text-6xl">
-              A modern marketplace for{" "}
-              <span className="bg-gradient-to-r from-covmerc-primary to-covmerc-secondary bg-clip-text text-transparent">
-                local businesses
-              </span>
-            </h1>
-
-            <p className="max-w-xl text-sm leading-relaxed text-covmerc-textLight sm:text-base">
-              Covmerc brings customers, vendors, and admins together in a single
-              platform. Discover products, manage orders, and run your business
-              from anywhere — with a web experience that mirrors the power of the
-              Covmerc mobile app.
-            </p>
-
-            <div className="flex flex-wrap items-center gap-4">
-              <Link
-                href="/auth/register"
-                className="inline-flex items-center justify-center rounded-full bg-covmerc-primary px-6 py-2.5 text-sm font-medium text-white shadow-soft transition hover:bg-covmerc-primary/90"
-              >
-                Get started free
-              </Link>
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center justify-center rounded-full border border-covmerc-primary/20 px-5 py-2.5 text-sm font-medium text-covmerc-primary transition hover:bg-covmerc-primary/5"
-              >
-                Sign in to dashboard
-              </Link>
-            </div>
-
-            <div className="mt-4 grid gap-4 text-xs text-covmerc-textLight sm:grid-cols-3 sm:text-sm">
-              <div className="rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100">
-                <p className="font-semibold text-covmerc-black">Customer</p>
-                <p>Browse products, track orders, and get support in a few taps.</p>
-              </div>
-              <div className="rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100">
-                <p className="font-semibold text-covmerc-black">Vendor</p>
-                <p>Publish inventory, manage fulfillment, and view analytics.</p>
-              </div>
-              <div className="rounded-2xl bg-white/80 p-3 shadow-sm ring-1 ring-slate-100">
-                <p className="font-semibold text-covmerc-black">Admin</p>
-                <p>Review businesses, moderate listings, and configure the system.</p>
+      <main className="flex-1">
+        <section className="bg-furni-primary text-white">
+          <div className="mx-auto grid w-full max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-16">
+            <div className="space-y-6">
+              <h1 className="text-4xl font-bold leading-tight md:text-5xl">
+                Modern Interior
+                <br />
+                Design Studio
+              </h1>
+              <p className="max-w-md text-sm text-white/80 md:text-base">
+                Craft your home with furniture that blends comfort, craftsmanship,
+                and sustainable materials.
+              </p>
+              <div className="flex items-center gap-3">
+                <Link href="/shop">
+                  <FurniButton variant="accent">Shop Now</FurniButton>
+                </Link>
+                <Link href="/about">
+                  <FurniButton variant="outline" className="border-white/40 text-white">
+                    Explore
+                  </FurniButton>
+                </Link>
               </div>
             </div>
-          </div>
-
-          <div className="relative">
-            <div className="absolute -inset-10 bg-gradient-to-tr from-covmerc-primary/10 via-covmerc-secondary/10 to-covmerc-primary/5 blur-3xl" />
-            <div className="relative rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-xs font-medium text-covmerc-textLight">
-                    Covmerc Web
-                  </p>
-                  <p className="text-sm font-semibold text-covmerc-black">
-                    Unified dashboard
-                  </p>
-                </div>
-                <span className="rounded-full bg-covmerc-success/10 px-3 py-1 text-xs font-medium text-covmerc-success">
-                  Live sync via Firebase
-                </span>
-              </div>
-
-              <div className="space-y-4 text-xs text-covmerc-textLight">
-                <div className="rounded-2xl bg-covmerc-grayLight p-3">
-                  <p className="mb-1 text-[11px] font-medium uppercase tracking-wide text-covmerc-textLight">
-                    Real-time orders
-                  </p>
-                  <p className="text-sm font-semibold text-covmerc-black">
-                    Incoming order · 3 items · ₦18,500
-                  </p>
-                  <p>Automatically synced from mobile to web via Firestore.</p>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-2xl bg-covmerc-primary/95 p-3 text-white">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-white/70">
-                      Today&apos;s revenue
-                    </p>
-                    <p className="mt-1 text-lg font-semibold">₦245,000</p>
-                  </div>
-                  <div className="rounded-2xl bg-covmerc-secondary/95 p-3 text-white">
-                    <p className="text-[11px] font-medium uppercase tracking-wide text-white/70">
-                      Active vendors
-                    </p>
-                    <p className="mt-1 text-lg font-semibold">128</p>
-                  </div>
-                </div>
-              </div>
+            <div className="relative mx-auto w-full max-w-xl">
+              <div className="absolute -right-4 -top-3 h-24 w-24 rounded-full bg-furni-accent/50 blur-2xl" />
+              <Image
+                src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1400&q=80"
+                alt="Furni sofa hero"
+                width={900}
+                height={620}
+                className="h-auto w-full rounded-3xl object-cover"
+                priority
+              />
             </div>
           </div>
         </section>
 
-        <section
-          id="features"
-          className="grid gap-6 md:grid-cols-3 md:gap-8 lg:gap-10"
-        >
-          <FeatureCard
-            title="Customer experience"
-            body="Mobile-first product discovery, smooth checkout, and live order tracking — all mirrored in a responsive web UI."
+        <section className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6 lg:px-8">
+          <div className="mb-8 flex items-end justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">
+                Crafted with excellent material
+              </p>
+              <h2 className="mt-2 text-3xl font-semibold text-furni-primary">
+                Featured Products
+              </h2>
+            </div>
+            <Link href="/shop" className="text-sm font-medium text-furni-primary">
+              View all
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {featuredProducts.map((product) => (
+              <FurniCard key={product.id} className="overflow-hidden p-0">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  width={600}
+                  height={450}
+                  className="h-52 w-full object-cover"
+                />
+                <div className="space-y-2 p-4">
+                  <h3 className="text-lg font-semibold text-furni-primary">
+                    {product.name}
+                  </h3>
+                  <p className="text-sm text-furni-muted">{product.shortDescription}</p>
+                  <div className="flex items-center justify-between pt-2">
+                    <p className="text-lg font-semibold text-furni-ink">
+                      ${product.price}
+                    </p>
+                    <FurniButton
+                      variant="primary"
+                      className="px-3 py-1.5 text-xs"
+                      onClick={() => addToCart(product.id, 1)}
+                    >
+                      Add
+                    </FurniButton>
+                  </div>
+                </div>
+              </FurniCard>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 md:grid-cols-[1.1fr,1fr] md:px-6 lg:px-8">
+          <div>
+            <h2 className="text-3xl font-semibold text-furni-primary">Why Choose Us</h2>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              {whyChooseFeatures.map((feature) => (
+                <FurniCard key={feature.title} className="rounded-2xl p-4">
+                  <h3 className="text-base font-semibold text-furni-ink">
+                    {feature.title}
+                  </h3>
+                  <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
+                </FurniCard>
+              ))}
+            </div>
+          </div>
+          <Image
+            src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=80"
+            alt="Curated living room setup"
+            width={820}
+            height={660}
+            className="h-full min-h-[320px] w-full rounded-3xl object-cover"
           />
-          <FeatureCard
-            title="Vendor workspace"
-            body="A modern dashboard for managing catalog, pricing, and fulfillment with Firebase-backed data."
-          />
-          <FeatureCard
-            title="Admin control"
-            body="Centralized tools for business review, system configuration, and user management."
-          />
+        </section>
+
+        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 md:grid-cols-[1fr,1.1fr] md:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-3">
+            <Image
+              src="https://images.unsplash.com/photo-1616594039964-3e996fdc16f2?auto=format&fit=crop&w=1000&q=80"
+              alt="Wood table styling"
+              width={400}
+              height={500}
+              className="h-full min-h-[220px] w-full rounded-3xl object-cover"
+            />
+            <Image
+              src="https://images.unsplash.com/photo-1617098474202-0d0d7f60a66c?auto=format&fit=crop&w=800&q=80"
+              alt="Accent table detail"
+              width={400}
+              height={500}
+              className="h-full min-h-[220px] w-full rounded-3xl object-cover"
+            />
+          </div>
+          <div className="space-y-4">
+            <h2 className="text-3xl font-semibold text-furni-primary">
+              We help you make modern interior design
+            </h2>
+            <p className="text-sm leading-relaxed text-furni-muted">
+              Furni combines premium craftsmanship with practical function. Our
+              furniture collection is curated to keep your space calm, timeless,
+              and ready for modern life.
+            </p>
+            <ul className="grid gap-2 text-sm text-furni-muted md:grid-cols-2">
+              <li>• Carefully sourced sustainable materials</li>
+              <li>• Tested durability and finish quality</li>
+              <li>• Space-savvy dimensions and proportions</li>
+              <li>• Thoughtful delivery and setup support</li>
+            </ul>
+            <Link href="/about">
+              <FurniButton>Explore Story</FurniButton>
+            </Link>
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-5xl px-4 pb-14 text-center md:px-6">
+          <h2 className="text-3xl font-semibold text-furni-primary">Testimonials</h2>
+          <div className="mt-6 grid gap-4 md:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <FurniCard key={testimonial.id} className="text-left">
+                <p className="text-sm leading-relaxed text-furni-muted">
+                  “{testimonial.quote}”
+                </p>
+                <p className="mt-4 text-base font-semibold text-furni-primary">
+                  {testimonial.author}
+                </p>
+                <p className="text-xs uppercase tracking-wide text-furni-muted">
+                  {testimonial.role}
+                </p>
+              </FurniCard>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-6xl px-4 pb-16 md:px-6 lg:px-8">
+          <div className="mb-6 flex items-end justify-between">
+            <h2 className="text-3xl font-semibold text-furni-primary">Recent Blog</h2>
+            <Link href="/blog" className="text-sm font-medium text-furni-primary">
+              View all posts
+            </Link>
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            {latestPosts.map((post) => (
+              <Link key={post.id} href="/blog">
+                <FurniCard className="h-full overflow-hidden p-0">
+                  <Image
+                    src={post.coverImage}
+                    alt={post.title}
+                    width={500}
+                    height={360}
+                    className="h-48 w-full object-cover"
+                  />
+                  <div className="space-y-2 p-4">
+                    <p className="text-xs uppercase tracking-wide text-furni-muted">
+                      {post.publishedAt}
+                    </p>
+                    <h3 className="text-lg font-semibold text-furni-primary">
+                      {post.title}
+                    </h3>
+                    <p className="text-sm text-furni-muted">{post.excerpt}</p>
+                  </div>
+                </FurniCard>
+              </Link>
+            ))}
+          </div>
         </section>
       </main>
 
       <Footer />
-    </div>
-  );
-}
-
-function FeatureCard({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
-      <h3 className="mb-2 text-base font-semibold text-covmerc-black">
-        {title}
-      </h3>
-      <p className="text-sm leading-relaxed text-covmerc-textLight">{body}</p>
     </div>
   );
 }
