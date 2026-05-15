@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import type { ReactNode } from "react";
-import { useAdminSession } from "@/components/providers/AdminSessionProvider";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 const adminLinks = [
   { href: "/admin", label: "Overview" },
@@ -24,18 +24,24 @@ export function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { isAdminAuthenticated, logout } = useAdminSession();
+  const { currentUser, logout } = useAuthSession();
+  const canAccessAdmin = currentUser?.userType === "admin";
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
-      router.replace("/admin/login");
+    if (!currentUser) {
+      router.replace("/auth/login?next=/admin");
+      return;
     }
-  }, [isAdminAuthenticated, router]);
 
-  if (!isAdminAuthenticated) {
+    if (currentUser.userType !== "admin") {
+      router.replace("/");
+    }
+  }, [currentUser, router]);
+
+  if (!canAccessAdmin) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-furni-surface">
-        <p className="text-sm text-furni-muted">Redirecting to admin login...</p>
+        <p className="text-sm text-furni-muted">Checking admin access...</p>
       </main>
     );
   }

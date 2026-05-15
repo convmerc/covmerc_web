@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
@@ -15,6 +16,7 @@ type CheckoutStep = (typeof steps)[number];
 
 export default function CheckoutPage() {
   const { cartCount, cartSubtotal, createOrder } = useFurniStore();
+  const { currentUser } = useAuthSession();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("Shipping");
   const [shippingDetails, setShippingDetails] = useState<CheckoutShipping>({
     fullName: "",
@@ -28,6 +30,15 @@ export default function CheckoutPage() {
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
 
   const stepIndex = useMemo(() => steps.indexOf(currentStep), [currentStep]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+    setShippingDetails((current) => ({
+      ...current,
+      fullName: current.fullName || currentUser.name,
+      email: current.email || currentUser.email
+    }));
+  }, [currentUser]);
 
   function handleShippingSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,6 +69,24 @@ export default function CheckoutPage() {
           ))}
         </div>
 
+        {!currentUser ? (
+          <FurniCard className="mt-6">
+            <h2 className="text-xl font-semibold text-furni-primary">Authentication Required</h2>
+            <p className="mt-2 text-sm text-furni-muted">
+              You can browse all products without signing in. Please authenticate to
+              continue with checkout.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/auth/login?next=/checkout">
+                <FurniButton>Sign in to continue</FurniButton>
+              </Link>
+              <Link href="/auth/register?next=/checkout">
+                <FurniButton variant="outline">Create account</FurniButton>
+              </Link>
+            </div>
+          </FurniCard>
+        ) : null}
+
         {cartCount === 0 && currentStep !== "Confirmation" ? (
           <FurniCard className="mt-6">
             <p className="text-sm text-furni-muted">
@@ -69,7 +98,7 @@ export default function CheckoutPage() {
           </FurniCard>
         ) : null}
 
-        {currentStep === "Shipping" && cartCount > 0 ? (
+        {currentUser && currentStep === "Shipping" && cartCount > 0 ? (
           <FurniCard className="mt-6">
             <form className="grid gap-3" onSubmit={handleShippingSubmit}>
               <h2 className="text-xl font-semibold text-furni-primary">
@@ -151,7 +180,7 @@ export default function CheckoutPage() {
           </FurniCard>
         ) : null}
 
-        {currentStep === "Payment" ? (
+        {currentUser && currentStep === "Payment" ? (
           <FurniCard className="mt-6">
             <form className="grid gap-4" onSubmit={handlePaymentSubmit}>
               <h2 className="text-xl font-semibold text-furni-primary">Payment Method</h2>
@@ -186,7 +215,7 @@ export default function CheckoutPage() {
           </FurniCard>
         ) : null}
 
-        {currentStep === "Confirmation" ? (
+        {currentUser && currentStep === "Confirmation" ? (
           <FurniCard className="mt-6 text-center">
             <h2 className="text-2xl font-semibold text-furni-primary">
               Order Confirmed
@@ -200,9 +229,11 @@ export default function CheckoutPage() {
               <Link href="/shop">
                 <FurniButton>Continue shopping</FurniButton>
               </Link>
-              <Link href="/admin/orders">
-                <FurniButton variant="outline">View in admin</FurniButton>
-              </Link>
+              {currentUser?.userType === "admin" ? (
+                <Link href="/admin/orders">
+                  <FurniButton variant="outline">View in admin</FurniButton>
+                </Link>
+              ) : null}
             </div>
           </FurniCard>
         ) : null}
