@@ -22,7 +22,14 @@ const config: Config = {
         }
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"]
+        sans: [
+          "var(--font-plus-jakarta)",
+          "Plus Jakarta Sans",
+          "Inter",
+          "system-ui",
+          "sans-serif"
+        ],
+        display: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"]
       },
       boxShadow: {
         soft: "0 18px 35px rgba(47, 47, 47, 0.08)"

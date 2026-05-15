@@ -88,7 +88,7 @@ export const initialProducts: FurniProduct[] = [
     price: 360,
     stock: 7,
     image:
-      "https://images.unsplash.com/photo-1616594039964-3e996fdc16f2?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=1200&q=80",
     description:
       "A handcrafted walnut table for six with beveled edges and a robust center support.",
     shortDescription: "Handcrafted walnut table for six guests.",
@@ -106,7 +106,7 @@ export const initialProducts: FurniProduct[] = [
     price: 150,
     stock: 16,
     image:
-      "https://images.unsplash.com/photo-1617098474202-0d0d7f60a66c?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80",
     description:
       "A two-tier ashwood coffee table with concealed cable pass-through for tidy living rooms.",
     shortDescription: "Two-tier ashwood table with hidden storage.",
@@ -124,14 +124,14 @@ export const initialBlogPosts: FurniBlogPost[] = [
     id: "sustainable-craftsmanship",
     title: "Sustainable Craftsmanship in Every Joint",
     excerpt:
-      "How Furni sources certified wood, low-emission fabrics, and timeless silhouettes to reduce waste.",
+      "How Covmerc sources certified wood, low-emission fabrics, and timeless silhouettes to reduce waste.",
     content:
-      "At Furni, we design each product to last for years. Our workshop partners use certified timber, low-emission finishes, and modular joinery to simplify repairs and extend product life.",
+      "At Covmerc, we design each product to last for years. Our workshop partners use certified timber, low-emission finishes, and modular joinery to simplify repairs and extend product life.",
     coverImage:
       "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80",
     category: "Sustainability",
     publishedAt: "May 01, 2026",
-    author: "Furni Editorial"
+    author: "Covmerc Editorial"
   },
   {
     id: "modern-living-tips",
@@ -154,10 +154,10 @@ export const initialBlogPosts: FurniBlogPost[] = [
     content:
       "Forest green pairs beautifully with warm metal details, oak finishes, and neutral textiles. Start with one anchor piece and build contrast with natural tones.",
     coverImage:
-      "https://images.unsplash.com/photo-1616486338106-3f0f86f6e8dd?auto=format&fit=crop&w=1200&q=80",
+      "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=1200&q=80",
     category: "Design",
     publishedAt: "April 10, 2026",
-    author: "Furni Studio"
+    author: "Covmerc Studio"
   }
 ];
 
@@ -167,14 +167,14 @@ export const testimonials: FurniTestimonial[] = [
     author: "Amira Sule",
     role: "Apartment Owner",
     quote:
-      "The quality feels premium and the support team made delivery effortless. Furni transformed my living room in a week."
+      "The quality feels premium and the support team made delivery effortless. Covmerc transformed my living room in a week."
   },
   {
     id: "daniel",
     author: "Daniel Nwosu",
     role: "Interior Stylist",
     quote:
-      "I use Furni pieces for client staging constantly. The materials are consistent and the finishes photograph beautifully."
+      "I use Covmerc pieces for client staging constantly. The materials are consistent and the finishes photograph beautifully."
   },
   {
     id: "rahimah",

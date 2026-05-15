@@ -24,7 +24,7 @@ export default function AdminOverviewPage() {
   return (
     <AdminLayout
       title="Overview Analytics"
-      subtitle="Track performance and monitor growth across your Furni storefront."
+      subtitle="Track performance and monitor growth across your Covmerc storefront."
     >
       <div className="grid gap-4 md:grid-cols-3">
         <MetricCard label="Total Sales" value={`$${totalSales.toFixed(2)}`} />

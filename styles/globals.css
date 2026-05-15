@@ -15,14 +15,18 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: var(--font-inter), Inter, system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", sans-serif;
+  font-family: var(--font-plus-jakarta), "Plus Jakarta Sans", Inter, system-ui,
+    -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background-color: var(--color-surface);
   color: var(--color-ink);
 }
 
 body {
   @apply antialiased selection:bg-furni-accent/30;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 a {
@@ -38,5 +42,34 @@ textarea {
 
 * {
   box-sizing: border-box;
+}
+
+@keyframes covmerc-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes covmerc-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-fade-up {
+  animation: covmerc-fade-up 0.55s ease-out both;
+}
+
+.animate-float-soft {
+  animation: covmerc-float 4.2s ease-in-out infinite;
 }
 
