@@ -3,6 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Leaf, ShieldCheck, Sparkles, Star } from "lucide-react";
+import {
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaXTwitter
+} from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -18,6 +24,28 @@ export default function HomePage() {
     { label: "Happy Customers", value: "8.2k+" },
     { label: "Curated Products", value: "240+" },
     { label: "Cities Delivered", value: "19" }
+  ] as const;
+  const socialLinks = [
+    {
+      href: "https://instagram.com/covmerc",
+      label: "Instagram",
+      Icon: FaInstagram
+    },
+    {
+      href: "https://facebook.com/covmerc",
+      label: "Facebook",
+      Icon: FaFacebookF
+    },
+    {
+      href: "https://x.com/covmerc",
+      label: "X (Twitter)",
+      Icon: FaXTwitter
+    },
+    {
+      href: "https://linkedin.com/company/covmerc",
+      label: "LinkedIn",
+      Icon: FaLinkedinIn
+    }
   ] as const;
 
   return (
@@ -259,6 +287,34 @@ export default function HomePage() {
               </Link>
             ))}
           </div>
+        </section>
+
+        <section className="mx-auto w-full max-w-6xl px-4 pb-16 md:px-6 lg:px-8 animate-fade-up">
+          <FurniCard className="flex flex-col items-center justify-between gap-4 bg-furni-primary text-white md:flex-row">
+            <div>
+              <p className="text-xs uppercase tracking-[0.2em] text-furni-accent">
+                Social Community
+              </p>
+              <h3 className="mt-1 font-display text-3xl">Follow Covmerc</h3>
+              <p className="mt-1 text-sm text-white/80">
+                Get styling ideas, product drops, and behind-the-scenes updates.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              {socialLinks.map(({ href, label, Icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={label}
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:-translate-y-0.5 hover:bg-furni-accent hover:text-furni-primary"
+                >
+                  <Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </FurniCard>
         </section>
       </main>
 

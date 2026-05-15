@@ -1,14 +1,36 @@
 import Link from "next/link";
+import { Mail, MapPin, Phone } from "lucide-react";
 import {
-  Globe,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-  SendHorizontal
-} from "lucide-react";
+  FaFacebookF,
+  FaInstagram,
+  FaLinkedinIn,
+  FaXTwitter
+} from "react-icons/fa6";
 
 export function Footer() {
+  const socialLinks = [
+    {
+      href: "https://instagram.com/covmerc",
+      label: "Instagram",
+      Icon: FaInstagram
+    },
+    {
+      href: "https://facebook.com/covmerc",
+      label: "Facebook",
+      Icon: FaFacebookF
+    },
+    {
+      href: "https://x.com/covmerc",
+      label: "X (Twitter)",
+      Icon: FaXTwitter
+    },
+    {
+      href: "https://linkedin.com/company/covmerc",
+      label: "LinkedIn",
+      Icon: FaLinkedinIn
+    }
+  ] as const;
+
   return (
     <footer className="border-t border-furni-primary/10 bg-white">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 text-sm text-furni-muted md:grid-cols-[1.2fr,1fr,1fr] md:px-6 lg:px-8">
@@ -59,13 +81,17 @@ export function Footer() {
             Social
           </p>
           <div className="mb-4 flex items-center gap-2">
-            {[Globe, MessageCircle, SendHorizontal].map((Icon, idx) => (
-              <span
-                key={idx}
+            {socialLinks.map(({ href, label, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={label}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-furni-surface text-furni-primary transition hover:-translate-y-0.5 hover:bg-furni-primary hover:text-white"
               >
                 <Icon className="h-4 w-4" />
-              </span>
+              </a>
             ))}
           </div>
           <p className="text-xs leading-relaxed">
