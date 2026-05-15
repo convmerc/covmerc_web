@@ -6,6 +6,7 @@
   --color-primary: #4e5a37;
   --color-secondary: #36b4c9;
   --color-bg: #f6f8fa;
+  --color-bg-dark: #020617;
 }
 
 html,
@@ -19,6 +20,11 @@ body {
 
 body {
   @apply antialiased;
+}
+
+html.dark body {
+  background-color: var(--color-bg-dark);
+  color: #f8fafc;
 }
 
 a {
