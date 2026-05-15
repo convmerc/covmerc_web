@@ -1,6 +1,5 @@
 import Image from "next/image";
-import { BsShieldCheck, BsStars } from "react-icons/bs";
-import { FaLeaf } from "react-icons/fa6";
+import { FaLeaf, FaShieldHalved, FaWandMagicSparkles } from "react-icons/fa6";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -47,7 +46,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <BsStars className="h-4 w-4" />
+              <FaWandMagicSparkles className="h-4 w-4" />
               Thoughtful design
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -57,7 +56,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <BsShieldCheck className="h-4 w-4" />
+              <FaShieldHalved className="h-4 w-4" />
               Modern living tips
             </h2>
             <p className="mt-2 text-sm text-furni-muted">

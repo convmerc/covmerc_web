@@ -15,9 +15,9 @@ import {
   FaNewspaper,
   FaRightFromBracket,
   FaRightToBracket,
+  FaShieldHalved,
   FaUserPlus
 } from "react-icons/fa6";
-import { BsShieldCheck } from "react-icons/bs";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -66,7 +66,7 @@ export function TopNav() {
               href="/admin"
               className="hidden items-center gap-1 rounded-full border border-furni-accent/40 bg-furni-accent/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-furni-accent md:inline-flex"
             >
-              <BsShieldCheck className="h-3.5 w-3.5" />
+              <FaShieldHalved className="h-3.5 w-3.5" />
               Admin Access
             </Link>
           ) : null}
