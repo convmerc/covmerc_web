@@ -1,17 +1,17 @@
-import type { HTMLAttributes } from "react";
+import { createElement, type HTMLAttributes } from "react";
 
 type IconProps = HTMLAttributes<HTMLSpanElement>;
 
 function createIcon(glyph: string) {
   function Icon({ className = "", ...props }: IconProps) {
-    return (
-      <span
-        aria-hidden="true"
-        className={`inline-flex items-center justify-center ${className}`.trim()}
-        {...props}
-      >
-        {glyph}
-      </span>
+    return createElement(
+      "span",
+      {
+        "aria-hidden": "true",
+        className: `inline-flex items-center justify-center ${className}`.trim(),
+        ...props
+      },
+      glyph
     );
   }
 
