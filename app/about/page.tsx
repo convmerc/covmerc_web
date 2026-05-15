@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { FaLeaf, FaShieldHalved, FaWandMagicSparkles } from "react-icons/fa6";
+import { FaLeaf, FaMagic, FaShieldAlt } from "react-icons/fa";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -46,7 +46,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <FaWandMagicSparkles className="h-4 w-4" />
+              <FaMagic className="h-4 w-4" />
               Thoughtful design
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -56,7 +56,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <FaShieldHalved className="h-4 w-4" />
+              <FaShieldAlt className="h-4 w-4" />
               Modern living tips
             </h2>
             <p className="mt-2 text-sm text-furni-muted">

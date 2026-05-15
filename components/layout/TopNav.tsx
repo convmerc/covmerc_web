@@ -6,18 +6,18 @@ import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import {
-  FaBagShopping,
-  FaCartShopping,
-  FaCircleInfo,
-  FaCircleUser,
+  FaShoppingBag,
+  FaShoppingCart,
+  FaInfoCircle,
+  FaUserCircle,
   FaEnvelope,
-  FaHouse,
+  FaHome,
   FaNewspaper,
-  FaRightFromBracket,
-  FaRightToBracket,
-  FaShieldHalved,
+  FaSignOutAlt,
+  FaSignInAlt,
+  FaShieldAlt,
   FaUserPlus
-} from "react-icons/fa6";
+} from "react-icons/fa";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -26,9 +26,9 @@ export function TopNav() {
   const isAdmin = currentUser?.userType === "admin";
 
   const navItems = [
-    { href: "/", label: "Home", Icon: FaHouse },
-    { href: "/shop", label: "Shop", Icon: FaBagShopping },
-    { href: "/about", label: "About", Icon: FaCircleInfo },
+    { href: "/", label: "Home", Icon: FaHome },
+    { href: "/shop", label: "Shop", Icon: FaShoppingBag },
+    { href: "/about", label: "About", Icon: FaInfoCircle },
     { href: "/blog", label: "Blog", Icon: FaNewspaper },
     { href: "/contact", label: "Contact", Icon: FaEnvelope }
   ] as const;
@@ -66,7 +66,7 @@ export function TopNav() {
               href="/admin"
               className="hidden items-center gap-1 rounded-full border border-furni-accent/40 bg-furni-accent/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-furni-accent md:inline-flex"
             >
-              <FaShieldHalved className="h-3.5 w-3.5" />
+              <FaShieldAlt className="h-3.5 w-3.5" />
               Admin Access
             </Link>
           ) : null}
@@ -74,13 +74,13 @@ export function TopNav() {
             href="/cart"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-1.5 text-white transition hover:bg-white/10"
           >
-            <FaCartShopping className="h-4 w-4" />
+            <FaShoppingCart className="h-4 w-4" />
             Cart ({cartCount})
           </Link>
           {currentUser ? (
             <div className="hidden items-center gap-2 md:flex">
               <span className="inline-flex items-center gap-1 text-xs text-white/85">
-                <FaCircleUser className="h-3.5 w-3.5" />
+                <FaUserCircle className="h-3.5 w-3.5" />
                 {currentUser.name}
               </span>
               <FurniButton
@@ -88,7 +88,7 @@ export function TopNav() {
                 className="inline-flex items-center gap-1.5 border-white/30 px-3 py-1.5 text-xs text-white hover:bg-white/10"
                 onClick={logout}
               >
-                <FaRightFromBracket className="h-3.5 w-3.5" />
+                <FaSignOutAlt className="h-3.5 w-3.5" />
                 Sign out
               </FurniButton>
             </div>
@@ -99,7 +99,7 @@ export function TopNav() {
                   variant="outline"
                   className="inline-flex items-center gap-1.5 border-white/30 px-3 py-1.5 text-xs text-white hover:bg-white/10"
                 >
-                  <FaRightToBracket className="h-3.5 w-3.5" />
+                  <FaSignInAlt className="h-3.5 w-3.5" />
                   Sign in
                 </FurniButton>
               </Link>
