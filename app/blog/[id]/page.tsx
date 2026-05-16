@@ -94,8 +94,6 @@ export default function BlogPostPage() {
           title="Explore Covmerc"
           links={[...relatedPageGroups.explore, ...relatedPageGroups.help]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }
