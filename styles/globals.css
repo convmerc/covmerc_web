@@ -73,3 +73,126 @@ textarea {
   animation: covmerc-float 4.2s ease-in-out infinite;
 }
 
+@keyframes covmerc-404-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.75) translateY(24px);
+  }
+  65% {
+    transform: scale(1.04) translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes covmerc-404-drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(14px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-10px, 12px) scale(0.95);
+  }
+}
+
+@keyframes covmerc-404-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes covmerc-404-sway {
+  0%,
+  100% {
+    transform: rotate(-2deg);
+  }
+  50% {
+    transform: rotate(2deg);
+  }
+}
+
+@keyframes covmerc-404-draw {
+  from {
+    stroke-dashoffset: 120;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes covmerc-404-fade-delay {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-404-pop {
+  animation: covmerc-404-pop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-404-drift {
+  animation: covmerc-404-drift 9s ease-in-out infinite;
+}
+
+.animate-404-orbit {
+  animation: covmerc-404-orbit 28s linear infinite;
+}
+
+.animate-404-sway {
+  animation: covmerc-404-sway 5s ease-in-out infinite;
+}
+
+.animate-404-draw {
+  stroke-dasharray: 120;
+  animation: covmerc-404-draw 1.4s ease-out 0.4s both;
+}
+
+.animate-404-fade-delay {
+  animation: covmerc-404-fade-delay 0.6s ease-out both;
+}
+
+.animate-404-fade-delay-2 {
+  animation: covmerc-404-fade-delay 0.6s ease-out 0.15s both;
+}
+
+.animate-404-fade-delay-3 {
+  animation: covmerc-404-fade-delay 0.6s ease-out 0.3s both;
+}
+
+.animate-404-fade-delay-4 {
+  animation: covmerc-404-fade-delay 0.6s ease-out 0.45s both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-404-pop,
+  .animate-404-drift,
+  .animate-404-orbit,
+  .animate-404-sway,
+  .animate-404-draw,
+  .animate-404-fade-delay,
+  .animate-404-fade-delay-2,
+  .animate-404-fade-delay-3,
+  .animate-404-fade-delay-4 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .animate-404-draw {
+    stroke-dashoffset: 0;
+  }
+}
+

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
@@ -17,11 +18,18 @@ import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
 import { formatNgn } from "@/lib/format-currency";
+import { orderGrandTotal } from "@/lib/shipping";
 import { relatedPageGroups } from "@/lib/site-content";
 import type { CheckoutShipping } from "@/lib/furni-types";
 
-export default function CheckoutPage() {
-  const { cartCount, cartSubtotal, createOrder } = useFurniStore();
+const PAYSTACK_ENABLED =
+  typeof window !== "undefined"
+    ? Boolean(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY)
+    : Boolean(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+
+function CheckoutPageContent() {
+  const searchParams = useSearchParams();
+  const { cartCount, cartSubtotal, createOrder, estimateDeliveryFee } = useFurniStore();
   const { currentUser, authLoading } = useAuthSession();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("Shipping");
   const [checkoutError, setCheckoutError] = useState("");
@@ -31,15 +39,23 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
-    city: "",
-    country: "",
+    city: "Lagos",
+    country: "Nigeria",
     zipCode: ""
   });
   const [paymentMethod, setPaymentMethod] = useState("Card");
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
+  const [checkoutAsGuest, setCheckoutAsGuest] = useState(true);
+
+  const deliveryFee = useMemo(
+    () => estimateDeliveryFee(shippingDetails.city),
+    [estimateDeliveryFee, shippingDetails.city]
+  );
+  const orderTotal = orderGrandTotal(cartSubtotal, deliveryFee);
 
   useEffect(() => {
     if (!currentUser) return;
+    setCheckoutAsGuest(false);
     setShippingDetails((current) => ({
       ...current,
       fullName: current.fullName || currentUser.name,
@@ -47,9 +63,66 @@ export default function CheckoutPage() {
     }));
   }, [currentUser]);
 
+  useEffect(() => {
+    const paystackFlow = searchParams.get("paystack");
+    const reference = searchParams.get("reference");
+    if (paystackFlow !== "verify" || !reference) return;
+
+    const savedShipping = window.sessionStorage.getItem("covmerc-checkout-shipping");
+    const savedPayment = window.sessionStorage.getItem("covmerc-checkout-payment") ?? "Card";
+
+    if (!savedShipping) {
+      setCheckoutError("Checkout session expired. Please try again.");
+      return;
+    }
+
+    const shipping = JSON.parse(savedShipping) as CheckoutShipping;
+
+    void (async () => {
+      setSubmittingOrder(true);
+      setCheckoutError("");
+
+      try {
+        const verifyResponse = await fetch(
+          `/api/paystack/verify?reference=${encodeURIComponent(reference)}`
+        );
+        const verifyPayload = (await verifyResponse.json()) as {
+          paid?: boolean;
+          error?: string;
+        };
+
+        if (!verifyResponse.ok || !verifyPayload.paid) {
+          throw new Error(verifyPayload.error ?? "Payment was not completed.");
+        }
+
+        const orderId = await createOrder(shipping, savedPayment, {
+          paystackReference: reference
+        });
+        window.sessionStorage.removeItem("covmerc-checkout-shipping");
+        window.sessionStorage.removeItem("covmerc-checkout-payment");
+        setConfirmedOrderId(orderId);
+        setShippingDetails(shipping);
+        setCurrentStep("Confirmation");
+      } catch (error) {
+        setCheckoutError(
+          error instanceof Error ? error.message : "Unable to complete your order."
+        );
+        setCurrentStep("Payment");
+      } finally {
+        setSubmittingOrder(false);
+      }
+    })();
+  }, [searchParams, createOrder]);
+
   function handleShippingSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setCurrentStep("Payment");
+  }
+
+  async function placeOrder(paystackReference?: string) {
+    const orderId = await createOrder(shippingDetails, paymentMethod, { paystackReference });
+    setConfirmedOrderId(orderId);
+    setCurrentStep("Confirmation");
   }
 
   async function handlePaymentSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -58,9 +131,41 @@ export default function CheckoutPage() {
     setSubmittingOrder(true);
 
     try {
-      const nextOrderId = await createOrder(shippingDetails, paymentMethod);
-      setConfirmedOrderId(nextOrderId);
-      setCurrentStep("Confirmation");
+      const usePaystack = paymentMethod === "Card" && PAYSTACK_ENABLED;
+
+      if (usePaystack) {
+        window.sessionStorage.setItem(
+          "covmerc-checkout-shipping",
+          JSON.stringify(shippingDetails)
+        );
+        window.sessionStorage.setItem("covmerc-checkout-payment", paymentMethod);
+
+        const reference = `covmerc_${Date.now()}`;
+        const initResponse = await fetch("/api/paystack/initialize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: shippingDetails.email,
+            amountNgn: orderTotal,
+            reference,
+            metadata: { source: "web_checkout" }
+          })
+        });
+
+        const initPayload = (await initResponse.json()) as {
+          authorizationUrl?: string;
+          error?: string;
+        };
+
+        if (!initResponse.ok || !initPayload.authorizationUrl) {
+          throw new Error(initPayload.error ?? "Unable to start card payment.");
+        }
+
+        window.location.href = initPayload.authorizationUrl;
+        return;
+      }
+
+      await placeOrder();
     } catch (error) {
       setCheckoutError(
         error instanceof Error ? error.message : "Unable to place your order."
@@ -69,6 +174,11 @@ export default function CheckoutPage() {
       setSubmittingOrder(false);
     }
   }
+
+  const canCheckout = cartCount > 0 && (Boolean(currentUser) || checkoutAsGuest);
+  const showShipping = canCheckout && currentStep === "Shipping";
+  const showPayment = canCheckout && currentStep === "Payment";
+  const isGuestOrder = checkoutAsGuest || !currentUser;
 
   return (
     <MarketingShell maxWidth="4xl">
@@ -83,7 +193,7 @@ export default function CheckoutPage() {
       <PageHero
         eyebrow="Secure checkout"
         title="Complete your order"
-        description="Enter delivery details, choose how you would like to pay, and we will confirm your order by email."
+        description="Checkout as a guest or with your Covmerc account. Delivery fees are calculated from your city."
       />
 
       <CheckoutStepper currentStep={currentStep} />
@@ -94,16 +204,22 @@ export default function CheckoutPage() {
         </FurniCard>
       ) : null}
 
-      {!authLoading && !currentUser ? (
+      {!authLoading && !currentUser && currentStep !== "Confirmation" ? (
         <FurniCard className="mt-8">
-          <h2 className="font-display text-xl text-furni-primary">Sign in to continue</h2>
-          <p className="mt-2 text-sm leading-relaxed text-furni-muted">
-            Browse freely without an account. To place an order and track delivery, sign in or
-            create a Covmerc account—it takes less than a minute.
+          <h2 className="font-display text-xl text-furni-primary">How would you like to checkout?</h2>
+          <p className="mt-2 text-sm text-furni-muted">
+            Guest checkout is available. Sign in to save your order history and track delivery.
           </p>
-          <div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
+            <FurniButton
+              type="button"
+              variant={checkoutAsGuest ? "accent" : "outline"}
+              onClick={() => setCheckoutAsGuest(true)}
+            >
+              Continue as guest
+            </FurniButton>
             <Link href="/auth/login?next=/checkout">
-              <FurniButton variant="accent">Sign in</FurniButton>
+              <FurniButton variant={checkoutAsGuest ? "outline" : "accent"}>Sign in</FurniButton>
             </Link>
             <Link href="/auth/register?next=/checkout">
               <FurniButton variant="outline">Create account</FurniButton>
@@ -124,7 +240,7 @@ export default function CheckoutPage() {
         </EmptyState>
       ) : null}
 
-      {!authLoading && currentUser && currentStep === "Shipping" && cartCount > 0 ? (
+      {showShipping ? (
         <FurniCard className="mt-8">
           <form className="grid gap-3" onSubmit={handleShippingSubmit}>
             <h2 className="font-display text-xl text-furni-primary">Shipping information</h2>
@@ -212,6 +328,10 @@ export default function CheckoutPage() {
                 }
               />
             </div>
+            <p className="text-sm text-furni-muted">
+              Estimated delivery: {formatNgn(deliveryFee)}
+              {deliveryFee === 0 ? " (free on large orders)" : ""}
+            </p>
             <FurniButton type="submit" variant="accent" className="mt-2 w-max">
               Continue to payment
             </FurniButton>
@@ -219,7 +339,7 @@ export default function CheckoutPage() {
         </FurniCard>
       ) : null}
 
-      {!authLoading && currentUser && currentStep === "Payment" ? (
+      {showPayment ? (
         <FurniCard className="mt-8">
           <form className="grid gap-4" onSubmit={handlePaymentSubmit}>
             <h2 className="font-display text-xl text-furni-primary">Payment method</h2>
@@ -235,12 +355,25 @@ export default function CheckoutPage() {
                 <option>Pay on Delivery</option>
               </select>
             </label>
-            <p className="rounded-xl bg-furni-surface p-4 text-sm text-furni-muted">
-              Order total:{" "}
-              <span className="text-lg font-semibold text-furni-primary">
-                {formatNgn(cartSubtotal)}
-              </span>
-            </p>
+            {paymentMethod === "Card" && !PAYSTACK_ENABLED ? (
+              <p className="rounded-xl bg-furni-warning/10 p-3 text-sm text-furni-muted">
+                Card payments will be confirmed manually until Paystack keys are configured.
+              </p>
+            ) : null}
+            <div className="rounded-xl bg-furni-surface p-4 text-sm text-furni-muted space-y-1">
+              <p className="flex justify-between">
+                <span>Subtotal</span>
+                <span>{formatNgn(cartSubtotal)}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Delivery</span>
+                <span>{formatNgn(deliveryFee)}</span>
+              </p>
+              <p className="flex justify-between border-t border-furni-primary/10 pt-2 text-base font-semibold text-furni-primary">
+                <span>Total</span>
+                <span>{formatNgn(orderTotal)}</span>
+              </p>
+            </div>
             {checkoutError ? (
               <p className="text-sm text-furni-danger">{checkoutError}</p>
             ) : null}
@@ -253,14 +386,18 @@ export default function CheckoutPage() {
                 Back
               </FurniButton>
               <FurniButton type="submit" variant="accent" disabled={submittingOrder}>
-                {submittingOrder ? "Placing order…" : "Confirm order"}
+                {submittingOrder
+                  ? "Processing…"
+                  : paymentMethod === "Card" && PAYSTACK_ENABLED
+                    ? "Pay with card"
+                    : "Confirm order"}
               </FurniButton>
             </div>
           </form>
         </FurniCard>
       ) : null}
 
-      {currentUser && currentStep === "Confirmation" ? (
+      {currentStep === "Confirmation" ? (
         <FurniCard className="mt-8 text-center">
           <p className="text-xs font-semibold uppercase tracking-wide text-furni-accent">
             Thank you
@@ -272,11 +409,13 @@ export default function CheckoutPage() {
             placed. A confirmation will be sent to {shippingDetails.email}.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            <Link href="/account/orders">
-              <FurniButton variant="accent">View your orders</FurniButton>
-            </Link>
+            {!isGuestOrder ? (
+              <Link href="/account/orders">
+                <FurniButton variant="accent">View your orders</FurniButton>
+              </Link>
+            ) : null}
             <Link href="/shop">
-              <FurniButton variant="outline">Continue shopping</FurniButton>
+              <FurniButton variant={isGuestOrder ? "accent" : "outline"}>Continue shopping</FurniButton>
             </Link>
             {currentUser?.userType === "admin" ? (
               <Link href="/admin/orders">
@@ -287,11 +426,21 @@ export default function CheckoutPage() {
         </FurniCard>
       ) : null}
 
-      <RelatedPages
-        className="mt-12"
-        title="Need help?"
-        links={relatedPageGroups.help}
-      />
+      <RelatedPages className="mt-12" title="Need help?" links={relatedPageGroups.help} />
     </MarketingShell>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <Suspense
+      fallback={
+        <MarketingShell maxWidth="4xl">
+          <p className="text-sm text-furni-muted">Loading checkout…</p>
+        </MarketingShell>
+      }
+    >
+      <CheckoutPageContent />
+    </Suspense>
   );
 }

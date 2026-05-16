@@ -5,11 +5,12 @@ type EmptyStateProps = {
   title: string;
   description: string;
   children?: ReactNode;
+  className?: string;
 };
 
-export function EmptyState({ title, description, children }: EmptyStateProps) {
+export function EmptyState({ title, description, children, className = "" }: EmptyStateProps) {
   return (
-    <FurniCard className="py-14 text-center">
+    <FurniCard className={`py-14 text-center ${className}`.trim()}>
       <div
         className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-furni-primary/8 text-2xl text-furni-primary"
         aria-hidden

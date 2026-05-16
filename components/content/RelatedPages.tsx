@@ -10,14 +10,16 @@ type RelatedLink = {
 type RelatedPagesProps = {
   title?: string;
   links: readonly RelatedLink[];
+  className?: string;
 };
 
 export function RelatedPages({
   title = "Related pages",
-  links
+  links,
+  className = ""
 }: RelatedPagesProps) {
   return (
-    <section className="mt-10 animate-fade-up">
+    <section className={`mt-10 animate-fade-up ${className}`.trim()}>
       <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-furni-primary">
         {title}
       </h2>

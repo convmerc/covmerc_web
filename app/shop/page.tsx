@@ -13,15 +13,13 @@ import { ProductCard } from "@/components/shop/ProductCard";
 import { TrustBar } from "@/components/shop/TrustBar";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { shopCategories, shopHighlights } from "@/lib/catalog-content";
-import type { ProductCategory } from "@/lib/furni-types";
+import { shopFilterLabels } from "@/lib/categories";
 
 type SortOption = "featured" | "price-low" | "price-high" | "name";
 
-const legacyCategories: Array<ProductCategory | "All"> = ["All", "Chairs", "Tables", "Sofas"];
-
 function matchesCategory(
-  product: { category: ProductCategory; categoryName: string },
-  active: ProductCategory | "All"
+  product: { category: string; categoryName: string },
+  active: string
 ) {
   if (active === "All") return true;
   if (product.category === active) return true;
@@ -30,17 +28,18 @@ function matchesCategory(
 
 function ShopPageContent() {
   const searchParams = useSearchParams();
-  const { products, addToCart, storeLoading } = useFurniStore();
-  const [activeCategory, setActiveCategory] = useState<ProductCategory | "All">("All");
+  const { products, categories, addToCart, storeLoading } = useFurniStore();
+  const filterCategories = useMemo(() => shopFilterLabels(categories), [categories]);
+  const [activeCategory, setActiveCategory] = useState<string>("All");
   const [sortBy, setSortBy] = useState<SortOption>("featured");
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     const category = searchParams.get("category");
-    if (category && legacyCategories.includes(category as ProductCategory | "All")) {
-      setActiveCategory(category as ProductCategory | "All");
+    if (category && filterCategories.includes(category)) {
+      setActiveCategory(category);
     }
-  }, [searchParams]);
+  }, [searchParams, filterCategories]);
 
   const filteredProducts = useMemo(() => {
     let next = products.filter((product) => matchesCategory(product, activeCategory));
@@ -134,7 +133,7 @@ function ShopPageContent() {
                   Categories
                 </p>
                 <div className="mt-3 grid gap-1">
-                  {legacyCategories.map((category) => (
+                  {filterCategories.map((category) => (
                     <button
                       key={category}
                       type="button"
@@ -218,7 +217,7 @@ function ShopPageContent() {
 
             {/* Mobile category pills */}
             <div className="mb-6 flex flex-wrap gap-2 lg:hidden">
-              {legacyCategories.map((category) => (
+              {filterCategories.map((category) => (
                 <button
                   key={category}
                   type="button"
@@ -241,7 +240,7 @@ function ShopPageContent() {
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setActiveCategory(cat.id as ProductCategory)}
+                    onClick={() => setActiveCategory(cat.id)}
                     className="overflow-hidden rounded-2xl text-left ring-1 ring-furni-primary/10"
                   >
                     <FurniImage src={cat.image} alt={cat.label} variant="card" />

@@ -39,6 +39,7 @@ import type {
 const PRODUCTS_COLLECTION = "products";
 const ORDERS_COLLECTION = "orders";
 const USERS_COLLECTION = "users";
+const CATEGORIES_COLLECTION = "categories";
 
 function normalizeSeedProducts(products: FurniProduct[]): FurniProduct[] {
   return products.map((product) => ({
@@ -154,7 +155,10 @@ export async function updateProductInFirestore(
   }
   if (product.description !== undefined) payload.description = product.description;
   if (product.status !== undefined) payload.status = product.status;
-  if (product.featured !== undefined) payload.featured = product.featured;
+  if (product.featured !== undefined) {
+    payload.featured = product.featured;
+    payload.isFeatured = product.featured;
+  }
   if (product.rating !== undefined) payload.rating = product.rating;
   if (vendorUserId) payload.userId = vendorUserId;
   if (product.vendorId) payload.userId = product.vendorId;
@@ -239,6 +243,8 @@ export async function createOrderInFirestore(input: {
   subtotal: number;
   deliveryFee?: number;
   notes?: string;
+  isGuest?: boolean;
+  paystackReference?: string;
 }): Promise<string> {
   const { db } = getFirebase();
   const paymentMethod = mapPaymentMethodToCovmerc(input.paymentMethod);
@@ -266,6 +272,8 @@ export async function createOrderInFirestore(input: {
     paymentStatus: buildPaymentStatus(paymentMethod),
     paymentMethod,
     notes: input.notes ?? null,
+    isGuest: Boolean(input.isGuest),
+    paystackReference: input.paystackReference ?? null,
     source: "web_storefront",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -273,6 +281,8 @@ export async function createOrderInFirestore(input: {
 
   return ref.id;
 }
+
+export { CATEGORIES_COLLECTION };
 
 export async function getUserProfile(uid: string) {
   const { db } = getFirebase();

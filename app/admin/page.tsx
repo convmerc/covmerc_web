@@ -3,6 +3,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { formatNgn } from "@/lib/format-currency";
 
 export default function AdminOverviewPage() {
   const { orders } = useFurniStore();
@@ -27,12 +28,9 @@ export default function AdminOverviewPage() {
       subtitle="Track performance and monitor growth across your Covmerc storefront."
     >
       <div className="grid gap-4 md:grid-cols-3">
-        <MetricCard label="Total Sales" value={`$${totalSales.toFixed(2)}`} />
+        <MetricCard label="Total Sales" value={formatNgn(totalSales)} />
         <MetricCard label="New Customers" value={String(newCustomers)} />
-        <MetricCard
-          label="Average Order Value"
-          value={`$${averageOrderValue.toFixed(2)}`}
-        />
+        <MetricCard label="Average Order Value" value={formatNgn(averageOrderValue)} />
       </div>
 
       <FurniCard>

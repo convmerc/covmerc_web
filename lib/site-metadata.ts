@@ -50,13 +50,16 @@ export const defaultMetadata: Metadata = {
 export function createPageMetadata({
   title,
   description,
-  path = ""
+  path = "",
+  imageUrl
 }: {
   title: string;
   description: string;
   path?: string;
+  imageUrl?: string;
 }): Metadata {
   const url = `${siteConfig.url}${path}`;
+  const ogImages = imageUrl ? [{ url: imageUrl }] : undefined;
 
   return {
     title,
@@ -65,7 +68,8 @@ export function createPageMetadata({
     openGraph: {
       title: `${title} | ${siteConfig.name}`,
       description,
-      url
+      url,
+      images: ogImages
     },
     twitter: {
       title: `${title} | ${siteConfig.name}`,

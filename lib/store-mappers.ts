@@ -120,7 +120,7 @@ function parseCategories(value: unknown): CovmercCategory[] {
 }
 
 /** Maps Flutter category names like "Chair" to shop filter buckets. */
-function normalizeLegacyCategory(name: string): ProductCategory {
+export function normalizeLegacyCategory(name: string): ProductCategory {
   const lower = name.trim().toLowerCase();
   if (lower.startsWith("chair")) return "Chairs";
   if (lower.startsWith("table")) return "Tables";

@@ -1,4 +1,4 @@
-export type ProductCategory = "Chairs" | "Tables" | "Sofas";
+export type ProductCategory = string;
 
 export type FurniProduct = {
   id: string;
