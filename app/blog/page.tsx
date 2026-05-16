@@ -110,8 +110,6 @@ export default function BlogPage() {
         </FurniCard>
 
         <RelatedPages title="More from Covmerc" links={relatedPageGroups.explore} />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }
