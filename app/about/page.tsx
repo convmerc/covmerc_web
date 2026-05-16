@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { FurniImage } from "@/components/ui/FurniImage";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { FurniCard } from "@/components/ui/FurniCard";
