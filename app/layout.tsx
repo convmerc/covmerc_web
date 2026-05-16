@@ -2,6 +2,7 @@ import "../styles/globals.css";
 import type { ReactNode } from "react";
 import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { defaultMetadata } from "@/lib/site-metadata";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -12,6 +13,8 @@ const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
   variable: "--font-playfair"
 });
+
+export const metadata = defaultMetadata;
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
@@ -24,4 +27,3 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   );
 }
-

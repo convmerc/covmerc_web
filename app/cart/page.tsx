@@ -1,12 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { FurniImage } from "@/components/ui/FurniImage";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { formatNgn } from "@/lib/format-currency";
 
 export default function CartPage() {
   const {
@@ -49,12 +50,11 @@ export default function CartPage() {
                 const product = item.product!;
                 return (
                   <FurniCard key={product.id} className="grid gap-4 sm:grid-cols-[120px,1fr]">
-                    <Image
+                    <FurniImage
                       src={product.image}
                       alt={product.name}
-                      width={300}
-                      height={240}
-                      className="h-28 w-full rounded-xl object-cover"
+                      variant="thumb"
+                      className="rounded-xl"
                     />
                     <div className="space-y-2">
                       <div className="flex items-start justify-between gap-3">
@@ -62,7 +62,7 @@ export default function CartPage() {
                           <h2 className="text-lg font-semibold text-furni-primary">
                             {product.name}
                           </h2>
-                          <p className="text-sm text-furni-muted">${product.price} each</p>
+                          <p className="text-sm text-furni-muted">{formatNgn(product.price)} each</p>
                         </div>
                         <button
                           type="button"
@@ -96,7 +96,7 @@ export default function CartPage() {
                           </button>
                         </div>
                         <span className="text-sm font-semibold text-furni-ink">
-                          ${(item.quantity * product.price).toFixed(2)}
+                          {formatNgn(item.quantity * product.price)}
                         </span>
                       </div>
                     </div>
@@ -110,7 +110,7 @@ export default function CartPage() {
               <div className="mt-4 space-y-2 text-sm text-furni-muted">
                 <p className="flex items-center justify-between">
                   <span>Subtotal</span>
-                  <span className="font-medium text-furni-ink">${cartSubtotal.toFixed(2)}</span>
+                  <span className="font-medium text-furni-ink">{formatNgn(cartSubtotal)}</span>
                 </p>
                 <p className="flex items-center justify-between">
                   <span>Shipping</span>
@@ -119,7 +119,7 @@ export default function CartPage() {
               </div>
               <p className="mt-4 flex items-center justify-between border-t border-furni-primary/10 pt-3 text-base font-semibold text-furni-primary">
                 <span>Total</span>
-                <span>${cartSubtotal.toFixed(2)}</span>
+                <span>{formatNgn(cartSubtotal)}</span>
               </p>
               <div className="mt-4 grid gap-2">
                 <Link href="/checkout">

@@ -24,10 +24,12 @@ export function AdminLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, logout } = useAuthSession();
+  const { currentUser, logout, authLoading } = useAuthSession();
   const canAccessAdmin = currentUser?.userType === "admin";
 
   useEffect(() => {
+    if (authLoading) return;
+
     if (!currentUser) {
       router.replace("/auth/login?next=/admin");
       return;
@@ -36,9 +38,9 @@ export function AdminLayout({
     if (currentUser.userType !== "admin") {
       router.replace("/");
     }
-  }, [currentUser, router]);
+  }, [authLoading, currentUser, router]);
 
-  if (!canAccessAdmin) {
+  if (authLoading || !canAccessAdmin) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-furni-surface">
         <p className="text-sm text-furni-muted">Checking admin access...</p>

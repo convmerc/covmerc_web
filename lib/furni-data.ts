@@ -2,10 +2,36 @@ import type {
   FurniBlogPost,
   FurniOrder,
   FurniProduct,
-  FurniTestimonial
+  FurniTestimonial,
+  ProductCategory
 } from "@/lib/furni-types";
 
-export const initialProducts: FurniProduct[] = [
+type ProductSeed = {
+  id: string;
+  name: string;
+  category: ProductCategory;
+  price: number;
+  stock: number;
+  image: string;
+  description: string;
+  shortDescription: string;
+  specs: FurniProduct["specs"];
+  featured?: boolean;
+};
+
+function defineSeedProduct(product: ProductSeed): FurniProduct {
+  return {
+    ...product,
+    categoryName: product.category,
+    originalPrice: product.price,
+    discount: 0,
+    imageUrls: [product.image],
+    status: "approved",
+    rating: 0
+  };
+}
+
+const rawProducts: ProductSeed[] = [
   {
     id: "nordic-chair",
     name: "Nordic Chair",
@@ -119,6 +145,8 @@ export const initialProducts: FurniProduct[] = [
   }
 ];
 
+export const initialProducts: FurniProduct[] = rawProducts.map(defineSeedProduct);
+
 export const initialBlogPosts: FurniBlogPost[] = [
   {
     id: "sustainable-craftsmanship",
@@ -126,7 +154,7 @@ export const initialBlogPosts: FurniBlogPost[] = [
     excerpt:
       "How Covmerc sources certified wood, low-emission fabrics, and timeless silhouettes to reduce waste.",
     content:
-      "At Covmerc, we design each product to last for years. Our workshop partners use certified timber, low-emission finishes, and modular joinery to simplify repairs and extend product life.",
+      "At Covmerc, we design each product to last for years—not for a single season of trends. Our workshop partners use certified timber, low-emission finishes, and modular joinery so pieces can be repaired, reupholstered, and passed on.\n\nWhen you buy a Covmerc chair or table, you are investing in fewer replacements over time. That is better for your home and for the workshops we work with across Nigeria.\n\nWe publish material certificates on request and prioritize suppliers who can trace wood origins. If you are furnishing a rental or family home and want guidance on durable finishes, our support team is happy to help.",
     coverImage:
       "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80",
     category: "Sustainability",
@@ -139,7 +167,7 @@ export const initialBlogPosts: FurniBlogPost[] = [
     excerpt:
       "Practical layout ideas to make compact homes feel open, calm, and highly functional.",
     content:
-      "From visual weight balancing to layered textures, our designers share ways to unlock flexibility in every square meter without sacrificing comfort.",
+      "Living in a compact apartment does not mean living with clutter. The trick is choosing fewer, better pieces—and letting negative space do some of the work.\n\nStart with one anchor item, such as a slim sofa or a dining table with integrated storage. Build around it with lighting and textiles rather than filling every corner with furniture.\n\nMirrors opposite windows, light-toned rugs, and furniture with raised legs all help a room feel larger. In Lagos homes where entertaining matters, consider nesting tables or stackable seating you can tuck away after guests leave.",
     coverImage:
       "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1200&q=80",
     category: "Lifestyle",
@@ -152,7 +180,7 @@ export const initialBlogPosts: FurniBlogPost[] = [
     excerpt:
       "Use earthy color accents and natural textures to build depth in your home.",
     content:
-      "Forest green pairs beautifully with warm metal details, oak finishes, and neutral textiles. Start with one anchor piece and build contrast with natural tones.",
+      "Forest green has become a favourite among Covmerc customers who want warmth without the heaviness of all-brown interiors. It pairs naturally with oak, brass, and cream textiles—think of it as a bridge between modern minimalism and classic Nigerian warmth.\n\nIf you are new to colour, introduce green through a single statement piece: a sofa, an accent chair, or even pantry-style open shelving in the kitchen zone. Layer in neutral walls and let plants echo the tone.\n\nAvoid matching every item in the same shade. Mix deep green with sage cushions or a patterned rug so the room feels collected, not catalogued.",
     coverImage:
       "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=1200&q=80",
     category: "Design",
@@ -211,6 +239,8 @@ export const initialOrders: FurniOrder[] = [
     items: 2,
     total: 498,
     status: "Pending",
+    paymentStatus: "pending",
+    paymentMethod: "cash",
     createdAt: "May 12, 2026"
   },
   {
@@ -219,6 +249,8 @@ export const initialOrders: FurniOrder[] = [
     items: 1,
     total: 420,
     status: "Shipped",
+    paymentStatus: "paid",
+    paymentMethod: "card",
     createdAt: "May 11, 2026"
   },
   {
@@ -227,6 +259,8 @@ export const initialOrders: FurniOrder[] = [
     items: 3,
     total: 588,
     status: "Delivered",
+    paymentStatus: "paid",
+    paymentMethod: "bankTransfer",
     createdAt: "May 09, 2026"
   }
 ];
