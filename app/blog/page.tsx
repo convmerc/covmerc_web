@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { FurniImage } from "@/components/ui/FurniImage";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
@@ -30,9 +29,7 @@ export default function BlogPage() {
   const rest = filteredPosts.filter((post) => post.id !== featured?.id);
 
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
+    <MarketingShell>
         <PageHero
           eyebrow="Covmerc Journal"
           title="Ideas for homes you actually live in"

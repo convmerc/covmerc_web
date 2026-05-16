@@ -10,9 +10,7 @@ import {
 
 export default function PrivacyPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 md:px-6 lg:px-8">
+    <MarketingShell maxWidth="4xl">
         <PageHero
           eyebrow="Legal"
           title="Privacy Policy"
@@ -32,8 +30,6 @@ export default function PrivacyPage() {
           title="Help & policies"
           links={[...relatedPageGroups.legal, ...relatedPageGroups.help]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }
