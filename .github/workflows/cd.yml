@@ -51,37 +51,36 @@ jobs:
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
 
-      - name: Authenticate to Google Cloud
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}
-        uses: google-github-actions/auth@v2
-        with:
-          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-
-      - name: Deploy to Firebase Hosting (dev preview channel)
-        if: >-
-          secrets.FIREBASE_SERVICE_ACCOUNT != '' &&
-          github.event.workflow_run.head_branch == 'dev'
+      - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
-          npx --yes firebase-tools@14.9.0 hosting:channel:deploy "dev-${{ github.event.workflow_run.head_sha }}" \
-            --project "${{ vars.FIREBASE_PROJECT_ID }}" \
-            --expires 30d \
-            --only hosting
+          set -euo pipefail
 
-      - name: Deploy to Firebase Hosting (production)
-        if: >-
-          secrets.FIREBASE_SERVICE_ACCOUNT != '' &&
-          github.event.workflow_run.head_branch == 'main'
-        run: |
-          npx --yes firebase-tools@14.9.0 deploy \
-            --project "${{ vars.FIREBASE_PROJECT_ID }}" \
-            --only hosting
+          if [ -z "${FIREBASE_SERVICE_ACCOUNT}" ] || [ -z "${FIREBASE_PROJECT_ID}" ]; then
+            echo "::warning::CD skipped. Configure repository secrets and variables:"
+            echo "  Secret: FIREBASE_SERVICE_ACCOUNT (JSON service account)"
+            echo "  Secret: NEXT_PUBLIC_FIREBASE_* (same values as .env.local)"
+            echo "  Variable: FIREBASE_PROJECT_ID (e.g. convmerc-baeef)"
+            echo "  Variable: NEXT_PUBLIC_SITE_URL (optional)"
+            exit 0
+          fi
 
-      - name: CD skipped (configure deployment secrets)
-        if: ${{ secrets.FIREBASE_SERVICE_ACCOUNT == '' }}
-        run: |
-          echo "::warning::CD skipped. Add repository secrets to enable deploys:"
-          echo "  - FIREBASE_SERVICE_ACCOUNT (JSON service account)"
-          echo "  - NEXT_PUBLIC_FIREBASE_* (same values as .env.local)"
-          echo "And repository variable:"
-          echo "  - FIREBASE_PROJECT_ID (e.g. convmerc-baeef)"
-          echo "  - NEXT_PUBLIC_SITE_URL (optional)"
+          echo "${FIREBASE_SERVICE_ACCOUNT}" > "${RUNNER_TEMP}/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
+
+          if [ "${HEAD_BRANCH}" = "dev" ]; then
+            npx --yes firebase-tools@14.9.0 hosting:channel:deploy "dev-${HEAD_SHA}" \
+              --project "${FIREBASE_PROJECT_ID}" \
+              --expires 30d \
+              --only hosting
+          elif [ "${HEAD_BRANCH}" = "main" ]; then
+            npx --yes firebase-tools@14.9.0 deploy \
+              --project "${FIREBASE_PROJECT_ID}" \
+              --only hosting
+          else
+            echo "Skipping deploy for branch: ${HEAD_BRANCH}"
+          fi

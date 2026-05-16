@@ -4,7 +4,8 @@ const config: Config = {
   darkMode: "class",
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}"
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./styles/**/*.css"
   ],
   theme: {
     extend: {
@@ -19,6 +20,14 @@ const config: Config = {
           success: "#2F855A",
           warning: "#D69E2E",
           danger: "#C53030"
+        },
+        covmerc: {
+          primary: "#3B5D50",
+          secondary: "#F9BF29",
+          black: "#2F2F2F",
+          textLight: "#6A6E6C",
+          grayLight: "#EFF2F1",
+          error: "#C53030"
         }
       },
       fontFamily: {
@@ -32,7 +41,18 @@ const config: Config = {
         display: ["var(--font-playfair)", "Playfair Display", "Georgia", "serif"]
       },
       boxShadow: {
-        soft: "0 18px 35px rgba(47, 47, 47, 0.08)"
+        soft: "0 18px 35px rgba(47, 47, 47, 0.08)",
+        card: "0 8px 24px rgba(59, 93, 80, 0.08)",
+        lift: "0 20px 40px rgba(47, 47, 47, 0.12)"
+      },
+      animation: {
+        shimmer: "shimmer 2s ease-in-out infinite"
+      },
+      keyframes: {
+        shimmer: {
+          "0%, 100%": { opacity: "0.45" },
+          "50%": { opacity: "1" }
+        }
       },
       borderRadius: {
         xl: "0.75rem",

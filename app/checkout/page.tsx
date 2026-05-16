@@ -22,6 +22,8 @@ import { orderGrandTotal } from "@/lib/shipping";
 import { relatedPageGroups } from "@/lib/site-content";
 import type { CheckoutShipping } from "@/lib/furni-types";
 import { isPaystackEnabledClient } from "@/lib/paystack-client";
+import type { CovmercAddress } from "@/lib/marketplace-types";
+import { subscribeToUserAddresses } from "@/lib/store-marketplace";
 
 function CheckoutPageContent() {
   const searchParams = useSearchParams();
@@ -42,6 +44,8 @@ function CheckoutPageContent() {
   const [paymentMethod, setPaymentMethod] = useState("Card");
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
   const [checkoutAsGuest, setCheckoutAsGuest] = useState(true);
+  const [savedAddresses, setSavedAddresses] = useState<CovmercAddress[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState("");
 
   const deliveryFee = useMemo(
     () => estimateDeliveryFee(shippingDetails.city),
@@ -58,6 +62,49 @@ function CheckoutPageContent() {
       email: current.email || currentUser.email
     }));
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser?.id) {
+      setSavedAddresses([]);
+      setSelectedAddressId("");
+      return;
+    }
+
+    const unsubscribe = subscribeToUserAddresses(currentUser.id, (addresses) => {
+      setSavedAddresses(addresses);
+      const defaultAddress = addresses.find((entry) => entry.isDefault) ?? addresses[0];
+      if (defaultAddress) {
+        setSelectedAddressId(defaultAddress.id);
+        setShippingDetails((current) => ({
+          ...current,
+          fullName: defaultAddress.fullName,
+          email: current.email || currentUser.email,
+          phone: defaultAddress.phoneNumber,
+          address: [defaultAddress.addressLine1, defaultAddress.addressLine2]
+            .filter(Boolean)
+            .join(", "),
+          city: defaultAddress.city,
+          country: defaultAddress.country,
+          zipCode: defaultAddress.postalCode
+        }));
+      }
+    });
+    return unsubscribe;
+  }, [currentUser?.id, currentUser?.email]);
+
+  function applySavedAddress(address: CovmercAddress) {
+    setSelectedAddressId(address.id);
+    setShippingDetails((current) => ({
+      ...current,
+      fullName: address.fullName,
+      email: current.email || currentUser?.email || "",
+      phone: address.phoneNumber,
+      address: [address.addressLine1, address.addressLine2].filter(Boolean).join(", "),
+      city: address.city,
+      country: address.country,
+      zipCode: address.postalCode
+    }));
+  }
 
   useEffect(() => {
     const paystackFlow = searchParams.get("paystack");
@@ -226,6 +273,7 @@ function CheckoutPageContent() {
 
       {cartCount === 0 && currentStep !== "Confirmation" ? (
         <EmptyState
+          icon="cart"
           className="mt-8"
           title="Your cart is empty"
           description="Add items from the shop before checking out."
@@ -243,6 +291,43 @@ function CheckoutPageContent() {
             <p className="text-sm text-furni-muted">
               We deliver across Nigeria. Double-check your phone number for delivery updates.
             </p>
+            {currentUser && savedAddresses.length > 0 ? (
+              <div className="rounded-xl border border-furni-primary/15 bg-furni-surface/60 p-4">
+                <p className="text-sm font-medium text-furni-primary">Saved addresses</p>
+                <ul className="mt-3 space-y-2">
+                  {savedAddresses.map((address) => (
+                    <li key={address.id}>
+                      <label className="flex cursor-pointer gap-3 rounded-lg border border-furni-primary/10 bg-white p-3 text-sm has-[:checked]:border-furni-primary has-[:checked]:ring-1 has-[:checked]:ring-furni-primary/30">
+                        <input
+                          type="radio"
+                          name="saved-address"
+                          checked={selectedAddressId === address.id}
+                          onChange={() => applySavedAddress(address)}
+                          className="mt-1"
+                        />
+                        <span>
+                          <span className="font-medium text-furni-primary">
+                            {address.fullName}
+                            {address.isDefault ? " · Default" : ""}
+                          </span>
+                          <span className="mt-1 block text-furni-muted">
+                            {[address.addressLine1, address.city, address.country]
+                              .filter(Boolean)
+                              .join(", ")}
+                          </span>
+                        </span>
+                      </label>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href="/account/addresses"
+                  className="mt-3 inline-block text-xs font-medium text-furni-primary underline"
+                >
+                  Manage addresses
+                </Link>
+              </div>
+            ) : null}
             <FurniInput
               required
               label="Full name"

@@ -45,22 +45,22 @@ export async function fetchProductReviews(productId: string): Promise<ProductRev
     );
     const snapshot = await getDocs(reviewsQuery);
 
-    return snapshot.docs
-      .map((entry) => {
-        const data = entry.data() as Record<string, unknown>;
-        return {
-          id: entry.id,
-          productId,
-          authorName: typeof data.authorName === "string" ? data.authorName : "Customer",
-          rating: typeof data.rating === "number" ? data.rating : Number(data.rating) || 5,
-          comment: typeof data.comment === "string" ? data.comment : "",
-          createdAt: formatReviewDate(data.createdAt),
-          _ts: reviewTimestamp(data.createdAt)
-        };
-      })
-      .sort((a, b) => b._ts - a._ts)
-      .slice(0, 12)
-      .map(({ _ts, ...review }) => review);
+    const sortedDocs = [...snapshot.docs].sort(
+      (a, b) =>
+        reviewTimestamp(b.data().createdAt) - reviewTimestamp(a.data().createdAt)
+    );
+
+    return sortedDocs.slice(0, 12).map((entry) => {
+      const data = entry.data() as Record<string, unknown>;
+      return {
+        id: entry.id,
+        productId,
+        authorName: typeof data.authorName === "string" ? data.authorName : "Customer",
+        rating: typeof data.rating === "number" ? data.rating : Number(data.rating) || 5,
+        comment: typeof data.comment === "string" ? data.comment : "",
+        createdAt: formatReviewDate(data.createdAt)
+      };
+    });
   } catch {
     return [];
   }

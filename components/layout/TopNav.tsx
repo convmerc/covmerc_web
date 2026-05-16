@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -18,18 +18,22 @@ export function TopNav() {
   const { cartCount } = useFurniStore();
   const { currentUser, logout } = useAuthSession();
   const isAdmin = currentUser?.userType === "admin";
+  const isVendor =
+    currentUser?.userType === "vendor" || currentUser?.userType === "admin";
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobilePanelRef = useRef<HTMLDivElement>(null);
 
   const navItems: Array<{ href: string; label: string }> = [
     { href: "/", label: "Home" },
     { href: "/shop", label: "Shop" },
     { href: "/about", label: "About" },
     { href: "/blog", label: "Blog" },
+    { href: "/support", label: "Support" },
     { href: "/contact", label: "Contact" }
   ];
 
   if (currentUser) {
-    navItems.push({ href: "/account/orders", label: "Orders" });
+    navItems.push({ href: "/account", label: "Account" });
   }
 
   useEffect(() => {
@@ -41,6 +45,37 @@ export function TopNav() {
     return () => {
       document.body.style.overflow = "";
     };
+  }, [mobileOpen]);
+
+  useEffect(() => {
+    if (!mobileOpen || !mobilePanelRef.current) return;
+
+    const panel = mobilePanelRef.current;
+    const focusable = panel.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    first?.focus();
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setMobileOpen(false);
+        return;
+      }
+      if (event.key !== "Tab" || focusable.length === 0) return;
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    }
+
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
   }, [mobileOpen]);
 
   return (
@@ -55,12 +90,18 @@ export function TopNav() {
 
         <div className="hidden items-center gap-6 text-sm md:flex">
           {navItems.map((item) => {
-            const isActive = pathname === item.href;
+            const isActive =
+              pathname === item.href ||
+              (item.href !== "/" && pathname.startsWith(`${item.href}/`));
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`font-medium transition ${isActive ? "text-furni-accent" : "text-white/85 hover:text-white"}`}
+                className={`relative font-medium transition after:absolute after:-bottom-1 after:left-0 after:h-0.5 after:w-full after:origin-left after:rounded-full after:bg-furni-accent after:transition after:duration-300 ${
+                  isActive
+                    ? "text-furni-accent after:scale-x-100"
+                    : "text-white/85 after:scale-x-0 hover:text-white hover:after:scale-x-100"
+                }`}
               >
                 {item.label}
               </Link>
@@ -77,11 +118,28 @@ export function TopNav() {
               Admin Access
             </Link>
           ) : null}
+          {isVendor ? (
+            <Link
+              href="/vendor"
+              className="hidden rounded-full border border-white/25 px-3 py-1.5 text-xs font-medium text-white/90 transition hover:bg-white/10 md:inline-flex"
+            >
+              Vendor
+            </Link>
+          ) : null}
           <Link
             href="/cart"
-            className="rounded-full border border-white/25 px-3 py-1.5 text-white transition hover:bg-white/10 md:px-4"
+            className={`relative rounded-full border px-3 py-1.5 transition md:px-4 ${
+              cartCount > 0
+                ? "border-furni-accent/50 bg-furni-accent/15 text-furni-accent hover:bg-furni-accent/25"
+                : "border-white/25 text-white hover:bg-white/10"
+            }`}
           >
-            Cart ({cartCount})
+            Cart
+            {cartCount > 0 ? (
+              <span className="ml-1.5 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-furni-accent px-1.5 text-[11px] font-bold text-furni-primary">
+                {cartCount > 9 ? "9+" : cartCount}
+              </span>
+            ) : null}
           </Link>
           {currentUser ? (
             <div className="hidden items-center gap-2 md:flex">
@@ -145,6 +203,7 @@ export function TopNav() {
 
         {mobileOpen ? (
           <div
+            ref={mobilePanelRef}
             id="mobile-nav-panel"
             className="absolute inset-x-0 top-full border-t border-white/10 bg-furni-primary px-4 py-4 shadow-lg md:hidden"
           >
@@ -164,6 +223,16 @@ export function TopNav() {
               {isAdmin ? (
                 <Link href="/admin" className={navLinkClass(pathname.startsWith("/admin"))}>
                   Admin Access
+                </Link>
+              ) : null}
+              {isVendor ? (
+                <Link href="/vendor" className={navLinkClass(pathname.startsWith("/vendor"))}>
+                  Vendor portal
+                </Link>
+              ) : null}
+              {currentUser ? (
+                <Link href="/account" className={navLinkClass(pathname.startsWith("/account"))}>
+                  Account
                 </Link>
               ) : null}
               {currentUser ? (

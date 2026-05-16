@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function LegacyVendorDashboard() {
-  redirect("/admin/products");
+  redirect("/vendor");
 }

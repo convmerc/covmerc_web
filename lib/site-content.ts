@@ -23,7 +23,9 @@ export const relatedPageGroups = {
   ],
   legal: [
     { href: "/privacy", label: "Privacy Policy", description: "How we handle your data" },
-    { href: "/terms", label: "Terms of Service", description: "Shopping & account rules" }
+    { href: "/terms", label: "Terms of Service", description: "Shopping & account rules" },
+    { href: "/shipping", label: "Shipping & delivery", description: "Timelines, fees, and tracking" },
+    { href: "/returns", label: "Returns & refunds", description: "Eligibility and how to start a return" }
   ],
   explore: [
     { href: "/shop", label: "Shop Collection", description: "Browse curated furniture" },
@@ -294,3 +296,74 @@ export const contactReasons = [
     email: "privacy@covmerc.com"
   }
 ] as const;
+
+export const shippingSections: LegalSection[] = [
+  {
+    id: "coverage",
+    title: "Delivery coverage",
+    paragraphs: [
+      "Covmerc delivers across Nigeria. Metro Lagos (including Lekki, Victoria Island, and Ikeja) typically receives the fastest turnaround. Other states are fulfilled via our partner carriers with tracking shared by email and in your account.",
+      "Large furniture items may require scheduled delivery windows. Our team will contact you on the phone number provided at checkout to confirm access, building rules, and a suitable time slot."
+    ]
+  },
+  {
+    id: "fees",
+    title: "Delivery fees",
+    paragraphs: [
+      "Delivery fees are calculated at checkout based on your city and order subtotal. Lagos metro deliveries start from ₦5,000; nationwide delivery from ₦8,500. Orders over ₦500,000 qualify for free delivery where noted at checkout.",
+      "Fees cover standard curbside or in-home delivery as agreed with our logistics partner. Stair carries, assembly, and white-glove handling may incur additional charges—request a quote via Contact if needed."
+    ]
+  },
+  {
+    id: "timelines",
+    title: "Estimated timelines",
+    paragraphs: [
+      "In-stock items in Lagos: typically 3–7 business days after payment confirmation.",
+      "Nationwide: typically 7–14 business days depending on destination and product availability.",
+      "Made-to-order or vendor-fulfilled pieces may take longer; estimated lead times appear on the product page when applicable."
+    ]
+  },
+  {
+    id: "tracking",
+    title: "Tracking your order",
+    paragraphs: [
+      "When your order ships, you will receive an email with tracking details. Signed-in customers can also view status and tracking under Account → Orders.",
+      "If tracking has not updated within 48 hours of a “Shipped” status, contact support@covmerc.com with your order ID."
+    ]
+  }
+];
+
+export const returnsSections: LegalSection[] = [
+  {
+    id: "eligibility",
+    title: "Return eligibility",
+    paragraphs: [
+      "Most standard furniture items may be returned within 14 days of delivery if unused, in original packaging, and free from damage caused after delivery. Custom-made, clearance, and final-sale items are non-returnable unless defective.",
+      "Mattresses and upholstered goods must be unused with hygiene seals intact. Assembly-required items should not be fully assembled if you plan to return them."
+    ]
+  },
+  {
+    id: "process",
+    title: "How to start a return",
+    paragraphs: [
+      "Email support@covmerc.com or open a message from Account → Messages with your order ID, photos of the item, and reason for return. We will confirm eligibility and arrange pickup or drop-off instructions.",
+      "Do not ship items back without an approved return authorization—unauthorized returns may be refused."
+    ]
+  },
+  {
+    id: "refunds",
+    title: "Refunds",
+    paragraphs: [
+      "Approved refunds are issued to the original payment method within 7–14 business days after we receive and inspect the return. Card refunds may take an additional 3–5 business days to appear on your statement.",
+      "Original delivery fees are non-refundable unless the return is due to our error or a defective item."
+    ]
+  },
+  {
+    id: "exchanges",
+    title: "Exchanges & damage",
+    paragraphs: [
+      "Exchanges are treated as a return plus a new order. Contact us within 48 hours of delivery if you notice visible damage—include photos of the packaging and product.",
+      "For vendor-fulfilled marketplace items, Covmerc coordinates with the seller on your behalf."
+    ]
+  }
+];

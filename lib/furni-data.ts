@@ -36,7 +36,7 @@ const rawProducts: ProductSeed[] = [
     id: "nordic-chair",
     name: "Nordic Chair",
     category: "Chairs",
-    price: 50,
+    price: 185_000,
     stock: 14,
     image:
       "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=1200&q=80",
@@ -55,7 +55,7 @@ const rawProducts: ProductSeed[] = [
     id: "kruzo-aero-chair",
     name: "Kruzo Aero Chair",
     category: "Chairs",
-    price: 78,
+    price: 245_000,
     stock: 9,
     image:
       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80",
@@ -74,7 +74,7 @@ const rawProducts: ProductSeed[] = [
     id: "ergonomic-chair",
     name: "Ergonomic Chair",
     category: "Chairs",
-    price: 43,
+    price: 125_000,
     stock: 23,
     image:
       "https://images.unsplash.com/photo-1581539250439-c96689b516dd?auto=format&fit=crop&w=1200&q=80",
@@ -92,7 +92,7 @@ const rawProducts: ProductSeed[] = [
     id: "haven-sofa",
     name: "Haven Sofa",
     category: "Sofas",
-    price: 420,
+    price: 1_250_000,
     stock: 5,
     image:
       "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1500&q=80",
@@ -111,7 +111,7 @@ const rawProducts: ProductSeed[] = [
     id: "walnut-dining-table",
     name: "Walnut Dining Table",
     category: "Tables",
-    price: 360,
+    price: 890_000,
     stock: 7,
     image:
       "https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=1200&q=80",
@@ -129,7 +129,7 @@ const rawProducts: ProductSeed[] = [
     id: "alpine-coffee-table",
     name: "Alpine Coffee Table",
     category: "Tables",
-    price: 150,
+    price: 320_000,
     stock: 16,
     image:
       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80",

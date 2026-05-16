@@ -14,7 +14,9 @@ const staticRoutes = [
   "/checkout",
   "/account/orders",
   "/privacy",
-  "/terms"
+  "/terms",
+  "/shipping",
+  "/returns"
 ] as const;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

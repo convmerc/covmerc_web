@@ -34,6 +34,7 @@ import type {
   FurniProduct
 } from "@/lib/furni-types";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { trackAddToCart, trackPurchase } from "@/lib/analytics";
 
 type FurniStoreContextValue = {
   products: FurniProduct[];
@@ -226,19 +227,32 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     [cartSubtotal]
   );
 
-  const addToCart = useCallback((productId: string, quantity = 1) => {
-    setCartItems((current) => {
-      const existing = current.find((item) => item.productId === productId);
-      if (existing) {
-        return current.map((item) =>
-          item.productId === productId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+  const addToCart = useCallback(
+    (productId: string, quantity = 1) => {
+      const product = products.find((entry) => entry.id === productId);
+      if (product) {
+        trackAddToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+        });
       }
-      return [...current, { productId, quantity }];
-    });
-  }, []);
+
+      setCartItems((current) => {
+        const existing = current.find((item) => item.productId === productId);
+        if (existing) {
+          return current.map((item) =>
+            item.productId === productId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        }
+        return [...current, { productId, quantity }];
+      });
+    },
+    [products]
+  );
 
   const updateCartItem = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
@@ -335,6 +349,12 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
         deliveryFee,
         isGuest,
         paystackReference: options?.paystackReference
+      });
+
+      trackPurchase({
+        orderId,
+        value: totalAmount,
+        paymentMethod,
       });
 
       await queueOrderConfirmationEmail({

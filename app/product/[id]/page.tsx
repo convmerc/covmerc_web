@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import { MarketingShell } from "@/components/layout/MarketingShell";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
@@ -11,10 +11,13 @@ import { TrustBar } from "@/components/shop/TrustBar";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
-import { FurniImage } from "@/components/ui/FurniImage";
 import { formatNgn } from "@/lib/format-currency";
 import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
 import { ProductReviews } from "@/components/product/ProductReviews";
+import { ProductVendorBadge } from "@/components/product/ProductVendorBadge";
+import { ProductGallery } from "@/components/product/ProductGallery";
+import { StockBadge } from "@/components/product/StockBadge";
+import { trackViewItem } from "@/lib/analytics";
 
 export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -22,6 +25,22 @@ export default function ProductDetailsPage() {
   const [quantity, setQuantity] = useState(1);
 
   const product = products.find((entry) => entry.id === params.id);
+
+  useEffect(() => {
+    if (!product) return;
+    trackViewItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      category: product.categoryName || product.category,
+    });
+  }, [product]);
+
+  const galleryImages = useMemo(() => {
+    if (!product) return [];
+    const urls = product.imageUrls?.length ? product.imageUrls : [product.image];
+    return [...new Set(urls.filter(Boolean))];
+  }, [product]);
 
   const relatedProducts = useMemo(() => {
     if (!product) return [];
@@ -61,19 +80,14 @@ export default function ProductDetailsPage() {
         />
 
         <section className="grid gap-8 lg:grid-cols-[1.1fr,1fr] lg:items-start">
-          <FurniImage
-            src={product.image}
-            alt={product.name}
-            variant="detail"
-            className="min-h-[340px] rounded-3xl"
-            priority
-          />
+          <ProductGallery images={galleryImages} alt={product.name} />
 
           <div className="space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-furni-muted">
               {displayCategory}
             </p>
             <h1 className="font-display text-4xl text-furni-primary">{product.name}</h1>
+            <StockBadge stock={product.stock} />
             <p className="text-2xl font-semibold text-furni-ink">{formatNgn(product.price)}</p>
             {product.discount > 0 && product.originalPrice > product.price ? (
               <p className="text-sm text-furni-muted">
@@ -85,6 +99,8 @@ export default function ProductDetailsPage() {
               </p>
             ) : null}
             <p className="text-sm leading-relaxed text-furni-muted">{product.description}</p>
+
+            <ProductVendorBadge vendorId={product.vendorId} />
 
             <div className="flex items-center gap-3 pt-2">
               <span className="text-sm text-furni-muted">Quantity</span>
@@ -110,7 +126,11 @@ export default function ProductDetailsPage() {
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <FurniButton variant="accent" onClick={() => addToCart(product.id, quantity)}>
+              <FurniButton
+                variant="accent"
+                disabled={product.stock <= 0}
+                onClick={() => addToCart(product.id, quantity)}
+              >
                 Add to cart
               </FurniButton>
               <Link href="/checkout">

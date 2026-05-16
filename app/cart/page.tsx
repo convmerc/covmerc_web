@@ -52,6 +52,7 @@ export default function CartPage() {
 
       {detailedItems.length === 0 ? (
         <EmptyState
+          icon="cart"
           title="Your cart is empty"
           description="Browse our catalog and add pieces you love—you can check out as a guest or with your Covmerc account."
         >

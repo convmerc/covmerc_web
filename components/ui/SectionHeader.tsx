@@ -8,6 +8,7 @@ type SectionHeaderProps = {
   action?: { href: string; label: string };
   align?: "left" | "center";
   children?: ReactNode;
+  className?: string;
 };
 
 export function SectionHeader({
@@ -16,20 +17,19 @@ export function SectionHeader({
   description,
   action,
   align = "left",
-  children
+  children,
+  className = ""
 }: SectionHeaderProps) {
   const isCenter = align === "center";
 
   return (
     <div
-      className={`mb-8 flex flex-col gap-3 ${isCenter ? "items-center text-center" : "md:flex-row md:items-end md:justify-between"}`}
+      className={`mb-8 flex flex-col gap-3 ${isCenter ? "items-center text-center" : "md:flex-row md:items-end md:justify-between"} ${className}`.trim()}
     >
       <div className={isCenter ? "max-w-2xl" : "max-w-xl"}>
-        {eyebrow ? (
-          <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">{eyebrow}</p>
-        ) : null}
+        {eyebrow ? <p className="covmerc-eyebrow">{eyebrow}</p> : null}
         <h2
-          className={`font-display text-3xl text-furni-primary md:text-4xl ${eyebrow ? "mt-2" : ""}`}
+          className={`font-display text-3xl text-balance text-furni-primary md:text-4xl ${eyebrow ? "mt-2" : ""}`}
         >
           {title}
         </h2>
@@ -43,7 +43,7 @@ export function SectionHeader({
       {action ? (
         <Link
           href={action.href}
-          className="shrink-0 text-sm font-semibold text-furni-primary transition hover:text-furni-ink"
+          className="shrink-0 text-sm font-semibold text-furni-primary underline-offset-4 transition hover:text-furni-ink hover:underline"
         >
           {action.label} →
         </Link>

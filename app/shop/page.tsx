@@ -3,8 +3,13 @@
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
+import { MarketingHero } from "@/components/layout/MarketingHero";
+import { FilterPill } from "@/components/ui/FilterPill";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
+import { CtaBanner } from "@/components/ui/CtaBanner";
+import { formatNgn } from "@/lib/format-currency";
 import { FurniImage } from "@/components/ui/FurniImage";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -74,56 +79,51 @@ function ShopPageContent() {
   const featuredProduct = products.find((p) => p.featured) ?? products[0];
 
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-
-      {/* Shop hero */}
-      <section className="relative overflow-hidden bg-furni-primary text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_rgba(249,191,41,0.15),_transparent_55%)]" />
-        <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 md:grid-cols-[1.1fr,0.9fr] md:items-center md:px-6 lg:px-8 lg:py-16">
-          <div className="relative z-10 animate-fade-up">
-            <p className="text-xs uppercase tracking-[0.2em] text-furni-accent">Shop</p>
-            <h1 className="mt-2 font-display text-4xl leading-tight md:text-5xl">
-              Curated furniture for every room
-            </h1>
-            <p className="mt-4 max-w-lg text-base leading-relaxed text-white/85">
-              {products.length} pieces from verified makers—filter by category, compare specs,
-              and order with delivery across Nigeria. Same inventory as the Covmerc app.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-4 text-sm text-white/75">
+    <MarketingShell
+      flush
+      hero={
+        <>
+          <MarketingHero
+            eyebrow="Shop"
+            title="Curated furniture for every room"
+            description={`${products.length} pieces from verified makers—filter by category, compare specs, and order with delivery across Nigeria.`}
+            aside={
+              featuredProduct ? (
+                <Link href={`/product/${featuredProduct.id}`} className="block">
+                  <FurniCard
+                    interactive={false}
+                    className="overflow-hidden border-white/15 bg-white/10 p-0 backdrop-blur-sm"
+                  >
+                    <FurniImage
+                      src={featuredProduct.image}
+                      alt={featuredProduct.name}
+                      variant="hero"
+                      className="max-h-[280px]"
+                    />
+                    <div className="p-4 text-white">
+                      <p className="covmerc-eyebrow-light">Spotlight</p>
+                      <p className="mt-1 font-semibold">{featuredProduct.name}</p>
+                      <p className="mt-1 text-sm text-furni-accent">
+                        {formatNgn(featuredProduct.price)}
+                      </p>
+                      <p className="mt-1 text-xs text-white/75">View details →</p>
+                    </div>
+                  </FurniCard>
+                </Link>
+              ) : undefined
+            }
+          >
+            <div className="flex flex-wrap gap-4 text-sm text-white/75">
               <span>✓ Specs on every page</span>
               <span>✓ Secure checkout</span>
               <span>✓ Studio support</span>
             </div>
-          </div>
-          {featuredProduct ? (
-            <Link
-              href={`/product/${featuredProduct.id}`}
-              className="relative z-10 block animate-fade-up"
-            >
-              <FurniCard className="overflow-hidden border-white/15 bg-white/10 p-0 backdrop-blur-sm">
-                <FurniImage
-                  src={featuredProduct.image}
-                  alt={featuredProduct.name}
-                  variant="hero"
-                  className="max-h-[280px]"
-                />
-                <div className="p-4 text-white">
-                  <p className="text-[10px] uppercase tracking-wide text-furni-accent">
-                    Spotlight
-                  </p>
-                  <p className="mt-1 font-semibold">{featuredProduct.name}</p>
-                  <p className="text-xs text-white/75">View details →</p>
-                </div>
-              </FurniCard>
-            </Link>
-          ) : null}
-        </div>
-      </section>
-
-      <TrustBar />
-
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
+          </MarketingHero>
+          <TrustBar />
+        </>
+      }
+    >
+      <div className="covmerc-container py-10">
         <div className="lg:grid lg:grid-cols-[240px,1fr] lg:gap-10">
           {/* Sidebar filters — desktop */}
           <aside className="hidden lg:block">
@@ -189,7 +189,7 @@ function ShopPageContent() {
                   placeholder="Search by name or material…"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full rounded-xl border border-furni-primary/20 bg-white py-2.5 pl-4 pr-4 text-sm outline-none ring-furni-primary/20 focus:border-furni-primary focus:ring-2"
+                  className="covmerc-input py-2.5 pl-4 pr-4"
                 />
               </div>
               <div className="flex flex-wrap items-center gap-3">
@@ -218,18 +218,12 @@ function ShopPageContent() {
             {/* Mobile category pills */}
             <div className="mb-6 flex flex-wrap gap-2 lg:hidden">
               {filterCategories.map((category) => (
-                <button
+                <FilterPill
                   key={category}
-                  type="button"
+                  label={category}
+                  active={activeCategory === category}
                   onClick={() => setActiveCategory(category)}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-                    activeCategory === category
-                      ? "bg-furni-primary text-white"
-                      : "bg-white text-furni-primary ring-1 ring-furni-primary/15"
-                  }`}
-                >
-                  {category}
-                </button>
+                />
               ))}
             </div>
 
@@ -254,9 +248,7 @@ function ShopPageContent() {
 
             {/* Product grid */}
             {storeLoading ? (
-              <FurniCard className="py-16 text-center">
-                <p className="text-sm text-furni-muted">Loading catalog…</p>
-              </FurniCard>
+              <LoadingState variant="grid" message="Loading catalog…" />
             ) : filteredProducts.length > 0 ? (
               <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
                 {filteredProducts.map((product) => (
@@ -268,14 +260,13 @@ function ShopPageContent() {
                 ))}
               </div>
             ) : (
-              <FurniCard className="py-16 text-center">
-                <p className="font-semibold text-furni-primary">No products found</p>
-                <p className="mt-2 text-sm text-furni-muted">
-                  Try a different category or clear your search.
-                </p>
+              <EmptyState
+                icon="search"
+                title="No products found"
+                description="Try a different category or clear your search—we are always adding new pieces."
+              >
                 <FurniButton
                   variant="outline"
-                  className="mt-4"
                   onClick={() => {
                     setQuery("");
                     setActiveCategory("All");
@@ -283,7 +274,7 @@ function ShopPageContent() {
                 >
                   Reset filters
                 </FurniButton>
-              </FurniCard>
+              </EmptyState>
             )}
 
             {/* Shop education */}
@@ -306,43 +297,27 @@ function ShopPageContent() {
               </div>
             </section>
 
-            <FurniCard className="mt-8 flex flex-col items-start justify-between gap-4 bg-furni-primary p-8 text-white md:flex-row md:items-center">
-              <div>
-                <h2 className="font-display text-2xl">Not finding the right piece?</h2>
-                <p className="mt-2 max-w-md text-sm text-white/80">
-                  Tell us about your room and budget—we will suggest options from the catalog or
-                  connect you with a maker.
-                </p>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <Link href="/contact">
-                  <FurniButton variant="accent">Get recommendations</FurniButton>
-                </Link>
-                <Link href="/blog">
-                  <FurniButton variant="outline" className="border-white/40 text-white">
-                    Read styling tips
-                  </FurniButton>
-                </Link>
-              </div>
-            </FurniCard>
+            <CtaBanner
+              className="mt-8"
+              variant="primary"
+              eyebrow="Personal guidance"
+              title="Not finding the right piece?"
+              description="Tell us about your room and budget—we will suggest options from the catalog or connect you with a maker."
+              primary={{ href: "/contact", label: "Get recommendations" }}
+              secondary={{ href: "/blog", label: "Read styling tips" }}
+            />
           </div>
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MarketingShell>
   );
 }
 
 function ShopPageFallback() {
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto flex w-full max-w-6xl flex-1 items-center justify-center px-4 py-24">
-        <p className="text-sm text-furni-muted">Loading shop…</p>
-      </main>
-      <Footer />
-    </div>
+    <MarketingShell>
+      <LoadingState message="Loading shop…" />
+    </MarketingShell>
   );
 }
 

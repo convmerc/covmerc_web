@@ -44,6 +44,39 @@ textarea {
   box-sizing: border-box;
 }
 
+@layer components {
+  .covmerc-container {
+    @apply mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8;
+  }
+
+  .covmerc-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-furni-muted;
+  }
+
+  .covmerc-eyebrow-light {
+    @apply text-xs font-semibold uppercase tracking-[0.2em] text-furni-accent;
+  }
+
+  .covmerc-input {
+    @apply w-full rounded-xl border border-furni-primary/20 bg-white px-3 py-2.5 text-sm text-furni-ink outline-none transition placeholder:text-furni-muted/60 focus:border-furni-primary focus:ring-2 focus:ring-furni-primary/15;
+  }
+
+  .covmerc-surface-texture {
+    background-image: radial-gradient(
+        circle at 20% 10%,
+        rgba(59, 93, 80, 0.06) 0%,
+        transparent 42%
+      ),
+      radial-gradient(circle at 80% 0%, rgba(249, 191, 41, 0.08) 0%, transparent 38%);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
 @keyframes covmerc-fade-up {
   from {
     opacity: 0;

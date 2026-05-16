@@ -23,12 +23,14 @@ const helpLinks = [
 
 const legalLinks = [
   { href: "/privacy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms of Service" }
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/shipping", label: "Shipping" },
+  { href: "/returns", label: "Returns" }
 ] as const;
 
 export function Footer() {
   return (
-    <footer className="border-t border-furni-primary/10 bg-white">
+    <footer className="border-t border-furni-primary/10 bg-white bg-gradient-to-b from-furni-surface to-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 text-sm text-furni-muted md:grid-cols-2 lg:grid-cols-5 md:px-6 lg:px-8">
         <div className="space-y-3 lg:col-span-1">
           <p className="font-display text-3xl text-furni-primary">Covmerc</p>

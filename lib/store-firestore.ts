@@ -171,6 +171,22 @@ export async function deleteProductFromFirestore(id: string): Promise<void> {
   await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
 }
 
+export async function fetchOrderById(
+  orderId: string,
+  options?: { userId?: string; isAdmin?: boolean }
+): Promise<FurniOrder | null> {
+  const { db } = getFirebase();
+  const snapshot = await getDoc(doc(db, ORDERS_COLLECTION, orderId));
+  if (!snapshot.exists()) return null;
+
+  const data = snapshot.data() as Record<string, unknown>;
+  if (options?.userId && !options.isAdmin && data.userId !== options.userId) {
+    return null;
+  }
+
+  return mapFirestoreOrder(snapshot.id, data, { includeLineItems: true });
+}
+
 export async function fetchOrdersForUser(userId: string): Promise<FurniOrder[]> {
   const { db } = getFirebase();
 
