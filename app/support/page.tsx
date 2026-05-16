@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { SupportFaqList } from "@/components/content/SupportFaqList";
@@ -41,9 +40,7 @@ const supportChannels = [
 
 export default function SupportPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 md:px-6 lg:px-8">
+    <MarketingShell>
         <PageHero
           eyebrow="Help Center"
           title="Answers when you need them"
@@ -103,8 +100,6 @@ export default function SupportPage() {
           title="Related"
           links={[...relatedPageGroups.help, ...relatedPageGroups.legal, ...relatedPageGroups.explore.slice(0, 2)]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }

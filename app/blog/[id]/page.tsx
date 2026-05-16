@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { notFound, useParams } from "next/navigation";
 import { FurniImage } from "@/components/ui/FurniImage";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -28,17 +28,16 @@ export default function BlogPostPage() {
   const paragraphs = paragraphsFromContent(post.content);
 
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-10 md:px-6 lg:px-8">
-        <Link
-          href="/blog"
-          className="text-sm font-medium text-furni-muted transition hover:text-furni-primary"
-        >
-          ← Back to journal
-        </Link>
+    <MarketingShell maxWidth="4xl">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Journal", href: "/blog" },
+          { label: post.title }
+        ]}
+      />
 
-        <article className="mt-6 animate-fade-up">
+        <article className="animate-fade-up">
           <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">
             {post.category} · {post.publishedAt}
           </p>
@@ -95,8 +94,6 @@ export default function BlogPostPage() {
           title="Explore Covmerc"
           links={[...relatedPageGroups.explore, ...relatedPageGroups.help]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }

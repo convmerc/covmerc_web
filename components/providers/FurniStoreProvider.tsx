@@ -21,6 +21,10 @@ import {
   updateOrderStatusInFirestore,
   updateProductInFirestore
 } from "@/lib/store-firestore";
+import { fetchCategoriesFromFirestore, type StoreCategory } from "@/lib/categories";
+import { guestUserIdFromEmail } from "@/lib/guest-user";
+import { queueOrderConfirmationEmail } from "@/lib/order-notifications";
+import { calculateDeliveryFee, orderGrandTotal } from "@/lib/shipping";
 import type {
   CartItem,
   CheckoutShipping,
@@ -30,14 +34,17 @@ import type {
   FurniProduct
 } from "@/lib/furni-types";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { trackAddToCart, trackPurchase } from "@/lib/analytics";
 
 type FurniStoreContextValue = {
   products: FurniProduct[];
+  categories: StoreCategory[];
   blogPosts: FurniBlogPost[];
   orders: FurniOrder[];
   cartItems: CartItem[];
   cartCount: number;
   cartSubtotal: number;
+  estimateDeliveryFee: (city: string) => number;
   storeLoading: boolean;
   storeError: string | null;
   addToCart: (productId: string, quantity?: number) => void;
@@ -51,7 +58,11 @@ type FurniStoreContextValue = {
     post: Pick<FurniBlogPost, "title" | "excerpt" | "content" | "category" | "coverImage">
   ) => void;
   updateOrderStatus: (orderId: string, status: FurniOrderStatus) => Promise<void>;
-  createOrder: (shipping: CheckoutShipping, paymentMethod: string) => Promise<string>;
+  createOrder: (
+    shipping: CheckoutShipping,
+    paymentMethod: string,
+    options?: { paystackReference?: string }
+  ) => Promise<string>;
   refreshOrders: () => Promise<void>;
 };
 
@@ -97,6 +108,7 @@ function mergeCartItems(primary: CartItem[], secondary: CartItem[]): CartItem[] 
 export function FurniStoreProvider({ children }: { children: ReactNode }) {
   const { currentUser, authLoading } = useAuthSession();
   const [products, setProducts] = useState<FurniProduct[]>([]);
+  const [categories, setCategories] = useState<StoreCategory[]>([]);
   const [blogPosts, setBlogPosts] = useState<FurniBlogPost[]>(initialBlogPosts);
   const [orders, setOrders] = useState<FurniOrder[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
@@ -141,6 +153,10 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
 
     return unsubscribe;
   }, [currentUser?.userType]);
+
+  useEffect(() => {
+    void fetchCategoriesFromFirestore(products).then(setCategories);
+  }, [products]);
 
   const refreshOrders = useCallback(async () => {
     if (!currentUser) {
@@ -206,19 +222,37 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     [cartItems, products]
   );
 
-  const addToCart = useCallback((productId: string, quantity = 1) => {
-    setCartItems((current) => {
-      const existing = current.find((item) => item.productId === productId);
-      if (existing) {
-        return current.map((item) =>
-          item.productId === productId
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+  const estimateDeliveryFee = useCallback(
+    (city: string) => calculateDeliveryFee(cartSubtotal, city),
+    [cartSubtotal]
+  );
+
+  const addToCart = useCallback(
+    (productId: string, quantity = 1) => {
+      const product = products.find((entry) => entry.id === productId);
+      if (product) {
+        trackAddToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          quantity,
+        });
       }
-      return [...current, { productId, quantity }];
-    });
-  }, []);
+
+      setCartItems((current) => {
+        const existing = current.find((item) => item.productId === productId);
+        if (existing) {
+          return current.map((item) =>
+            item.productId === productId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          );
+        }
+        return [...current, { productId, quantity }];
+      });
+    },
+    [products]
+  );
 
   const updateCartItem = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
@@ -288,29 +322,71 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
   );
 
   const createOrder = useCallback(
-    async (shipping: CheckoutShipping, paymentMethod: string) => {
-      if (!currentUser) {
-        throw new Error("You must be signed in to place an order.");
-      }
-
+    async (
+      shipping: CheckoutShipping,
+      paymentMethod: string,
+      options?: { paystackReference?: string }
+    ) => {
       const lineItems = buildOrderLineItems(cartItems, products);
       if (lineItems.length === 0) {
         throw new Error("Your cart is empty.");
       }
 
+      const isGuest = !currentUser;
+      const userId = currentUser?.id ?? guestUserIdFromEmail(shipping.email);
+      const deliveryFee = calculateDeliveryFee(cartSubtotal, shipping.city);
+      const totalAmount = orderGrandTotal(cartSubtotal, deliveryFee);
+
       const orderId = await createOrderInFirestore({
-        userId: currentUser.id,
+        userId,
         userEmail: shipping.email,
         userName: shipping.fullName,
         userPhone: shipping.phone,
         shipping,
         paymentMethod,
         lineItems,
-        subtotal: cartSubtotal
+        subtotal: cartSubtotal,
+        deliveryFee,
+        isGuest,
+        paystackReference: options?.paystackReference
       });
 
+      trackPurchase({
+        orderId,
+        value: totalAmount,
+        paymentMethod,
+      });
+
+      await queueOrderConfirmationEmail({
+        orderId,
+        email: shipping.email,
+        customerName: shipping.fullName,
+        totalAmount,
+        paymentMethod,
+        isGuest
+      });
+
+      try {
+        await fetch("/api/orders/confirmation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            email: shipping.email,
+            customerName: shipping.fullName,
+            totalAmount,
+            paymentMethod,
+            isGuest
+          })
+        });
+      } catch {
+        // Firestore queue remains the fallback when email API is unavailable.
+      }
+
       setCartItems([]);
-      await refreshOrders();
+      if (!isGuest) {
+        await refreshOrders();
+      }
       return orderId;
     },
     [cartItems, cartSubtotal, currentUser, products, refreshOrders]
@@ -319,11 +395,13 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
   const value = useMemo<FurniStoreContextValue>(
     () => ({
       products,
+      categories,
       blogPosts,
       orders,
       cartItems,
       cartCount,
       cartSubtotal,
+      estimateDeliveryFee,
       storeLoading,
       storeError,
       addToCart,
@@ -340,11 +418,13 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     }),
     [
       products,
+      categories,
       blogPosts,
       orders,
       cartItems,
       cartCount,
       cartSubtotal,
+      estimateDeliveryFee,
       storeLoading,
       storeError,
       addToCart,

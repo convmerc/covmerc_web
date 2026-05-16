@@ -1,0 +1,86 @@
+name: CD
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - dev
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    name: Deploy (${{ github.event.workflow_run.head_branch }})
+    runs-on: ubuntu-latest
+    if: >
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push'
+    environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'development' }}
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+
+      - name: Deploy to Firebase Hosting
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          FIREBASE_PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${FIREBASE_SERVICE_ACCOUNT}" ] || [ -z "${FIREBASE_PROJECT_ID}" ]; then
+            echo "::warning::CD skipped. Configure repository secrets and variables:"
+            echo "  Secret: FIREBASE_SERVICE_ACCOUNT (JSON service account)"
+            echo "  Secret: NEXT_PUBLIC_FIREBASE_* (same values as .env.local)"
+            echo "  Variable: FIREBASE_PROJECT_ID (e.g. convmerc-baeef)"
+            echo "  Variable: NEXT_PUBLIC_SITE_URL (optional)"
+            exit 0
+          fi
+
+          echo "${FIREBASE_SERVICE_ACCOUNT}" > "${RUNNER_TEMP}/firebase-sa.json"
+          export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
+
+          if [ "${HEAD_BRANCH}" = "dev" ]; then
+            npx --yes firebase-tools@14.9.0 hosting:channel:deploy "dev-${HEAD_SHA}" \
+              --project "${FIREBASE_PROJECT_ID}" \
+              --expires 30d \
+              --only hosting
+          elif [ "${HEAD_BRANCH}" = "main" ]; then
+            npx --yes firebase-tools@14.9.0 deploy \
+              --project "${FIREBASE_PROJECT_ID}" \
+              --only hosting
+          else
+            echo "Skipping deploy for branch: ${HEAD_BRANCH}"
+          fi

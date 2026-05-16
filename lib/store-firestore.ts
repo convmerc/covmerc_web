@@ -39,6 +39,7 @@ import type {
 const PRODUCTS_COLLECTION = "products";
 const ORDERS_COLLECTION = "orders";
 const USERS_COLLECTION = "users";
+const CATEGORIES_COLLECTION = "categories";
 
 function normalizeSeedProducts(products: FurniProduct[]): FurniProduct[] {
   return products.map((product) => ({
@@ -154,7 +155,10 @@ export async function updateProductInFirestore(
   }
   if (product.description !== undefined) payload.description = product.description;
   if (product.status !== undefined) payload.status = product.status;
-  if (product.featured !== undefined) payload.featured = product.featured;
+  if (product.featured !== undefined) {
+    payload.featured = product.featured;
+    payload.isFeatured = product.featured;
+  }
   if (product.rating !== undefined) payload.rating = product.rating;
   if (vendorUserId) payload.userId = vendorUserId;
   if (product.vendorId) payload.userId = product.vendorId;
@@ -165,6 +169,22 @@ export async function updateProductInFirestore(
 export async function deleteProductFromFirestore(id: string): Promise<void> {
   const { db } = getFirebase();
   await deleteDoc(doc(db, PRODUCTS_COLLECTION, id));
+}
+
+export async function fetchOrderById(
+  orderId: string,
+  options?: { userId?: string; isAdmin?: boolean }
+): Promise<FurniOrder | null> {
+  const { db } = getFirebase();
+  const snapshot = await getDoc(doc(db, ORDERS_COLLECTION, orderId));
+  if (!snapshot.exists()) return null;
+
+  const data = snapshot.data() as Record<string, unknown>;
+  if (options?.userId && !options.isAdmin && data.userId !== options.userId) {
+    return null;
+  }
+
+  return mapFirestoreOrder(snapshot.id, data, { includeLineItems: true });
 }
 
 export async function fetchOrdersForUser(userId: string): Promise<FurniOrder[]> {
@@ -239,6 +259,8 @@ export async function createOrderInFirestore(input: {
   subtotal: number;
   deliveryFee?: number;
   notes?: string;
+  isGuest?: boolean;
+  paystackReference?: string;
 }): Promise<string> {
   const { db } = getFirebase();
   const paymentMethod = mapPaymentMethodToCovmerc(input.paymentMethod);
@@ -263,9 +285,11 @@ export async function createOrderInFirestore(input: {
     deliveryFee,
     totalAmount: input.subtotal + deliveryFee,
     status: "pending",
-    paymentStatus: buildPaymentStatus(paymentMethod),
+    paymentStatus: input.paystackReference ? "paid" : buildPaymentStatus(paymentMethod),
     paymentMethod,
     notes: input.notes ?? null,
+    isGuest: Boolean(input.isGuest),
+    paystackReference: input.paystackReference ?? null,
     source: "web_storefront",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
@@ -273,6 +297,28 @@ export async function createOrderInFirestore(input: {
 
   return ref.id;
 }
+
+export async function markOrderPaidByPaystackReference(reference: string): Promise<number> {
+  const { db } = getFirebase();
+  const ordersQuery = query(
+    collection(db, ORDERS_COLLECTION),
+    where("paystackReference", "==", reference)
+  );
+  const snapshot = await getDocs(ordersQuery);
+
+  await Promise.all(
+    snapshot.docs.map((entry) =>
+      updateDoc(entry.ref, {
+        paymentStatus: "paid",
+        updatedAt: serverTimestamp()
+      })
+    )
+  );
+
+  return snapshot.size;
+}
+
+export { CATEGORIES_COLLECTION };
 
 export async function getUserProfile(uid: string) {
   const { db } = getFirebase();

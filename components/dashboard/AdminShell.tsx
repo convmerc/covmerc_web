@@ -30,33 +30,25 @@ export function AdminShell({ user, roleSource, children }: AdminShellProps) {
   }
 
   return (
-    <div className="min-h-screen bg-covmerc-grayLight text-covmerc-black dark:bg-slate-950 dark:text-slate-100">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-5 md:px-6 lg:flex-row lg:px-8">
-        <aside className="w-full rounded-3xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:w-72 lg:overflow-y-auto">
-          <div className="mb-5">
-            <p className="text-xs uppercase tracking-wide text-covmerc-textLight dark:text-slate-400">
-              Covmerc Admin
-            </p>
-            <h1 className="text-lg font-semibold">Dashboard</h1>
-            <p className="mt-2 text-xs text-covmerc-textLight dark:text-slate-400">
-              Signed in as {user.email ?? "unknown account"}
-            </p>
-            {roleSource ? (
-              <p className="mt-1 text-[11px] text-covmerc-textLight dark:text-slate-400">
-                Access source: {roleSource}
-              </p>
-            ) : null}
-          </div>
+    <div className="min-h-screen bg-furni-surface covmerc-surface-texture">
+      <div className="mx-auto grid w-full max-w-7xl gap-6 px-4 py-6 md:grid-cols-[220px,1fr] md:px-6">
+        <aside className="rounded-3xl bg-furni-primary p-5 text-white shadow-soft lg:sticky lg:top-6 lg:self-start">
+          <p className="covmerc-eyebrow-light">Covmerc Admin</p>
+          <p className="mt-1 text-xl font-semibold">Data dashboard</p>
+          <p className="mt-2 text-xs text-white/70">{user.email ?? "Unknown account"}</p>
+          {roleSource ? (
+            <p className="mt-1 text-[11px] text-white/60">Access: {roleSource}</p>
+          ) : null}
 
-          <nav className="space-y-2">
+          <nav className="mt-8 grid gap-2 text-sm">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`block rounded-xl px-3 py-2 text-sm font-medium transition ${
+                className={`rounded-xl px-3 py-2 transition ${
                   pathname === link.href
-                    ? "bg-covmerc-primary text-white"
-                    : "text-covmerc-black hover:bg-covmerc-primary/10 dark:text-slate-100 dark:hover:bg-slate-800"
+                    ? "bg-white text-furni-primary"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
                 }`}
               >
                 {link.label}
@@ -65,18 +57,16 @@ export function AdminShell({ user, roleSource, children }: AdminShellProps) {
           </nav>
 
           <div className="mt-6">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-covmerc-textLight dark:text-slate-400">
-              Collections
-            </p>
-            <div className="grid gap-2">
+            <p className="covmerc-eyebrow-light mb-2">Collections</p>
+            <div className="grid gap-1.5">
               {MANAGED_COLLECTIONS.map((collection) => (
                 <Link
                   key={collection.id}
                   href={`/dashboard/admin/data/${collection.id}` as Route}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-xs transition hover:border-covmerc-primary/40 hover:bg-covmerc-primary/5 dark:border-slate-800 dark:hover:bg-slate-800"
+                  className="rounded-lg border border-white/15 px-3 py-2 text-xs transition hover:bg-white/10"
                 >
                   <p className="font-semibold">{collection.label}</p>
-                  <p className="mt-0.5 text-covmerc-textLight dark:text-slate-400">
+                  <p className="mt-0.5 text-white/60">
                     {collection.readOnly ? "Read-only" : "Writable"}
                   </p>
                 </Link>
@@ -84,19 +74,19 @@ export function AdminShell({ user, roleSource, children }: AdminShellProps) {
             </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-between">
+          <div className="mt-8 flex flex-wrap items-center gap-2">
             <ThemeToggle />
             <button
               type="button"
               onClick={handleSignOut}
-              className="rounded-full border border-slate-300 px-3 py-1.5 text-xs font-medium transition hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
+              className="rounded-xl border border-white/25 px-3 py-2 text-xs font-medium uppercase tracking-wide text-white transition hover:bg-white/10"
             >
               Sign out
             </button>
           </div>
         </aside>
 
-        <div className="min-w-0 flex-1">{children}</div>
+        <section className="min-w-0 space-y-4">{children}</section>
       </div>
     </div>
   );
