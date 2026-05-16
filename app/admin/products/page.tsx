@@ -37,12 +37,17 @@ const defaultForm: ProductForm = {
 };
 
 function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
+  const originalPrice = Number(form.price);
   return {
     name: form.name,
     category: form.category,
-    price: Number(form.price),
+    categoryName: form.category,
+    price: originalPrice,
+    originalPrice,
+    discount: 0,
     stock: Number(form.stock),
     image: form.image,
+    imageUrls: [form.image],
     shortDescription: form.shortDescription,
     description: form.description,
     specs: {
@@ -51,7 +56,9 @@ function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
       weight: form.weight,
       finish: form.finish
     },
-    featured: false
+    featured: false,
+    status: "approved",
+    rating: 0
   };
 }
 
@@ -87,17 +94,20 @@ export default function AdminProductsPage() {
     });
   }
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const payload = toProductPayload(form);
 
-    if (editingProductId) {
-      updateProduct(editingProductId, payload);
-    } else {
-      addProduct(payload);
+    try {
+      if (editingProductId) {
+        await updateProduct(editingProductId, payload);
+      } else {
+        await addProduct(payload);
+      }
+      resetForm();
+    } catch {
+      window.alert("Unable to save product. Check Firebase rules and try again.");
     }
-
-    resetForm();
   }
 
   return (
@@ -264,7 +274,11 @@ export default function AdminProductsPage() {
                       </button>
                       <button
                         type="button"
-                        onClick={() => deleteProduct(product.id)}
+                        onClick={() => {
+                          void deleteProduct(product.id).catch(() => {
+                            window.alert("Unable to delete product.");
+                          });
+                        }}
                         className="rounded-lg border border-furni-danger/25 px-2 py-1 text-xs font-medium text-furni-danger hover:bg-furni-danger/5"
                       >
                         Delete

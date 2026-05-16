@@ -9,153 +9,141 @@ import {
   useState,
   type ReactNode
 } from "react";
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  updateProfile,
+  type User
+} from "firebase/auth";
+import type { AuthResult, AuthUser } from "@/lib/auth-types";
+import { getAuthErrorMessage } from "@/lib/auth-errors";
+import { ensureUserDocument, resolveAuthUser } from "@/lib/auth-user";
+import { getFirebase, signInWithGoogle } from "@/lib/firebase";
 
-export type UserType = "customer" | "admin";
-
-export type AuthUser = {
-  id: string;
-  name: string;
-  email: string;
-  userType: UserType;
-};
-
-type PersistedUserRecord = {
-  id: string;
-  name: string;
-  email: string;
-  userType: UserType;
-  password: string;
-};
+export type { AuthUser, UserType } from "@/lib/auth-types";
 
 type AuthSessionValue = {
   currentUser: AuthUser | null;
   isAuthenticated: boolean;
-  login: (
-    email: string,
-    password: string
-  ) => { success: boolean; message?: string; user?: AuthUser };
-  register: (
+  authLoading: boolean;
+  loginWithEmail: (email: string, password: string) => Promise<AuthResult>;
+  registerWithEmail: (
     name: string,
     email: string,
     password: string
-  ) => { success: boolean; message?: string };
-  logout: () => void;
-};
-
-const demoUsers: PersistedUserRecord[] = [
-  {
-    id: "usr-admin",
-    name: "Covmerc Owner",
-    email: "owner@covmerc.com",
-    password: "Covmerc@2026",
-    userType: "admin"
-  },
-  {
-    id: "usr-customer",
-    name: "Covmerc Shopper",
-    email: "shopper@covmerc.com",
-    password: "Covmerc@2026",
-    userType: "customer"
-  }
-];
-
-const sessionStorageKeys = {
-  users: "covmerc-auth-users",
-  sessionEmail: "covmerc-auth-session-email"
+  ) => Promise<AuthResult>;
+  loginWithGoogle: () => Promise<AuthResult>;
+  logout: () => Promise<void>;
 };
 
 const AuthSessionContext = createContext<AuthSessionValue | null>(null);
 
-function toPublicUser(record: PersistedUserRecord): AuthUser {
-  return {
-    id: record.id,
-    name: record.name,
-    email: record.email,
-    userType: record.userType
-  };
+async function buildAuthResult(firebaseUser: User): Promise<AuthResult> {
+  const user = await resolveAuthUser(firebaseUser);
+  return { success: true, user };
 }
 
 export function AuthSessionProvider({ children }: { children: ReactNode }) {
-  const [users, setUsers] = useState<PersistedUserRecord[]>([]);
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [hydrated, setHydrated] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const { auth } = getFirebase();
 
-    const rawUsers = window.localStorage.getItem(sessionStorageKeys.users);
-    const parsedUsers = rawUsers
-      ? (JSON.parse(rawUsers) as PersistedUserRecord[])
-      : demoUsers;
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        setCurrentUser(null);
+        setAuthLoading(false);
+        return;
+      }
 
-    const sessionEmail = window.localStorage.getItem(sessionStorageKeys.sessionEmail);
-    const sessionRecord = parsedUsers.find((entry) => entry.email === sessionEmail);
+      try {
+        const user = await resolveAuthUser(firebaseUser);
+        setCurrentUser(user);
+      } catch {
+        setCurrentUser(null);
+      } finally {
+        setAuthLoading(false);
+      }
+    });
 
-    setUsers(parsedUsers);
-    setCurrentUser(sessionRecord ? toPublicUser(sessionRecord) : null);
-    setHydrated(true);
+    return unsubscribe;
   }, []);
 
-  useEffect(() => {
-    if (!hydrated || typeof window === "undefined") return;
-    window.localStorage.setItem(sessionStorageKeys.users, JSON.stringify(users));
-  }, [users, hydrated]);
+  const loginWithEmail = useCallback(async (email: string, password: string) => {
+    try {
+      const { auth } = getFirebase();
+      const credential = await signInWithEmailAndPassword(
+        auth,
+        email.trim(),
+        password
+      );
+      return buildAuthResult(credential.user);
+    } catch (error) {
+      return { success: false, message: getAuthErrorMessage(error) };
+    }
+  }, []);
 
-  const login = useCallback(
-    (email: string, password: string) => {
-      const normalizedEmail = email.trim().toLowerCase();
-      const userRecord = users.find((entry) => entry.email === normalizedEmail);
+  const registerWithEmail = useCallback(
+    async (name: string, email: string, password: string) => {
+      try {
+        const { auth } = getFirebase();
+        const credential = await createUserWithEmailAndPassword(
+          auth,
+          email.trim(),
+          password
+        );
 
-      if (!userRecord || userRecord.password !== password) {
-        return { success: false, message: "Invalid email or password." };
+        const trimmedName = name.trim();
+        if (trimmedName) {
+          await updateProfile(credential.user, { displayName: trimmedName });
+        }
+
+        await ensureUserDocument(credential.user, { name: trimmedName });
+        return buildAuthResult(credential.user);
+      } catch (error) {
+        return { success: false, message: getAuthErrorMessage(error) };
       }
-
-      const publicUser = toPublicUser(userRecord);
-      setCurrentUser(publicUser);
-      window.localStorage.setItem(sessionStorageKeys.sessionEmail, userRecord.email);
-      return { success: true, user: publicUser };
     },
-    [users]
+    []
   );
 
-  const register = useCallback(
-    (name: string, email: string, password: string) => {
-      const normalizedEmail = email.trim().toLowerCase();
-      if (users.some((entry) => entry.email === normalizedEmail)) {
-        return { success: false, message: "An account with this email already exists." };
-      }
+  const loginWithGoogle = useCallback(async () => {
+    try {
+      const credential = await signInWithGoogle();
+      await ensureUserDocument(credential.user);
+      return buildAuthResult(credential.user);
+    } catch (error) {
+      return { success: false, message: getAuthErrorMessage(error) };
+    }
+  }, []);
 
-      const nextRecord: PersistedUserRecord = {
-        id: `usr-${Date.now()}`,
-        name: name.trim(),
-        email: normalizedEmail,
-        password,
-        userType: "customer"
-      };
-
-      const nextUsers = [...users, nextRecord];
-      setUsers(nextUsers);
-      setCurrentUser(toPublicUser(nextRecord));
-      window.localStorage.setItem(sessionStorageKeys.sessionEmail, normalizedEmail);
-      return { success: true };
-    },
-    [users]
-  );
-
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    const { auth } = getFirebase();
+    await signOut(auth);
     setCurrentUser(null);
-    window.localStorage.removeItem(sessionStorageKeys.sessionEmail);
   }, []);
 
   const value = useMemo<AuthSessionValue>(
     () => ({
       currentUser,
       isAuthenticated: Boolean(currentUser),
-      login,
-      register,
+      authLoading,
+      loginWithEmail,
+      registerWithEmail,
+      loginWithGoogle,
       logout
     }),
-    [currentUser, login, logout, register]
+    [
+      currentUser,
+      authLoading,
+      loginWithEmail,
+      loginWithGoogle,
+      logout,
+      registerWithEmail
+    ]
   );
 
   return (
@@ -170,10 +158,3 @@ export function useAuthSession() {
   }
   return context;
 }
-
-export const demoAuthAccounts = demoUsers.map((entry) => ({
-  name: entry.name,
-  email: entry.email,
-  password: entry.password,
-  userType: entry.userType
-}));

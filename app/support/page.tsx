@@ -1,34 +1,41 @@
 import Link from "next/link";
-import {
-  FaQuestionCircle,
-  FaLifeRing,
-  FaComments,
-  FaTruck
-} from "react-icons/fa";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
+import { PageHero } from "@/components/content/PageHero";
+import { RelatedPages } from "@/components/content/RelatedPages";
+import { SupportFaqList } from "@/components/content/SupportFaqList";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { FurniButton } from "@/components/ui/FurniButton";
+import {
+  companyContact,
+  relatedPageGroups,
+  supportFaqs
+} from "@/lib/site-content";
 
-const supportItems = [
+const supportChannels = [
   {
-    title: "Order Support",
-    description: "Track order progress, delivery windows, and shipment updates.",
-    Icon: FaTruck
+    title: "Order & delivery",
+    description: "Tracking, rescheduling, and delivery-day questions.",
+    href: "/contact",
+    cta: "Message support"
   },
   {
-    title: "Product Guidance",
-    description: "Get help selecting furniture size, finish, and material options.",
-    Icon: FaQuestionCircle
+    title: "Returns & refunds",
+    description: "Start a return and understand eligibility windows.",
+    href: "/terms",
+    cta: "View policy"
   },
   {
-    title: "Returns & Refunds",
-    description: "Start return requests and review refund timelines.",
-    Icon: FaComments
+    title: "Account & app",
+    description: "Sign-in, profile updates, and syncing with the mobile app.",
+    href: "/auth/login",
+    cta: "Sign in"
   },
   {
-    title: "Live Assistance",
-    description: "Chat with a Covmerc specialist for urgent account issues.",
-    Icon: FaLifeRing
+    title: "Design & product help",
+    description: "Dimensions, materials, and styling before you buy.",
+    href: "/blog",
+    cta: "Read the journal"
   }
 ] as const;
 
@@ -37,35 +44,65 @@ export default function SupportPage() {
     <div className="flex min-h-screen flex-col bg-furni-surface">
       <TopNav />
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 md:px-6 lg:px-8">
-        <header className="mb-8 max-w-2xl animate-fade-up">
-          <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">Support</p>
-          <h1 className="mt-2 font-display text-5xl text-furni-primary">
-            How can we help?
-          </h1>
-          <p className="mt-3 text-sm text-furni-muted">
-            Browse support categories or contact the Covmerc support team directly.
-          </p>
-        </header>
+        <PageHero
+          eyebrow="Help Center"
+          title="Answers when you need them"
+          description="Most questions are covered below. If you still need a human, our Lagos support team typically replies within one business day—faster for urgent delivery issues."
+        />
 
-        <section className="grid gap-4 md:grid-cols-2">
-          {supportItems.map((item) => (
-            <FurniCard key={item.title} className="animate-fade-up">
-              <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-furni-primary/10 text-furni-primary">
-                <item.Icon className="h-5 w-5" />
-              </div>
-              <h2 className="text-lg font-semibold text-furni-primary">{item.title}</h2>
-              <p className="mt-1 text-sm text-furni-muted">{item.description}</p>
+        <section className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {supportChannels.map((channel) => (
+            <FurniCard key={channel.title} className="flex flex-col animate-fade-up">
+              <h2 className="text-base font-semibold text-furni-primary">{channel.title}</h2>
+              <p className="mt-2 flex-1 text-sm text-furni-muted">{channel.description}</p>
+              <Link
+                href={channel.href}
+                className="mt-4 text-sm font-semibold text-furni-primary hover:underline"
+              >
+                {channel.cta} →
+              </Link>
             </FurniCard>
           ))}
         </section>
 
-        <FurniCard className="mt-6 text-sm text-furni-muted animate-fade-up">
-          Need personalized help? Reach out through our{" "}
-          <Link href="/contact" className="font-semibold text-furni-primary">
-            Contact Us
-          </Link>{" "}
-          page and we will respond promptly.
+        <section className="mt-12">
+          <h2 className="font-display text-2xl text-furni-primary">Frequently asked questions</h2>
+          <p className="mt-2 text-sm text-furni-muted">
+            Can’t find what you need?{" "}
+            <Link href="/contact" className="font-medium text-furni-primary hover:underline">
+              Contact us
+            </Link>{" "}
+            or review our{" "}
+            <Link href="/privacy" className="font-medium text-furni-primary hover:underline">
+              Privacy Policy
+            </Link>{" "}
+            and{" "}
+            <Link href="/terms" className="font-medium text-furni-primary hover:underline">
+              Terms of Service
+            </Link>
+            .
+          </p>
+          <div className="mt-6">
+            <SupportFaqList items={supportFaqs} />
+          </div>
+        </section>
+
+        <FurniCard className="mt-10 grid gap-4 md:grid-cols-[1fr,auto] md:items-center">
+          <div>
+            <h2 className="text-lg font-semibold text-furni-primary">Still stuck?</h2>
+            <p className="mt-1 text-sm text-furni-muted">
+              Email {companyContact.supportEmail} or call {companyContact.phone} during studio hours.
+            </p>
+          </div>
+          <Link href="/contact">
+            <FurniButton>Contact Covmerc</FurniButton>
+          </Link>
         </FurniCard>
+
+        <RelatedPages
+          title="Related"
+          links={[...relatedPageGroups.help, ...relatedPageGroups.legal, ...relatedPageGroups.explore.slice(0, 2)]}
+        />
       </main>
       <Footer />
     </div>
