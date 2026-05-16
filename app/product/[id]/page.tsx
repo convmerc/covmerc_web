@@ -13,6 +13,8 @@ import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniImage } from "@/components/ui/FurniImage";
 import { formatNgn } from "@/lib/format-currency";
+import { ProductJsonLd } from "@/components/seo/ProductJsonLd";
+import { ProductReviews } from "@/components/product/ProductReviews";
 
 export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -47,6 +49,7 @@ export default function ProductDetailsPage() {
 
   return (
     <>
+      <ProductJsonLd product={product} />
       <MarketingShell maxWidth="6xl" flush className="pb-0">
         <Breadcrumbs
           items={[
@@ -140,6 +143,10 @@ export default function ProductDetailsPage() {
               </dl>
             </FurniCard>
           </div>
+        </section>
+
+        <section className="mt-14 border-t border-furni-primary/10 pt-12">
+          <ProductReviews productId={product.id} fallbackRating={product.rating} />
         </section>
 
         {relatedProducts.length > 0 ? (

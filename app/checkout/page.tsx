@@ -21,11 +21,7 @@ import { formatNgn } from "@/lib/format-currency";
 import { orderGrandTotal } from "@/lib/shipping";
 import { relatedPageGroups } from "@/lib/site-content";
 import type { CheckoutShipping } from "@/lib/furni-types";
-
-const PAYSTACK_ENABLED =
-  typeof window !== "undefined"
-    ? Boolean(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY)
-    : Boolean(process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY);
+import { isPaystackEnabledClient } from "@/lib/paystack-client";
 
 function CheckoutPageContent() {
   const searchParams = useSearchParams();
@@ -131,7 +127,7 @@ function CheckoutPageContent() {
     setSubmittingOrder(true);
 
     try {
-      const usePaystack = paymentMethod === "Card" && PAYSTACK_ENABLED;
+      const usePaystack = paymentMethod === "Card" && isPaystackEnabledClient();
 
       if (usePaystack) {
         window.sessionStorage.setItem(
@@ -355,7 +351,7 @@ function CheckoutPageContent() {
                 <option>Pay on Delivery</option>
               </select>
             </label>
-            {paymentMethod === "Card" && !PAYSTACK_ENABLED ? (
+            {paymentMethod === "Card" && !isPaystackEnabledClient() ? (
               <p className="rounded-xl bg-furni-warning/10 p-3 text-sm text-furni-muted">
                 Card payments will be confirmed manually until Paystack keys are configured.
               </p>
@@ -388,7 +384,7 @@ function CheckoutPageContent() {
               <FurniButton type="submit" variant="accent" disabled={submittingOrder}>
                 {submittingOrder
                   ? "Processing…"
-                  : paymentMethod === "Card" && PAYSTACK_ENABLED
+                  : paymentMethod === "Card" && isPaystackEnabledClient()
                     ? "Pay with card"
                     : "Confirm order"}
               </FurniButton>

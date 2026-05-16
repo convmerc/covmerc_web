@@ -346,6 +346,23 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
         isGuest
       });
 
+      try {
+        await fetch("/api/orders/confirmation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            email: shipping.email,
+            customerName: shipping.fullName,
+            totalAmount,
+            paymentMethod,
+            isGuest
+          })
+        });
+      } catch {
+        // Firestore queue remains the fallback when email API is unavailable.
+      }
+
       setCartItems([]);
       if (!isGuest) {
         await refreshOrders();

@@ -269,7 +269,7 @@ export async function createOrderInFirestore(input: {
     deliveryFee,
     totalAmount: input.subtotal + deliveryFee,
     status: "pending",
-    paymentStatus: buildPaymentStatus(paymentMethod),
+    paymentStatus: input.paystackReference ? "paid" : buildPaymentStatus(paymentMethod),
     paymentMethod,
     notes: input.notes ?? null,
     isGuest: Boolean(input.isGuest),
@@ -280,6 +280,26 @@ export async function createOrderInFirestore(input: {
   });
 
   return ref.id;
+}
+
+export async function markOrderPaidByPaystackReference(reference: string): Promise<number> {
+  const { db } = getFirebase();
+  const ordersQuery = query(
+    collection(db, ORDERS_COLLECTION),
+    where("paystackReference", "==", reference)
+  );
+  const snapshot = await getDocs(ordersQuery);
+
+  await Promise.all(
+    snapshot.docs.map((entry) =>
+      updateDoc(entry.ref, {
+        paymentStatus: "paid",
+        updatedAt: serverTimestamp()
+      })
+    )
+  );
+
+  return snapshot.size;
 }
 
 export { CATEGORIES_COLLECTION };
