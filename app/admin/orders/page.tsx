@@ -5,12 +5,24 @@ import { FurniCard } from "@/components/ui/FurniCard";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import type { FurniOrderStatus } from "@/lib/furni-types";
 
-const statuses: FurniOrderStatus[] = ["Pending", "Shipped", "Delivered"];
+const statuses: FurniOrderStatus[] = [
+  "Pending",
+  "Confirmed",
+  "Processing",
+  "Shipped",
+  "Delivered",
+  "Cancelled",
+  "Returned"
+];
 
 const statusStyles: Record<FurniOrderStatus, string> = {
   Pending: "bg-furni-warning/20 text-furni-warning",
-  Shipped: "bg-furni-primary/15 text-furni-primary",
-  Delivered: "bg-furni-success/20 text-furni-success"
+  Confirmed: "bg-furni-primary/10 text-furni-primary",
+  Processing: "bg-furni-primary/15 text-furni-primary",
+  Shipped: "bg-furni-accent/30 text-furni-primary",
+  Delivered: "bg-furni-success/20 text-furni-success",
+  Cancelled: "bg-red-100 text-red-700",
+  Returned: "bg-slate-200 text-slate-700"
 };
 
 export default function AdminOrdersPage() {

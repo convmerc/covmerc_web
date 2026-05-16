@@ -9,11 +9,18 @@ import {
   useState,
   type ReactNode
 } from "react";
+import { initialBlogPosts } from "@/lib/furni-data";
 import {
-  initialBlogPosts,
-  initialOrders,
-  initialProducts
-} from "@/lib/furni-data";
+  buildOrderLineItems,
+  createOrderInFirestore,
+  createProductInFirestore,
+  deleteProductFromFirestore,
+  fetchAllOrders,
+  fetchOrdersForUser,
+  subscribeToProducts,
+  updateOrderStatusInFirestore,
+  updateProductInFirestore
+} from "@/lib/store-firestore";
 import type {
   CartItem,
   CheckoutShipping,
@@ -22,6 +29,7 @@ import type {
   FurniOrderStatus,
   FurniProduct
 } from "@/lib/furni-types";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 type FurniStoreContextValue = {
   products: FurniProduct[];
@@ -30,80 +38,158 @@ type FurniStoreContextValue = {
   cartItems: CartItem[];
   cartCount: number;
   cartSubtotal: number;
+  storeLoading: boolean;
+  storeError: string | null;
   addToCart: (productId: string, quantity?: number) => void;
   updateCartItem: (productId: string, quantity: number) => void;
   removeCartItem: (productId: string) => void;
   clearCart: () => void;
-  addProduct: (product: Omit<FurniProduct, "id">) => void;
-  updateProduct: (id: string, product: Partial<FurniProduct>) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Omit<FurniProduct, "id">) => Promise<void>;
+  updateProduct: (id: string, product: Partial<FurniProduct>) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   addBlogPost: (
     post: Pick<FurniBlogPost, "title" | "excerpt" | "content" | "category" | "coverImage">
   ) => void;
-  updateOrderStatus: (orderId: string, status: FurniOrderStatus) => void;
-  createOrder: (shipping: CheckoutShipping, paymentMethod: string) => string;
+  updateOrderStatus: (orderId: string, status: FurniOrderStatus) => Promise<void>;
+  createOrder: (shipping: CheckoutShipping, paymentMethod: string) => Promise<string>;
+  refreshOrders: () => Promise<void>;
 };
 
 const FurniStoreContext = createContext<FurniStoreContextValue | null>(null);
 
-const storageKeys = {
-  products: "furni-products",
-  blogPosts: "furni-blog-posts",
-  orders: "furni-orders",
-  cart: "furni-cart"
-};
+const blogStorageKey = "furni-blog-posts";
 
-function fromStorage<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") {
-    return fallback;
-  }
+function cartStorageKey(userId: string | null) {
+  return userId ? `covmerc-cart-${userId}` : "covmerc-cart-guest";
+}
 
+function readCart(key: string): CartItem[] {
+  if (typeof window === "undefined") return [];
   const raw = window.localStorage.getItem(key);
-  if (!raw) {
-    return fallback;
-  }
-
+  if (!raw) return [];
   try {
-    return JSON.parse(raw) as T;
+    return JSON.parse(raw) as CartItem[];
   } catch {
-    return fallback;
+    return [];
   }
 }
 
+function writeCart(key: string, items: CartItem[]) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(key, JSON.stringify(items));
+}
+
+function mergeCartItems(primary: CartItem[], secondary: CartItem[]): CartItem[] {
+  const merged = [...primary];
+
+  for (const item of secondary) {
+    const existing = merged.find((entry) => entry.productId === item.productId);
+    if (existing) {
+      existing.quantity += item.quantity;
+    } else {
+      merged.push({ ...item });
+    }
+  }
+
+  return merged;
+}
+
 export function FurniStoreProvider({ children }: { children: ReactNode }) {
+  const { currentUser, authLoading } = useAuthSession();
   const [products, setProducts] = useState<FurniProduct[]>([]);
-  const [blogPosts, setBlogPosts] = useState<FurniBlogPost[]>([]);
+  const [blogPosts, setBlogPosts] = useState<FurniBlogPost[]>(initialBlogPosts);
   const [orders, setOrders] = useState<FurniOrder[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  const [hydrated, setHydrated] = useState(false);
+  const [storeLoading, setStoreLoading] = useState(true);
+  const [storeError, setStoreError] = useState<string | null>(null);
+  const [cartHydrated, setCartHydrated] = useState(false);
 
   useEffect(() => {
-    setProducts(fromStorage(storageKeys.products, initialProducts));
-    setBlogPosts(fromStorage(storageKeys.blogPosts, initialBlogPosts));
-    setOrders(fromStorage(storageKeys.orders, initialOrders));
-    setCartItems(fromStorage(storageKeys.cart, []));
-    setHydrated(true);
+    if (typeof window === "undefined") return;
+    const raw = window.localStorage.getItem(blogStorageKey);
+    if (raw) {
+      try {
+        setBlogPosts(JSON.parse(raw) as FurniBlogPost[]);
+      } catch {
+        setBlogPosts(initialBlogPosts);
+      }
+    }
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKeys.products, JSON.stringify(products));
-  }, [products, hydrated]);
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(blogStorageKey, JSON.stringify(blogPosts));
+  }, [blogPosts]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKeys.blogPosts, JSON.stringify(blogPosts));
-  }, [blogPosts, hydrated]);
+    setStoreLoading(true);
+    setStoreError(null);
+
+    const includeUnapproved = currentUser?.userType === "admin";
+
+    const unsubscribe = subscribeToProducts(
+      (nextProducts) => {
+        setProducts(nextProducts);
+        setStoreLoading(false);
+      },
+      (error) => {
+        setStoreError(error.message);
+        setStoreLoading(false);
+      },
+      { includeUnapproved }
+    );
+
+    return unsubscribe;
+  }, [currentUser?.userType]);
+
+  const refreshOrders = useCallback(async () => {
+    if (!currentUser) {
+      setOrders([]);
+      return;
+    }
+
+    try {
+      const nextOrders =
+        currentUser.userType === "admin"
+          ? await fetchAllOrders()
+          : await fetchOrdersForUser(currentUser.id);
+      setOrders(nextOrders);
+    } catch (error) {
+      setStoreError(
+        error instanceof Error ? error.message : "Unable to load orders."
+      );
+    }
+  }, [currentUser]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKeys.orders, JSON.stringify(orders));
-  }, [orders, hydrated]);
+    if (authLoading) return;
+    void refreshOrders();
+  }, [authLoading, refreshOrders]);
 
   useEffect(() => {
-    if (!hydrated) return;
-    window.localStorage.setItem(storageKeys.cart, JSON.stringify(cartItems));
-  }, [cartItems, hydrated]);
+    if (authLoading) return;
+
+    const userKey = cartStorageKey(currentUser?.id ?? null);
+    const guestKey = cartStorageKey(null);
+    const guestCart = readCart(guestKey);
+
+    if (currentUser && guestCart.length > 0) {
+      const userCart = readCart(userKey);
+      const merged = mergeCartItems(userCart, guestCart);
+      writeCart(userKey, merged);
+      window.localStorage.removeItem(guestKey);
+      setCartItems(merged);
+    } else {
+      setCartItems(readCart(userKey));
+    }
+
+    setCartHydrated(true);
+  }, [authLoading, currentUser]);
+
+  useEffect(() => {
+    if (!cartHydrated || authLoading) return;
+    writeCart(cartStorageKey(currentUser?.id ?? null), cartItems);
+  }, [cartItems, cartHydrated, authLoading, currentUser?.id]);
 
   const cartCount = useMemo(
     () => cartItems.reduce((sum, item) => sum + item.quantity, 0),
@@ -114,9 +200,7 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     () =>
       cartItems.reduce((sum, item) => {
         const product = products.find((entry) => entry.id === item.productId);
-        if (!product) {
-          return sum;
-        }
+        if (!product) return sum;
         return sum + product.price * item.quantity;
       }, 0),
     [cartItems, products]
@@ -157,19 +241,16 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setCartItems([]), []);
 
-  const addProduct = useCallback((product: Omit<FurniProduct, "id">) => {
-    const id = `${product.name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`;
-    setProducts((current) => [{ id, ...product }, ...current]);
+  const addProduct = useCallback(async (product: Omit<FurniProduct, "id">) => {
+    await createProductInFirestore(product);
   }, []);
 
-  const updateProduct = useCallback((id: string, nextValues: Partial<FurniProduct>) => {
-    setProducts((current) =>
-      current.map((entry) => (entry.id === id ? { ...entry, ...nextValues } : entry))
-    );
+  const updateProduct = useCallback(async (id: string, nextValues: Partial<FurniProduct>) => {
+    await updateProductInFirestore(id, nextValues);
   }, []);
 
-  const deleteProduct = useCallback((id: string) => {
-    setProducts((current) => current.filter((entry) => entry.id !== id));
+  const deleteProduct = useCallback(async (id: string) => {
+    await deleteProductFromFirestore(id);
     setCartItems((current) => current.filter((entry) => entry.productId !== id));
   }, []);
 
@@ -196,34 +277,43 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const updateOrderStatus = useCallback((orderId: string, status: FurniOrderStatus) => {
-    setOrders((current) =>
-      current.map((order) => (order.id === orderId ? { ...order, status } : order))
-    );
-  }, []);
+  const updateOrderStatus = useCallback(
+    async (orderId: string, status: FurniOrderStatus) => {
+      await updateOrderStatusInFirestore(orderId, status);
+      setOrders((current) =>
+        current.map((order) => (order.id === orderId ? { ...order, status } : order))
+      );
+    },
+    []
+  );
 
   const createOrder = useCallback(
-    (shipping: CheckoutShipping, paymentMethod: string) => {
-      const nextOrderId = `ORD-${1000 + orders.length + 1}`;
-      const nextOrder: FurniOrder = {
-        id: nextOrderId,
-        customer: shipping.fullName,
-        items: cartCount,
-        total: cartSubtotal,
-        status: "Pending",
-        createdAt: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric"
-        })
-      };
+    async (shipping: CheckoutShipping, paymentMethod: string) => {
+      if (!currentUser) {
+        throw new Error("You must be signed in to place an order.");
+      }
 
-      setOrders((current) => [nextOrder, ...current]);
+      const lineItems = buildOrderLineItems(cartItems, products);
+      if (lineItems.length === 0) {
+        throw new Error("Your cart is empty.");
+      }
+
+      const orderId = await createOrderInFirestore({
+        userId: currentUser.id,
+        userEmail: shipping.email,
+        userName: shipping.fullName,
+        userPhone: shipping.phone,
+        shipping,
+        paymentMethod,
+        lineItems,
+        subtotal: cartSubtotal
+      });
+
       setCartItems([]);
-      void paymentMethod;
-      return nextOrderId;
+      await refreshOrders();
+      return orderId;
     },
-    [orders.length, cartCount, cartSubtotal]
+    [cartItems, cartSubtotal, currentUser, products, refreshOrders]
   );
 
   const value = useMemo<FurniStoreContextValue>(
@@ -234,6 +324,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       cartItems,
       cartCount,
       cartSubtotal,
+      storeLoading,
+      storeError,
       addToCart,
       updateCartItem,
       removeCartItem,
@@ -243,7 +335,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       deleteProduct,
       addBlogPost,
       updateOrderStatus,
-      createOrder
+      createOrder,
+      refreshOrders
     }),
     [
       products,
@@ -252,6 +345,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       cartItems,
       cartCount,
       cartSubtotal,
+      storeLoading,
+      storeError,
       addToCart,
       updateCartItem,
       removeCartItem,
@@ -261,7 +356,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       deleteProduct,
       addBlogPost,
       updateOrderStatus,
-      createOrder
+      createOrder,
+      refreshOrders
     ]
   );
 

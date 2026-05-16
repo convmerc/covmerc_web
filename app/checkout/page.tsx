@@ -9,6 +9,7 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
+import { formatNgn } from "@/lib/format-currency";
 import type { CheckoutShipping } from "@/lib/furni-types";
 
 const steps = ["Shipping", "Payment", "Confirmation"] as const;
@@ -16,11 +17,14 @@ type CheckoutStep = (typeof steps)[number];
 
 export default function CheckoutPage() {
   const { cartCount, cartSubtotal, createOrder } = useFurniStore();
-  const { currentUser } = useAuthSession();
+  const { currentUser, authLoading } = useAuthSession();
   const [currentStep, setCurrentStep] = useState<CheckoutStep>("Shipping");
+  const [checkoutError, setCheckoutError] = useState("");
+  const [submittingOrder, setSubmittingOrder] = useState(false);
   const [shippingDetails, setShippingDetails] = useState<CheckoutShipping>({
     fullName: "",
     email: "",
+    phone: "",
     address: "",
     city: "",
     country: "",
@@ -45,11 +49,22 @@ export default function CheckoutPage() {
     setCurrentStep("Payment");
   }
 
-  function handlePaymentSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handlePaymentSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const nextOrderId = createOrder(shippingDetails, paymentMethod);
-    setConfirmedOrderId(nextOrderId);
-    setCurrentStep("Confirmation");
+    setCheckoutError("");
+    setSubmittingOrder(true);
+
+    try {
+      const nextOrderId = await createOrder(shippingDetails, paymentMethod);
+      setConfirmedOrderId(nextOrderId);
+      setCurrentStep("Confirmation");
+    } catch (error) {
+      setCheckoutError(
+        error instanceof Error ? error.message : "Unable to place your order."
+      );
+    } finally {
+      setSubmittingOrder(false);
+    }
   }
 
   return (
@@ -69,7 +84,13 @@ export default function CheckoutPage() {
           ))}
         </div>
 
-        {!currentUser ? (
+        {authLoading ? (
+          <FurniCard className="mt-6">
+            <p className="text-sm text-furni-muted">Loading your account...</p>
+          </FurniCard>
+        ) : null}
+
+        {!authLoading && !currentUser ? (
           <FurniCard className="mt-6">
             <h2 className="text-xl font-semibold text-furni-primary">Authentication Required</h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -98,7 +119,7 @@ export default function CheckoutPage() {
           </FurniCard>
         ) : null}
 
-        {currentUser && currentStep === "Shipping" && cartCount > 0 ? (
+        {!authLoading && currentUser && currentStep === "Shipping" && cartCount > 0 ? (
           <FurniCard className="mt-6">
             <form className="grid gap-3" onSubmit={handleShippingSubmit}>
               <h2 className="text-xl font-semibold text-furni-primary">
@@ -124,6 +145,18 @@ export default function CheckoutPage() {
                   setShippingDetails((current) => ({
                     ...current,
                     email: event.target.value
+                  }))
+                }
+              />
+              <FurniInput
+                required
+                type="tel"
+                label="Phone number"
+                value={shippingDetails.phone ?? ""}
+                onChange={(event) =>
+                  setShippingDetails((current) => ({
+                    ...current,
+                    phone: event.target.value
                   }))
                 }
               />
@@ -180,7 +213,7 @@ export default function CheckoutPage() {
           </FurniCard>
         ) : null}
 
-        {currentUser && currentStep === "Payment" ? (
+        {!authLoading && currentUser && currentStep === "Payment" ? (
           <FurniCard className="mt-6">
             <form className="grid gap-4" onSubmit={handlePaymentSubmit}>
               <h2 className="text-xl font-semibold text-furni-primary">Payment Method</h2>
@@ -197,8 +230,11 @@ export default function CheckoutPage() {
                 </select>
               </label>
               <p className="rounded-xl bg-furni-surface p-3 text-sm text-furni-muted">
-                Total to pay: <span className="font-semibold text-furni-primary">${cartSubtotal.toFixed(2)}</span>
+                Total to pay: <span className="font-semibold text-furni-primary">{formatNgn(cartSubtotal)}</span>
               </p>
+              {checkoutError ? (
+                <p className="text-sm text-furni-danger">{checkoutError}</p>
+              ) : null}
               <div className="flex gap-2">
                 <FurniButton
                   type="button"
@@ -207,8 +243,8 @@ export default function CheckoutPage() {
                 >
                   Back
                 </FurniButton>
-                <FurniButton type="submit" variant="accent">
-                  Confirm order
+                <FurniButton type="submit" variant="accent" disabled={submittingOrder}>
+                  {submittingOrder ? "Placing order..." : "Confirm order"}
                 </FurniButton>
               </div>
             </form>
@@ -226,8 +262,11 @@ export default function CheckoutPage() {
               has been placed successfully.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Link href="/account/orders">
+                <FurniButton>View your orders</FurniButton>
+              </Link>
               <Link href="/shop">
-                <FurniButton>Continue shopping</FurniButton>
+                <FurniButton variant="outline">Continue shopping</FurniButton>
               </Link>
               {currentUser?.userType === "admin" ? (
                 <Link href="/admin/orders">

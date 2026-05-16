@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { FurniImage } from "@/components/ui/FurniImage";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useParams } from "next/navigation";
@@ -9,6 +9,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { formatNgn } from "@/lib/format-currency";
 
 export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -50,12 +51,11 @@ export default function ProductDetailsPage() {
 
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
         <section className="grid gap-8 lg:grid-cols-[1.1fr,1fr]">
-          <Image
+          <FurniImage
             src={product.image}
             alt={product.name}
-            width={1000}
-            height={900}
-            className="h-full min-h-[340px] w-full rounded-3xl object-cover"
+            variant="detail"
+            className="min-h-[340px] rounded-3xl"
           />
 
           <div className="space-y-4">
@@ -63,7 +63,7 @@ export default function ProductDetailsPage() {
               {product.category}
             </p>
             <h1 className="text-4xl font-semibold text-furni-primary">{product.name}</h1>
-            <p className="text-2xl font-semibold text-furni-ink">${product.price}</p>
+            <p className="text-2xl font-semibold text-furni-ink">{formatNgn(product.price)}</p>
             <p className="text-sm leading-relaxed text-furni-muted">{product.description}</p>
 
             <div className="flex items-center gap-3 pt-2">
@@ -130,13 +130,7 @@ export default function ProductDetailsPage() {
                 className="min-w-[260px] snap-start"
               >
                 <FurniCard className="overflow-hidden p-0">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    width={420}
-                    height={320}
-                    className="h-40 w-full object-cover"
-                  />
+                  <FurniImage src={item.image} alt={item.name} variant="card" />
                   <div className="space-y-1 p-3">
                     <p className="text-sm font-semibold text-furni-primary">{item.name}</p>
                     <p className="text-xs text-furni-muted">${item.price}</p>

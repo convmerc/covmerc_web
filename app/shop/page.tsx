@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { FurniImage } from "@/components/ui/FurniImage";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { TopNav } from "@/components/layout/TopNav";
@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { formatNgn } from "@/lib/format-currency";
 import type { ProductCategory } from "@/lib/furni-types";
 
 type SortOption = "featured" | "price-low" | "price-high" | "name";
@@ -24,7 +25,9 @@ export default function ShopPage() {
 
     if (activeCategory !== "All") {
       nextProducts = nextProducts.filter(
-        (product) => product.category === activeCategory
+        (product) =>
+          product.category === activeCategory ||
+          product.categoryName.toLowerCase().startsWith(activeCategory.toLowerCase().slice(0, -1))
       );
     }
 
@@ -90,13 +93,7 @@ export default function ShopPage() {
           {filteredProducts.map((product) => (
             <FurniCard key={product.id} className="overflow-hidden p-0">
               <Link href={`/product/${product.id}`}>
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={640}
-                  height={480}
-                  className="h-56 w-full object-cover"
-                />
+                <FurniImage src={product.image} alt={product.name} variant="card" />
               </Link>
               <div className="space-y-2 p-4">
                 <p className="text-xs uppercase tracking-wide text-furni-muted">
@@ -105,7 +102,7 @@ export default function ShopPage() {
                 <h2 className="text-xl font-semibold text-furni-primary">{product.name}</h2>
                 <p className="text-sm text-furni-muted">{product.shortDescription}</p>
                 <div className="flex items-center justify-between pt-2">
-                  <p className="text-xl font-semibold text-furni-ink">${product.price}</p>
+                  <p className="text-xl font-semibold text-furni-ink">{formatNgn(product.price)}</p>
                   <div className="flex items-center gap-2">
                     <Link href={`/product/${product.id}`}>
                       <FurniButton variant="outline" className="px-3 py-1.5 text-xs">
