@@ -5,19 +5,6 @@ import { usePathname } from "next/navigation";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
-import {
-  FaShoppingBag,
-  FaShoppingCart,
-  FaInfoCircle,
-  FaUserCircle,
-  FaEnvelope,
-  FaHome,
-  FaNewspaper,
-  FaSignOutAlt,
-  FaSignInAlt,
-  FaShieldAlt,
-  FaUserPlus
-} from "@/components/ui/icons";
 
 export function TopNav() {
   const pathname = usePathname();
@@ -26,11 +13,11 @@ export function TopNav() {
   const isAdmin = currentUser?.userType === "admin";
 
   const navItems = [
-    { href: "/", label: "Home", Icon: FaHome },
-    { href: "/shop", label: "Shop", Icon: FaShoppingBag },
-    { href: "/about", label: "About", Icon: FaInfoCircle },
-    { href: "/blog", label: "Blog", Icon: FaNewspaper },
-    { href: "/contact", label: "Contact", Icon: FaEnvelope }
+    { href: "/", label: "Home", symbol: "⌂" },
+    { href: "/shop", label: "Shop", symbol: "👜" },
+    { href: "/about", label: "About", symbol: "ⓘ" },
+    { href: "/blog", label: "Blog", symbol: "📰" },
+    { href: "/contact", label: "Contact", symbol: "✉" }
   ] as const;
 
   return (
@@ -46,14 +33,15 @@ export function TopNav() {
         <div className="hidden items-center gap-6 text-sm md:flex">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
-            const Icon = item.Icon;
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 className={`inline-flex items-center gap-1.5 font-medium transition ${isActive ? "text-furni-accent" : "text-white/85 hover:text-white"}`}
               >
-                <Icon className="h-4 w-4" />
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  {item.symbol}
+                </span>
                 {item.label}
               </Link>
             );
@@ -66,7 +54,9 @@ export function TopNav() {
               href="/admin"
               className="hidden items-center gap-1 rounded-full border border-furni-accent/40 bg-furni-accent/20 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide text-furni-accent md:inline-flex"
             >
-              <FaShieldAlt className="h-3.5 w-3.5" />
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                ⛨
+              </span>
               Admin Access
             </Link>
           ) : null}
@@ -74,13 +64,15 @@ export function TopNav() {
             href="/cart"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/25 px-4 py-1.5 text-white transition hover:bg-white/10"
           >
-            <FaShoppingCart className="h-4 w-4" />
+            <span className="inline-flex h-4 w-4 items-center justify-center">🛒</span>
             Cart ({cartCount})
           </Link>
           {currentUser ? (
             <div className="hidden items-center gap-2 md:flex">
               <span className="inline-flex items-center gap-1 text-xs text-white/85">
-                <FaUserCircle className="h-3.5 w-3.5" />
+                <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                  👤
+                </span>
                 {currentUser.name}
               </span>
               <FurniButton
@@ -88,7 +80,9 @@ export function TopNav() {
                 className="inline-flex items-center gap-1.5 border-white/30 px-3 py-1.5 text-xs text-white hover:bg-white/10"
                 onClick={logout}
               >
-                <FaSignOutAlt className="h-3.5 w-3.5" />
+                <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                  ⇥
+                </span>
                 Sign out
               </FurniButton>
             </div>
@@ -99,13 +93,17 @@ export function TopNav() {
                   variant="outline"
                   className="inline-flex items-center gap-1.5 border-white/30 px-3 py-1.5 text-xs text-white hover:bg-white/10"
                 >
-                  <FaSignInAlt className="h-3.5 w-3.5" />
+                  <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                    ⇤
+                  </span>
                   Sign in
                 </FurniButton>
               </Link>
               <Link href="/auth/register">
                 <FurniButton variant="accent" className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs">
-                  <FaUserPlus className="h-3.5 w-3.5" />
+                  <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                    ⊕
+                  </span>
                   Register
                 </FurniButton>
               </Link>

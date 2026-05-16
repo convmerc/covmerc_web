@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { FaLeaf, FaMagic, FaShieldAlt } from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -36,7 +35,7 @@ export default function AboutPage() {
         <section className="mt-8 grid gap-4 md:grid-cols-3">
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <FaLeaf className="h-4 w-4" />
+              <span className="inline-flex h-4 w-4 items-center justify-center">❧</span>
               Sustainable sourcing
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -46,7 +45,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <FaMagic className="h-4 w-4" />
+              <span className="inline-flex h-4 w-4 items-center justify-center">✦</span>
               Thoughtful design
             </h2>
             <p className="mt-2 text-sm text-furni-muted">
@@ -56,7 +55,7 @@ export default function AboutPage() {
           </FurniCard>
           <FurniCard>
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-furni-primary">
-              <FaShieldAlt className="h-4 w-4" />
+              <span className="inline-flex h-4 w-4 items-center justify-center">⛨</span>
               Modern living tips
             </h2>
             <p className="mt-2 text-sm text-furni-muted">

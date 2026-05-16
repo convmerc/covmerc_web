@@ -1,4 +1,3 @@
-import { FaEnvelope, FaMapMarkerAlt, FaPhone } from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -46,15 +45,21 @@ export default function ContactPage() {
               <h2 className="mb-3 text-lg font-semibold text-furni-primary">Contact Info</h2>
               <div className="space-y-2 text-sm text-furni-muted">
                 <p className="inline-flex items-center gap-2">
-                  <FaMapMarkerAlt className="h-4 w-4 text-furni-primary" />
+                  <span className="inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                    ⌖
+                  </span>
                   18 Minimal Avenue, Victoria Island, Lagos
                 </p>
                 <p className="inline-flex items-center gap-2">
-                  <FaPhone className="h-4 w-4 text-furni-primary" />
+                  <span className="inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                    ☎
+                  </span>
                   +234 901 234 5678
                 </p>
                 <p className="inline-flex items-center gap-2">
-                  <FaEnvelope className="h-4 w-4 text-furni-primary" />
+                  <span className="inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                    ✉
+                  </span>
                   hello@covmerc.com
                 </p>
               </div>

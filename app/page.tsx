@@ -2,17 +2,6 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import {
-  FaArrowRight,
-  FaFacebookF,
-  FaInstagram,
-  FaLeaf,
-  FaLinkedinIn,
-  FaShieldAlt,
-  FaMagic,
-  FaStar,
-  FaTwitter
-} from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -33,22 +22,22 @@ export default function HomePage() {
     {
       href: "https://instagram.com/covmerc",
       label: "Instagram",
-      Icon: FaInstagram
+      symbol: "◉"
     },
     {
       href: "https://facebook.com/covmerc",
       label: "Facebook",
-      Icon: FaFacebookF
+      symbol: "f"
     },
     {
       href: "https://x.com/covmerc",
       label: "X (Twitter)",
-      Icon: FaTwitter
+      symbol: "𝕏"
     },
     {
       href: "https://linkedin.com/company/covmerc",
       label: "LinkedIn",
-      Icon: FaLinkedinIn
+      symbol: "in"
     }
   ] as const;
 
@@ -61,7 +50,9 @@ export default function HomePage() {
           <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-16">
             <div className="space-y-6 animate-fade-up">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent">
-                <FaMagic className="h-3.5 w-3.5" />
+                <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
+                  ✦
+                </span>
                 Covmerc Signature Collection
               </span>
               <h1 className="font-display text-5xl leading-tight md:text-6xl">
@@ -77,7 +68,9 @@ export default function HomePage() {
                 <Link href="/shop">
                   <FurniButton variant="accent" className="inline-flex items-center gap-1.5">
                     Shop Now
-                    <FaArrowRight className="h-4 w-4" />
+                    <span className="inline-flex h-4 w-4 items-center justify-center">
+                      →
+                    </span>
                   </FurniButton>
                 </Link>
                 <Link href="/about">
@@ -166,7 +159,9 @@ export default function HomePage() {
               {whyChooseFeatures.map((feature) => (
                 <FurniCard key={feature.title} className="rounded-2xl p-4">
                   <h3 className="inline-flex items-center gap-2 text-base font-semibold text-furni-ink">
-                    <FaShieldAlt className="h-4 w-4 text-furni-primary" />
+                    <span className="inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                      ⛨
+                    </span>
                     {feature.title}
                   </h3>
                   <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
@@ -211,26 +206,36 @@ export default function HomePage() {
             </p>
             <ul className="grid gap-2 text-sm text-furni-muted md:grid-cols-2">
               <li className="inline-flex items-start gap-2">
-                <FaLeaf className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                  ❧
+                </span>
                 Carefully sourced sustainable materials
               </li>
               <li className="inline-flex items-start gap-2">
-                <FaStar className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                  ★
+                </span>
                 Tested durability and finish quality
               </li>
               <li className="inline-flex items-start gap-2">
-                <FaMagic className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                  ✦
+                </span>
                 Space-savvy dimensions and proportions
               </li>
               <li className="inline-flex items-start gap-2">
-                <FaShieldAlt className="mt-0.5 h-4 w-4 text-furni-primary" />
+                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
+                  ⛨
+                </span>
                 Thoughtful delivery and setup support
               </li>
             </ul>
             <Link href="/about">
               <FurniButton className="inline-flex items-center gap-1.5">
                 Explore Story
-                <FaArrowRight className="h-4 w-4" />
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  →
+                </span>
               </FurniButton>
             </Link>
           </div>
@@ -243,7 +248,9 @@ export default function HomePage() {
               <FurniCard key={testimonial.id} className="text-left">
                 <p className="mb-2 inline-flex items-center text-furni-accent">
                   {Array.from({ length: 5 }).map((_, idx) => (
-                    <FaStar key={idx} className="h-4 w-4 fill-current" />
+                    <span key={idx} className="inline-flex h-4 w-4 items-center justify-center">
+                      ★
+                    </span>
                   ))}
                 </p>
                 <p className="text-sm leading-relaxed text-furni-muted">
@@ -305,7 +312,7 @@ export default function HomePage() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {socialLinks.map(({ href, label, Icon }) => (
+              {socialLinks.map(({ href, label, symbol }) => (
                 <a
                   key={label}
                   href={href}
@@ -314,7 +321,9 @@ export default function HomePage() {
                   aria-label={label}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:-translate-y-0.5 hover:bg-furni-accent hover:text-furni-primary"
                 >
-                  <Icon className="h-4 w-4" />
+                  <span className="inline-flex h-4 w-4 items-center justify-center">
+                    {symbol}
+                  </span>
                 </a>
               ))}
             </div>

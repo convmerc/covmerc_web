@@ -1,10 +1,4 @@
 import Link from "next/link";
-import {
-  FaQuestionCircle,
-  FaLifeRing,
-  FaComments,
-  FaTruck
-} from "@/components/ui/icons";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -13,22 +7,22 @@ const supportItems = [
   {
     title: "Order Support",
     description: "Track order progress, delivery windows, and shipment updates.",
-    Icon: FaTruck
+    icon: "🚚"
   },
   {
     title: "Product Guidance",
     description: "Get help selecting furniture size, finish, and material options.",
-    Icon: FaQuestionCircle
+    icon: "?"
   },
   {
     title: "Returns & Refunds",
     description: "Start return requests and review refund timelines.",
-    Icon: FaComments
+    icon: "💬"
   },
   {
     title: "Live Assistance",
     description: "Chat with a Covmerc specialist for urgent account issues.",
-    Icon: FaLifeRing
+    icon: "◌"
   }
 ] as const;
 
@@ -51,7 +45,9 @@ export default function SupportPage() {
           {supportItems.map((item) => (
             <FurniCard key={item.title} className="animate-fade-up">
               <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-full bg-furni-primary/10 text-furni-primary">
-                <item.Icon className="h-5 w-5" />
+                <span className="inline-flex h-5 w-5 items-center justify-center">
+                  {item.icon}
+                </span>
               </div>
               <h2 className="text-lg font-semibold text-furni-primary">{item.title}</h2>
               <p className="mt-1 text-sm text-furni-muted">{item.description}</p>

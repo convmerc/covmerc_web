@@ -1,35 +1,26 @@
 import Link from "next/link";
-import {
-  FaEnvelope,
-  FaFacebookF,
-  FaInstagram,
-  FaLinkedinIn,
-  FaMapMarkerAlt,
-  FaPhone,
-  FaTwitter
-} from "@/components/ui/icons";
 
 export function Footer() {
   const socialLinks = [
     {
       href: "https://instagram.com/covmerc",
       label: "Instagram",
-      Icon: FaInstagram
+      symbol: "◉"
     },
     {
       href: "https://facebook.com/covmerc",
       label: "Facebook",
-      Icon: FaFacebookF
+      symbol: "f"
     },
     {
       href: "https://x.com/covmerc",
       label: "X (Twitter)",
-      Icon: FaTwitter
+      symbol: "𝕏"
     },
     {
       href: "https://linkedin.com/company/covmerc",
       label: "LinkedIn",
-      Icon: FaLinkedinIn
+      symbol: "in"
     }
   ] as const;
 
@@ -44,15 +35,21 @@ export function Footer() {
           </p>
           <div className="space-y-1 text-xs">
             <p className="inline-flex items-center gap-2">
-              <FaMapMarkerAlt className="h-3.5 w-3.5 text-furni-primary" />
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center text-furni-primary">
+                ⌖
+              </span>
               18 Minimal Avenue, Victoria Island, Lagos
             </p>
             <p className="inline-flex items-center gap-2">
-              <FaPhone className="h-3.5 w-3.5 text-furni-primary" />
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center text-furni-primary">
+                ☎
+              </span>
               +234 901 234 5678
             </p>
             <p className="inline-flex items-center gap-2">
-              <FaEnvelope className="h-3.5 w-3.5 text-furni-primary" />
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center text-furni-primary">
+                ✉
+              </span>
               hello@covmerc.com
             </p>
           </div>
@@ -83,7 +80,7 @@ export function Footer() {
             Social
           </p>
           <div className="mb-4 flex items-center gap-2">
-            {socialLinks.map(({ href, label, Icon }) => (
+            {socialLinks.map(({ href, label, symbol }) => (
               <a
                 key={label}
                 href={href}
@@ -92,7 +89,9 @@ export function Footer() {
                 aria-label={label}
                 className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-furni-surface text-furni-primary transition hover:-translate-y-0.5 hover:bg-furni-primary hover:text-white"
               >
-                <Icon className="h-4 w-4" />
+                <span className="inline-flex h-4 w-4 items-center justify-center">
+                  {symbol}
+                </span>
               </a>
             ))}
           </div>
