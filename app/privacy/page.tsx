@@ -1,5 +1,4 @@
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { LegalDocument } from "@/components/content/LegalDocument";
 import { RelatedPages } from "@/components/content/RelatedPages";

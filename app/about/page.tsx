@@ -30,9 +30,7 @@ const values = [
 
 export default function AboutPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
+    <MarketingShell>
         <section className="grid gap-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
           <PageHero
             eyebrow="About Covmerc"
@@ -120,8 +118,6 @@ export default function AboutPage() {
           title="Continue exploring"
           links={[...relatedPageGroups.explore, ...relatedPageGroups.help]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }
