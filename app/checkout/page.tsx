@@ -101,14 +101,14 @@ export default function CheckoutPage() {
             Browse freely without an account. To place an order and track delivery, sign in or
             create a Covmerc account—it takes less than a minute.
           </p>
-          <motion.div className="mt-5 flex flex-wrap gap-2">
+          <div className="mt-5 flex flex-wrap gap-2">
             <Link href="/auth/login?next=/checkout">
               <FurniButton variant="accent">Sign in</FurniButton>
             </Link>
             <Link href="/auth/register?next=/checkout">
               <FurniButton variant="outline">Create account</FurniButton>
             </Link>
-          </motion.div>
+          </div>
         </FurniCard>
       ) : null}
 
