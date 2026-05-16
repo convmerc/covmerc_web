@@ -6,40 +6,28 @@ import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ProductCard } from "@/components/shop/ProductCard";
+import { TrustBar } from "@/components/shop/TrustBar";
 import { testimonials, whyChooseFeatures } from "@/lib/furni-data";
-import { formatNgn } from "@/lib/format-currency";
+import {
+  homeProcessSteps,
+  roomCollections,
+  shopCategories
+} from "@/lib/catalog-content";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 
 export function HomePage() {
   const { products, blogPosts, addToCart } = useFurniStore();
   const featuredProducts = products.filter((item) => item.featured).slice(0, 3);
+  const displayFeatured =
+    featuredProducts.length > 0 ? featuredProducts : products.slice(0, 3);
   const latestPosts = blogPosts.slice(0, 3);
+
   const stats = [
-    { label: "Happy Customers", value: "8.2k+" },
-    { label: "Curated Products", value: "240+" },
-    { label: "Cities Delivered", value: "19" }
-  ] as const;
-  const socialLinks = [
-    {
-      href: "https://instagram.com/covmerc",
-      label: "Instagram",
-      symbol: "◉"
-    },
-    {
-      href: "https://facebook.com/covmerc",
-      label: "Facebook",
-      symbol: "f"
-    },
-    {
-      href: "https://x.com/covmerc",
-      label: "X (Twitter)",
-      symbol: "𝕏"
-    },
-    {
-      href: "https://linkedin.com/company/covmerc",
-      label: "LinkedIn",
-      symbol: "in"
-    }
+    { label: "Happy customers", value: "8.2k+" },
+    { label: "Curated pieces", value: `${products.length || 240}+` },
+    { label: "Cities served", value: "19" }
   ] as const;
 
   return (
@@ -47,44 +35,47 @@ export function HomePage() {
       <TopNav />
 
       <main className="flex-1">
-        <section className="bg-furni-primary text-white">
-          <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-16">
+        {/* Hero */}
+        <section className="relative overflow-hidden bg-furni-primary text-white">
+          <div className="pointer-events-none absolute -left-32 top-0 h-96 w-96 rounded-full bg-furni-accent/20 blur-3xl" />
+          <div className="pointer-events-none absolute -right-20 bottom-0 h-80 w-80 rounded-full bg-white/5 blur-3xl" />
+
+          <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-16 md:grid-cols-[1.05fr,1fr] md:px-6 lg:px-8 lg:py-20">
             <div className="space-y-6 animate-fade-up">
-              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent">
-                <span className="inline-flex h-3.5 w-3.5 items-center justify-center">
-                  ✦
-                </span>
-                Covmerc Signature Collection
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent backdrop-blur-sm">
+                <span aria-hidden>✦</span>
+                Covmerc Studio · Lagos
               </span>
-              <h1 className="font-display text-5xl leading-tight md:text-6xl">
-                Modern Interior
+              <h1 className="font-display text-5xl leading-[1.08] md:text-6xl lg:text-[3.5rem]">
+                Furniture for homes
                 <br />
-                by Covmerc Studio
+                <span className="text-furni-accent">you actually live in</span>
               </h1>
-              <p className="max-w-md text-sm text-white/80 md:text-base">
-                Reimagine your space with premium furniture, thoughtful craftsmanship,
-                and a commerce journey designed for modern living.
+              <p className="max-w-lg text-base leading-relaxed text-white/85">
+                Discover curated chairs, tables, and sofas from trusted makers—shop on the web
+                or in the Covmerc app, with delivery across Nigeria and support from real people.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link href="/shop">
-                  <FurniButton variant="accent" className="inline-flex items-center gap-1.5">
-                    Shop Now
-                    <span className="inline-flex h-4 w-4 items-center justify-center">
-                      →
-                    </span>
+                  <FurniButton variant="accent" className="inline-flex items-center gap-2 px-6">
+                    Shop collection
+                    <span aria-hidden>→</span>
                   </FurniButton>
                 </Link>
                 <Link href="/about">
-                  <FurniButton variant="outline" className="border-white/40 text-white">
-                    Learn More
+                  <FurniButton variant="outline" className="border-white/40 px-6 text-white">
+                    Our story
                   </FurniButton>
                 </Link>
               </div>
-              <div className="grid max-w-lg grid-cols-3 gap-2">
+              <div className="grid max-w-lg grid-cols-3 gap-3 pt-2">
                 {stats.map((item) => (
-                  <div key={item.label} className="rounded-xl bg-white/10 px-3 py-2">
-                    <p className="text-lg font-semibold text-furni-accent">{item.value}</p>
-                    <p className="text-[11px] uppercase tracking-wide text-white/70">
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-white/10 bg-white/10 px-3 py-3 backdrop-blur-sm"
+                  >
+                    <p className="text-xl font-semibold text-furni-accent">{item.value}</p>
+                    <p className="mt-0.5 text-[10px] uppercase tracking-wide text-white/65">
                       {item.label}
                     </p>
                   </div>
@@ -93,196 +84,48 @@ export function HomePage() {
             </div>
 
             <div className="relative mx-auto w-full max-w-xl animate-fade-up">
-              <div className="absolute -right-4 -top-3 h-24 w-24 rounded-full bg-furni-accent/50 blur-2xl" />
               <FurniImage
                 src="https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1400&q=80"
-                alt="Covmerc sofa hero"
+                alt="Covmerc living room sofa"
                 variant="hero"
                 priority
-                className="rounded-3xl animate-float-soft"
+                className="rounded-3xl ring-1 ring-white/20 animate-float-soft"
               />
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto w-full max-w-6xl px-4 py-14 md:px-6 lg:px-8 animate-fade-up">
-          <div className="mb-8 flex items-end justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">
-                Crafted with excellent material
-              </p>
-              <h2 className="mt-2 font-display text-4xl text-furni-primary">
-                Featured Products
-              </h2>
-            </div>
-            <Link href="/shop" className="text-sm font-medium text-furni-primary">
-              View all
-            </Link>
-          </div>
-          <div className="grid gap-4 md:grid-cols-3">
-            {featuredProducts.map((product) => (
-              <FurniCard key={product.id} className="group overflow-hidden p-0">
-                <FurniImage
-                  src={product.image}
-                  alt={product.name}
-                  variant="card"
-                  imageClassName="transition duration-500 group-hover:scale-105"
-                />
-                <div className="space-y-2 p-4">
-                  <h3 className="text-lg font-semibold text-furni-primary">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-furni-muted">{product.shortDescription}</p>
-                  <div className="flex items-center justify-between pt-2">
-                    <p className="text-lg font-semibold text-furni-ink">
-                      {formatNgn(product.price)}
-                    </p>
-                    <FurniButton
-                      variant="primary"
-                      className="px-3 py-1.5 text-xs"
-                      onClick={() => addToCart(product.id, 1)}
-                    >
-                      Add
-                    </FurniButton>
-                  </div>
-                </div>
+              <FurniCard className="absolute -bottom-4 -left-2 max-w-[200px] border-white/20 bg-white/95 p-3 shadow-lg backdrop-blur md:-left-6">
+                <p className="text-[10px] uppercase tracking-wide text-furni-muted">This week</p>
+                <p className="text-sm font-semibold text-furni-primary">Free Lagos delivery</p>
+                <p className="text-xs text-furni-muted">On orders over ₦150,000</p>
               </FurniCard>
-            ))}
+            </div>
           </div>
         </section>
 
-        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 md:grid-cols-[1.1fr,1fr] md:px-6 lg:px-8 animate-fade-up">
-          <div>
-            <h2 className="font-display text-4xl text-furni-primary">Why Choose Covmerc</h2>
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              {whyChooseFeatures.map((feature) => (
-                <FurniCard key={feature.title} className="rounded-2xl p-4">
-                  <h3 className="inline-flex items-center gap-2 text-base font-semibold text-furni-ink">
-                    <span className="inline-flex h-4 w-4 items-center justify-center text-furni-primary">
-                      ⛨
-                    </span>
-                    {feature.title}
-                  </h3>
-                  <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
-                </FurniCard>
-              ))}
-            </div>
-          </div>
-          <FurniImage
-            src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=80"
-            alt="Curated living room setup"
-            variant="detail"
-            className="min-h-[320px] rounded-3xl"
+        <TrustBar variant="dark" />
+
+        {/* Shop by category */}
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 md:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Collections"
+            title="Shop by category"
+            description="Start with the room you are furnishing—or jump straight into our full catalog of verified listings."
+            action={{ href: "/shop", label: "View all products" }}
           />
-        </section>
-
-        <section className="mx-auto grid w-full max-w-6xl gap-8 px-4 pb-14 md:grid-cols-[1fr,1.1fr] md:px-6 lg:px-8 animate-fade-up">
-          <div className="grid grid-cols-2 gap-3">
-            <FurniImage
-              src="https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=1000&q=80"
-              alt="Covmerc wood table styling"
-              variant="inline"
-              className="min-h-[220px] rounded-3xl"
-            />
-            <FurniImage
-              src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80"
-              alt="Covmerc accent table detail"
-              variant="inline"
-              className="min-h-[220px] rounded-3xl"
-            />
-          </div>
-          <div className="space-y-4">
-            <h2 className="font-display text-4xl text-furni-primary">
-              We help you make modern interior design
-            </h2>
-            <p className="text-sm leading-relaxed text-furni-muted">
-              Covmerc combines premium craftsmanship with practical functionality.
-              Our collection is curated to keep your space timeless, comfortable,
-              and ready for modern life.
-            </p>
-            <ul className="grid gap-2 text-sm text-furni-muted md:grid-cols-2">
-              <li className="inline-flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
-                  ❧
-                </span>
-                Carefully sourced sustainable materials
-              </li>
-              <li className="inline-flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
-                  ★
-                </span>
-                Tested durability and finish quality
-              </li>
-              <li className="inline-flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
-                  ✦
-                </span>
-                Space-savvy dimensions and proportions
-              </li>
-              <li className="inline-flex items-start gap-2">
-                <span className="mt-0.5 inline-flex h-4 w-4 items-center justify-center text-furni-primary">
-                  ⛨
-                </span>
-                Thoughtful delivery and setup support
-              </li>
-            </ul>
-            <Link href="/about">
-              <FurniButton className="inline-flex items-center gap-1.5">
-                Explore Story
-                <span className="inline-flex h-4 w-4 items-center justify-center">
-                  →
-                </span>
-              </FurniButton>
-            </Link>
-          </div>
-        </section>
-
-        <section className="mx-auto w-full max-w-5xl px-4 pb-14 text-center md:px-6 animate-fade-up">
-          <h2 className="font-display text-4xl text-furni-primary">Testimonials</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {testimonials.map((testimonial) => (
-              <FurniCard key={testimonial.id} className="text-left">
-                <p className="mb-2 inline-flex items-center text-furni-accent">
-                  {Array.from({ length: 5 }).map((_, idx) => (
-                    <span key={idx} className="inline-flex h-4 w-4 items-center justify-center">
-                      ★
-                    </span>
-                  ))}
-                </p>
-                <p className="text-sm leading-relaxed text-furni-muted">
-                  “{testimonial.quote}”
-                </p>
-                <p className="mt-4 text-base font-semibold text-furni-primary">
-                  {testimonial.author}
-                </p>
-                <p className="text-xs uppercase tracking-wide text-furni-muted">
-                  {testimonial.role}
-                </p>
-              </FurniCard>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16 md:px-6 lg:px-8 animate-fade-up">
-          <div className="mb-6 flex items-end justify-between">
-            <h2 className="font-display text-4xl text-furni-primary">Recent Blog</h2>
-            <Link href="/blog" className="text-sm font-medium text-furni-primary">
-              View all posts
-            </Link>
-          </div>
           <div className="grid gap-4 md:grid-cols-3">
-            {latestPosts.map((post) => (
-              <Link key={post.id} href="/blog">
-                <FurniCard className="h-full overflow-hidden p-0">
-                  <FurniImage src={post.coverImage} alt={post.title} variant="card" />
-                  <div className="space-y-2 p-4">
-                    <p className="text-xs uppercase tracking-wide text-furni-muted">
-                      {post.publishedAt}
-                    </p>
-                    <h3 className="text-lg font-semibold text-furni-primary">
-                      {post.title}
-                    </h3>
-                    <p className="text-sm text-furni-muted">{post.excerpt}</p>
+            {shopCategories.map((cat) => (
+              <Link key={cat.id} href={`/shop?category=${encodeURIComponent(cat.id)}`}>
+                <FurniCard className="group overflow-hidden p-0">
+                  <FurniImage
+                    src={cat.image}
+                    alt={cat.label}
+                    variant="card"
+                    imageClassName="transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-furni-primary">{cat.label}</h3>
+                    <p className="mt-1 text-sm text-furni-muted">{cat.description}</p>
+                    <span className="mt-3 inline-block text-xs font-semibold text-furni-primary">
+                      Explore →
+                    </span>
                   </div>
                 </FurniCard>
               </Link>
@@ -290,34 +133,255 @@ export function HomePage() {
           </div>
         </section>
 
-        <section className="mx-auto w-full max-w-6xl px-4 pb-16 md:px-6 lg:px-8 animate-fade-up">
-          <FurniCard className="flex flex-col items-center justify-between gap-4 bg-furni-primary text-white md:flex-row">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-furni-accent">
-                Social Community
-              </p>
-              <h3 className="mt-1 font-display text-3xl">Follow Covmerc</h3>
-              <p className="mt-1 text-sm text-white/80">
-                Get styling ideas, product drops, and behind-the-scenes updates.
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              {socialLinks.map(({ href, label, symbol }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white transition hover:-translate-y-0.5 hover:bg-furni-accent hover:text-furni-primary"
-                >
-                  <span className="inline-flex h-4 w-4 items-center justify-center">
-                    {symbol}
+        {/* Featured products */}
+        <section className="bg-white py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
+            <SectionHeader
+              eyebrow="Editor's pick"
+              title="Featured this season"
+              description="Hand-selected pieces balancing comfort, proportion, and materials that age well in Nigerian homes."
+              action={{ href: "/shop", label: "Shop all" }}
+            />
+            {displayFeatured.length > 0 ? (
+              <div className="grid gap-5 md:grid-cols-3">
+                {displayFeatured.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    onAddToCart={(id) => addToCart(id, 1)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <FurniCard className="text-center">
+                <p className="text-sm text-furni-muted">Loading our catalog…</p>
+              </FurniCard>
+            )}
+          </div>
+        </section>
+
+        {/* Room collections */}
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 md:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Inspiration"
+            title="Curated for real rooms"
+            description="Not sure where to start? These edit boards pair bestsellers with styling notes from our Lagos studio."
+            align="center"
+          />
+          <div className="grid gap-5 md:grid-cols-3">
+            {roomCollections.map((room) => (
+              <Link key={room.title} href={room.href}>
+                <FurniCard className="group overflow-hidden p-0">
+                  <div className="relative">
+                    <FurniImage
+                      src={room.image}
+                      alt={room.title}
+                      variant="card"
+                      imageClassName="transition duration-500 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-furni-primary/80 via-furni-primary/20 to-transparent" />
+                    <div className="absolute bottom-0 p-5 text-white">
+                      <h3 className="font-display text-2xl">{room.title}</h3>
+                      <p className="mt-1 text-sm text-white/85">{room.description}</p>
+                    </div>
+                  </div>
+                </FurniCard>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Why choose + image */}
+        <section className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1.05fr,1fr] md:items-center md:px-6 lg:px-8">
+          <div>
+            <SectionHeader
+              eyebrow="The Covmerc difference"
+              title="Why thousands choose us"
+              description="We are not just a listing site—we review vendors, publish honest specs, and stay with you after delivery."
+            />
+            <div className="grid gap-3 sm:grid-cols-2">
+              {whyChooseFeatures.map((feature, index) => (
+                <FurniCard key={feature.title} className="p-4">
+                  <span className="text-xs font-semibold text-furni-accent">
+                    {String(index + 1).padStart(2, "0")}
                   </span>
-                </a>
+                  <h3 className="mt-2 font-semibold text-furni-primary">{feature.title}</h3>
+                  <p className="mt-1 text-sm text-furni-muted">{feature.description}</p>
+                </FurniCard>
               ))}
             </div>
-          </FurniCard>
+          </div>
+          <FurniImage
+            src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1000&q=80"
+            alt="Covmerc curated living room"
+            variant="detail"
+            className="min-h-[360px] rounded-3xl"
+          />
+        </section>
+
+        {/* How it works */}
+        <section className="border-y border-furni-primary/10 bg-furni-primary/5 py-16">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
+            <SectionHeader
+              eyebrow="Simple journey"
+              title="From browse to delivered"
+              description="Three steps—no hidden surprises at checkout."
+              align="center"
+            />
+            <div className="grid gap-6 md:grid-cols-3">
+              {homeProcessSteps.map((step) => (
+                <FurniCard key={step.step} className="relative overflow-hidden p-6">
+                  <span className="font-display text-5xl text-furni-primary/15">{step.step}</span>
+                  <h3 className="mt-2 text-lg font-semibold text-furni-primary">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-furni-muted">{step.description}</p>
+                </FurniCard>
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center">
+              <Link href="/shop">
+                <FurniButton variant="primary" className="px-8">
+                  Start shopping
+                </FurniButton>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Craft story */}
+        <section className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 md:grid-cols-[1fr,1.05fr] md:items-center md:px-6 lg:px-8">
+          <div className="grid grid-cols-2 gap-3">
+            <FurniImage
+              src="https://images.unsplash.com/photo-1506439773649-6e0eb8cfb237?auto=format&fit=crop&w=1000&q=80"
+              alt="Wood furniture detail"
+              variant="inline"
+              className="min-h-[240px] rounded-3xl"
+            />
+            <FurniImage
+              src="https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=900&q=80"
+              alt="Modern accent furniture"
+              variant="inline"
+              className="mt-8 min-h-[240px] rounded-3xl"
+            />
+          </div>
+          <div className="space-y-5">
+            <SectionHeader
+              eyebrow="Craft & care"
+              title="Designed for modern Nigerian living"
+              description="Humidity, guest nights, and tight floor plans—we factor it all in when we curate each piece."
+            />
+            <ul className="grid gap-3 text-sm text-furni-muted">
+              {[
+                "Certified timber and low-emission finishes",
+                "Dimensions listed for every product",
+                "Vendor reviews and quality checks before listing",
+                "Delivery coordination and aftercare support"
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-furni-primary text-[10px] text-white">
+                    ✓
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+            <div className="flex flex-wrap gap-3">
+              <Link href="/about">
+                <FurniButton>Explore our story</FurniButton>
+              </Link>
+              <Link href="/contact">
+                <FurniButton variant="outline">Ask a stylist</FurniButton>
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        {/* Testimonials */}
+        <section className="mx-auto w-full max-w-6xl px-4 py-16 md:px-6 lg:px-8">
+          <SectionHeader
+            eyebrow="Community"
+            title="Loved in real homes"
+            description="Customers and stylists across Nigeria share why they keep coming back to Covmerc."
+            align="center"
+          />
+          <div className="grid gap-5 md:grid-cols-3">
+            {testimonials.map((testimonial) => (
+              <FurniCard key={testimonial.id} className="flex flex-col">
+                <p className="mb-3 inline-flex gap-0.5 text-furni-accent" aria-label="5 stars">
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <span key={idx}>★</span>
+                  ))}
+                </p>
+                <p className="flex-1 text-sm leading-relaxed text-furni-muted">
+                  &ldquo;{testimonial.quote}&rdquo;
+                </p>
+                <div className="mt-5 border-t border-furni-primary/10 pt-4">
+                  <p className="font-semibold text-furni-primary">{testimonial.author}</p>
+                  <p className="text-xs uppercase tracking-wide text-furni-muted">
+                    {testimonial.role}
+                  </p>
+                </div>
+              </FurniCard>
+            ))}
+          </div>
+        </section>
+
+        {/* Blog */}
+        <section className="bg-white pt-16 pb-20 md:pb-28">
+          <div className="mx-auto w-full max-w-6xl px-4 md:px-6 lg:px-8">
+            <SectionHeader
+              eyebrow="Covmerc Journal"
+              title="Ideas for your next refresh"
+              description="Styling tips, material guides, and small-space hacks from our design team."
+              action={{ href: "/blog", label: "All articles" }}
+            />
+            <div className="grid gap-5 md:grid-cols-3">
+              {latestPosts.map((post) => (
+                <Link key={post.id} href={`/blog/${post.id}`}>
+                  <FurniCard className="h-full overflow-hidden p-0 transition hover:-translate-y-1">
+                    <FurniImage src={post.coverImage} alt={post.title} variant="card" />
+                    <div className="space-y-2 p-4">
+                      <p className="text-xs uppercase tracking-wide text-furni-muted">
+                        {post.publishedAt} · {post.category}
+                      </p>
+                      <h3 className="text-lg font-semibold text-furni-primary">{post.title}</h3>
+                      <p className="line-clamp-2 text-sm text-furni-muted">{post.excerpt}</p>
+                    </div>
+                  </FurniCard>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Dual CTA */}
+        <section className="mx-auto w-full max-w-6xl border-t border-furni-primary/10 px-4 pt-16 pb-20 md:px-6 md:pt-20 lg:px-8 lg:pb-24">
+          <div className="grid gap-4 md:grid-cols-2">
+            <FurniCard className="bg-furni-primary p-8 text-white">
+              <p className="text-xs uppercase tracking-[0.2em] text-furni-accent">Shop</p>
+              <h3 className="mt-2 font-display text-3xl">Ready to furnish your space?</h3>
+              <p className="mt-2 text-sm text-white/80">
+                Browse the full catalog with filters, specs, and fast add-to-cart.
+              </p>
+              <Link href="/shop" className="mt-6 inline-block">
+                <FurniButton variant="accent">View shop</FurniButton>
+              </Link>
+            </FurniCard>
+            <FurniCard className="p-8">
+              <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">Support</p>
+              <h3 className="mt-2 font-display text-3xl text-furni-primary">Questions before you buy?</h3>
+              <p className="mt-2 text-sm text-furni-muted">
+                Our Lagos team helps with sizing, delivery, and post-purchase care.
+              </p>
+              <div className="mt-6 flex flex-wrap gap-2">
+                <Link href="/support">
+                  <FurniButton variant="outline">Help center</FurniButton>
+                </Link>
+                <Link href="/contact">
+                  <FurniButton>Contact us</FurniButton>
+                </Link>
+              </div>
+            </FurniCard>
+          </div>
         </section>
       </main>
 
@@ -325,4 +389,3 @@ export function HomePage() {
     </div>
   );
 }
-

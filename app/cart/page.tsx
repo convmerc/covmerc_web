@@ -1,13 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { FurniImage } from "@/components/ui/FurniImage";
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
+import { PageHero } from "@/components/content/PageHero";
+import { RelatedPages } from "@/components/content/RelatedPages";
+import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ProductCard } from "@/components/shop/ProductCard";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { FurniImage } from "@/components/ui/FurniImage";
 import { formatNgn } from "@/lib/format-currency";
+import { relatedPageGroups } from "@/lib/site-content";
 
 export default function CartPage() {
   const {
@@ -16,7 +21,8 @@ export default function CartPage() {
     cartSubtotal,
     updateCartItem,
     removeCartItem,
-    clearCart
+    clearCart,
+    addToCart
   } = useFurniStore();
 
   const detailedItems = cartItems
@@ -26,117 +32,175 @@ export default function CartPage() {
     }))
     .filter((entry) => Boolean(entry.product));
 
+  const suggested = products.filter((p) => !cartItems.some((c) => c.productId === p.id)).slice(0, 3);
+
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
+    <MarketingShell maxWidth="6xl">
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Shop", href: "/shop" },
+          { label: "Cart" }
+        ]}
+      />
 
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 md:px-6 lg:px-8">
-        <h1 className="text-4xl font-semibold text-furni-primary">Your Cart</h1>
-        <p className="mt-2 text-sm text-furni-muted">
-          Review your selected items before checkout.
-        </p>
+      <PageHero
+        eyebrow="Your bag"
+        title="Review your cart"
+        description="Confirm quantities and totals before checkout. Prices are in Nigerian Naira; delivery is calculated at the next step."
+      />
 
-        {detailedItems.length === 0 ? (
-          <FurniCard className="mt-6 text-center">
-            <p className="text-sm text-furni-muted">Your cart is currently empty.</p>
-            <Link href="/shop" className="mt-4 inline-block">
-              <FurniButton>Continue shopping</FurniButton>
-            </Link>
-          </FurniCard>
-        ) : (
-          <div className="mt-6 grid gap-5 lg:grid-cols-[1fr,320px]">
-            <div className="space-y-3">
-              {detailedItems.map((item) => {
-                const product = item.product!;
-                return (
-                  <FurniCard key={product.id} className="grid gap-4 sm:grid-cols-[120px,1fr]">
+      {detailedItems.length === 0 ? (
+        <EmptyState
+          title="Your cart is empty"
+          description="Browse our catalog and add pieces you love—you can check out as a guest or with your Covmerc account."
+        >
+          <Link href="/shop">
+            <FurniButton variant="accent">Shop collection</FurniButton>
+          </Link>
+          <Link href="/">
+            <FurniButton variant="outline">Back to home</FurniButton>
+          </Link>
+        </EmptyState>
+      ) : (
+        <div className="grid gap-8 lg:grid-cols-[1fr,340px]">
+          <div className="space-y-4">
+            {detailedItems.map((item) => {
+              const product = item.product!;
+              return (
+                <FurniCard
+                  key={product.id}
+                  className="grid gap-4 overflow-hidden p-0 sm:grid-cols-[140px,1fr]"
+                >
+                  <Link href={`/product/${product.id}`} className="block">
                     <FurniImage
                       src={product.image}
                       alt={product.name}
                       variant="thumb"
-                      className="rounded-xl"
+                      className="h-full min-h-[120px] rounded-none sm:min-h-full"
                     />
-                    <div className="space-y-2">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <h2 className="text-lg font-semibold text-furni-primary">
+                  </Link>
+                  <div className="flex flex-col justify-between gap-3 p-4 sm:p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[11px] uppercase tracking-wide text-furni-muted">
+                          {product.categoryName || product.category}
+                        </p>
+                        <Link href={`/product/${product.id}`}>
+                          <h2 className="text-lg font-semibold text-furni-primary hover:underline">
                             {product.name}
                           </h2>
-                          <p className="text-sm text-furni-muted">{formatNgn(product.price)} each</p>
-                        </div>
+                        </Link>
+                        <p className="mt-1 text-sm text-furni-muted">
+                          {formatNgn(product.price)} each
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeCartItem(product.id)}
+                        className="text-xs font-medium text-red-600 hover:underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="inline-flex items-center rounded-xl border border-furni-primary/15 bg-furni-surface">
                         <button
                           type="button"
-                          onClick={() => removeCartItem(product.id)}
-                          className="text-xs font-medium text-furni-danger"
+                          className="px-3 py-2 text-furni-primary hover:bg-furni-primary/5"
+                          onClick={() =>
+                            updateCartItem(product.id, Math.max(1, item.quantity - 1))
+                          }
+                          aria-label="Decrease quantity"
                         >
-                          Remove
+                          −
+                        </button>
+                        <span className="min-w-[2rem] text-center text-sm font-medium">
+                          {item.quantity}
+                        </span>
+                        <button
+                          type="button"
+                          className="px-3 py-2 text-furni-primary hover:bg-furni-primary/5"
+                          onClick={() => updateCartItem(product.id, item.quantity + 1)}
+                          aria-label="Increase quantity"
+                        >
+                          +
                         </button>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs uppercase tracking-wide text-furni-muted">
-                          Qty
-                        </span>
-                        <div className="inline-flex items-center rounded-xl border border-furni-primary/20 bg-white">
-                          <button
-                            type="button"
-                            className="px-3 py-1.5 text-furni-primary"
-                            onClick={() =>
-                              updateCartItem(product.id, Math.max(1, item.quantity - 1))
-                            }
-                          >
-                            −
-                          </button>
-                          <span className="w-8 text-center text-sm">{item.quantity}</span>
-                          <button
-                            type="button"
-                            className="px-3 py-1.5 text-furni-primary"
-                            onClick={() => updateCartItem(product.id, item.quantity + 1)}
-                          >
-                            +
-                          </button>
-                        </div>
-                        <span className="text-sm font-semibold text-furni-ink">
-                          {formatNgn(item.quantity * product.price)}
-                        </span>
-                      </div>
+                      <p className="text-base font-semibold text-furni-ink">
+                        {formatNgn(item.quantity * product.price)}
+                      </p>
                     </div>
-                  </FurniCard>
-                );
-              })}
-            </div>
+                  </div>
+                </FurniCard>
+              );
+            })}
+          </div>
 
-            <FurniCard className="h-max">
-              <h2 className="text-xl font-semibold text-furni-primary">Summary</h2>
-              <div className="mt-4 space-y-2 text-sm text-furni-muted">
-                <p className="flex items-center justify-between">
-                  <span>Subtotal</span>
-                  <span className="font-medium text-furni-ink">{formatNgn(cartSubtotal)}</span>
-                </p>
-                <p className="flex items-center justify-between">
-                  <span>Shipping</span>
-                  <span className="font-medium text-furni-ink">Free</span>
-                </p>
-              </div>
-              <p className="mt-4 flex items-center justify-between border-t border-furni-primary/10 pt-3 text-base font-semibold text-furni-primary">
-                <span>Total</span>
+          <aside className="lg:sticky lg:top-24 lg:self-start">
+            <FurniCard className="p-6">
+              <h2 className="font-display text-xl text-furni-primary">Order summary</h2>
+              <dl className="mt-5 space-y-3 text-sm">
+                <div className="flex justify-between text-furni-muted">
+                  <dt>Subtotal</dt>
+                  <dd className="font-medium text-furni-ink">{formatNgn(cartSubtotal)}</dd>
+                </div>
+                <div className="flex justify-between text-furni-muted">
+                  <dt>Shipping</dt>
+                  <dd className="font-medium text-furni-primary">Calculated at checkout</dd>
+                </div>
+              </dl>
+              <p className="mt-5 flex justify-between border-t border-furni-primary/10 pt-4 text-base font-semibold text-furni-primary">
+                <span>Estimated total</span>
                 <span>{formatNgn(cartSubtotal)}</span>
               </p>
-              <div className="mt-4 grid gap-2">
+              <div className="mt-6 grid gap-2">
                 <Link href="/checkout">
                   <FurniButton variant="accent" fullWidth>
                     Proceed to checkout
                   </FurniButton>
                 </Link>
-                <FurniButton variant="outline" fullWidth onClick={clearCart}>
+                <Link href="/shop">
+                  <FurniButton variant="outline" fullWidth>
+                    Continue shopping
+                  </FurniButton>
+                </Link>
+                <FurniButton variant="ghost" fullWidth onClick={clearCart} className="text-furni-muted">
                   Clear cart
                 </FurniButton>
               </div>
+              <p className="mt-4 text-xs leading-relaxed text-furni-muted">
+                Secure checkout · Need help?{" "}
+                <Link href="/support" className="font-medium text-furni-primary hover:underline">
+                  Visit support
+                </Link>
+              </p>
             </FurniCard>
-          </div>
-        )}
-      </main>
+          </aside>
+        </div>
+      )}
 
-      <Footer />
-    </div>
+      {suggested.length > 0 && detailedItems.length > 0 ? (
+        <section className="mt-16 border-t border-furni-primary/10 pt-12">
+          <h2 className="font-display text-2xl text-furni-primary">You might also like</h2>
+          <p className="mt-1 text-sm text-furni-muted">Complete your room with these picks.</p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-3">
+            {suggested.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={(id) => addToCart(id, 1)}
+              />
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      <RelatedPages
+        className="mt-12"
+        title="Help & policies"
+        links={[...relatedPageGroups.help, ...relatedPageGroups.legal]}
+      />
+    </MarketingShell>
   );
 }

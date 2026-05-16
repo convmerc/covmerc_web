@@ -348,5 +348,14 @@ export function buildCovmercOrderItems(
 }
 
 export function buildPaymentStatus(paymentMethod: CovmercPaymentMethod): CovmercPaymentStatus {
-  return paymentMethod === "cash" ? "pending" : "pending";
+  switch (paymentMethod) {
+    case "cash":
+    case "bankTransfer":
+      return "pending";
+    case "card":
+    case "wallet":
+      return "paid";
+    default:
+      return "pending";
+  }
 }
