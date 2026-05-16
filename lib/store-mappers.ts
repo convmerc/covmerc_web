@@ -6,7 +6,9 @@ import type {
   CovmercPaymentStatus
 } from "@/lib/covmerc-models";
 import type {
+  FurniDeliveryAddress,
   FurniOrder,
+  FurniOrderLineItem,
   FurniOrderStatus,
   FurniProduct,
   ProductCategory
@@ -120,7 +122,7 @@ function parseCategories(value: unknown): CovmercCategory[] {
 }
 
 /** Maps Flutter category names like "Chair" to shop filter buckets. */
-function normalizeLegacyCategory(name: string): ProductCategory {
+export function normalizeLegacyCategory(name: string): ProductCategory {
   const lower = name.trim().toLowerCase();
   if (lower.startsWith("chair")) return "Chairs";
   if (lower.startsWith("table")) return "Tables";
@@ -248,12 +250,49 @@ export function furniOrderStatusToFirestore(status: FurniOrderStatus): string {
   return status.toLowerCase();
 }
 
+function mapOrderLineItems(items: unknown[]): FurniOrderLineItem[] {
+  return items
+    .filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object")
+    .map((item) => {
+      const quantity = asNumber(item.quantity, 1);
+      const unitPrice = asNumber(item.price ?? item.unitPrice, 0);
+      return {
+        productId: asString(item.productId),
+        name: asString(item.productName ?? item.name, "Item"),
+        quantity,
+        unitPrice,
+        total: asNumber(item.total, unitPrice * quantity),
+        image: asString(item.productImage ?? item.image) || undefined
+      };
+    });
+}
+
+function mapDeliveryAddress(data: unknown): FurniDeliveryAddress | undefined {
+  if (!data || typeof data !== "object") return undefined;
+  const entry = data as Record<string, unknown>;
+  const line1 = asString(entry.addressLine1 ?? entry.address);
+  if (!line1) return undefined;
+
+  return {
+    fullName: asString(entry.fullName),
+    phone: asString(entry.phoneNumber ?? entry.phone) || undefined,
+    addressLine1: line1,
+    addressLine2: asString(entry.addressLine2) || undefined,
+    city: asString(entry.city),
+    state: asString(entry.state) || undefined,
+    country: asString(entry.country, "Nigeria"),
+    postalCode: asString(entry.postalCode) || undefined
+  };
+}
+
 export function mapFirestoreOrder(
   id: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
+  options?: { includeLineItems?: boolean }
 ): FurniOrder {
-  const items = Array.isArray(data.items) ? data.items : [];
-  const itemCount = items.reduce((sum, item) => {
+  const rawItems = Array.isArray(data.items) ? data.items : [];
+  const lineItems = options?.includeLineItems ? mapOrderLineItems(rawItems) : undefined;
+  const itemCount = rawItems.reduce((sum, item) => {
     if (item && typeof item === "object") {
       return sum + asNumber((item as Record<string, unknown>).quantity, 1);
     }
@@ -264,7 +303,9 @@ export function mapFirestoreOrder(
     id,
     customer: asString(data.userName ?? data.customerName ?? data.customer, "Customer"),
     customerEmail: asString(data.userEmail),
+    userId: asString(data.userId) || undefined,
     items: itemCount || asNumber(data.itemCount ?? data.items, 0),
+    lineItems,
     total: asNumber(data.totalAmount ?? data.total ?? data.subtotal),
     subtotal: asNumber(data.subtotal),
     deliveryFee: asNumber(data.deliveryFee, 0),
@@ -272,7 +313,9 @@ export function mapFirestoreOrder(
     paymentStatus: asString(data.paymentStatus, "pending"),
     paymentMethod: asString(data.paymentMethod, "cash"),
     createdAt: formatDisplayDate(data.createdAt),
-    trackingNumber: asString(data.trackingNumber) || undefined
+    trackingNumber: asString(data.trackingNumber) || undefined,
+    deliveryAddress: mapDeliveryAddress(data.deliveryAddress),
+    notes: asString(data.notes) || undefined
   };
 }
 
@@ -348,5 +391,14 @@ export function buildCovmercOrderItems(
 }
 
 export function buildPaymentStatus(paymentMethod: CovmercPaymentMethod): CovmercPaymentStatus {
-  return paymentMethod === "cash" ? "pending" : "pending";
+  switch (paymentMethod) {
+    case "cash":
+    case "bankTransfer":
+      return "pending";
+    case "card":
+    case "wallet":
+      return "paid";
+    default:
+      return "pending";
+  }
 }

@@ -12,6 +12,11 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
   const adminAccess = await checkAdminAccess(firebaseUser);
   const isAdmin =
     adminAccess.isAdmin || profile?.isAdmin === true || profile?.userType === "admin";
+  const isVendor =
+    !isAdmin &&
+    (profile?.userType === "vendor" ||
+      profile?.vendorStatus === "approved" ||
+      profile?.vendorStatus === "active");
 
   return {
     id: firebaseUser.uid,
@@ -21,7 +26,7 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
       firebaseUser.email?.split("@")[0] ||
       "Covmerc User",
     email: firebaseUser.email ?? profile?.email ?? "",
-    userType: isAdmin ? "admin" : "customer"
+    userType: isAdmin ? "admin" : isVendor ? "vendor" : "customer"
   };
 }
 

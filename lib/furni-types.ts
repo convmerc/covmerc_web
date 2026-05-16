@@ -1,4 +1,4 @@
-export type ProductCategory = "Chairs" | "Tables" | "Sofas";
+export type ProductCategory = string;
 
 export type FurniProduct = {
   id: string;
@@ -52,11 +52,33 @@ export type FurniOrderStatus =
   | "Cancelled"
   | "Returned";
 
+export type FurniOrderLineItem = {
+  productId: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  total: number;
+  image?: string;
+};
+
+export type FurniDeliveryAddress = {
+  fullName: string;
+  phone?: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state?: string;
+  country: string;
+  postalCode?: string;
+};
+
 export type FurniOrder = {
   id: string;
   customer: string;
   customerEmail?: string;
+  userId?: string;
   items: number;
+  lineItems?: FurniOrderLineItem[];
   subtotal?: number;
   deliveryFee?: number;
   total: number;
@@ -65,6 +87,8 @@ export type FurniOrder = {
   paymentMethod: string;
   createdAt: string;
   trackingNumber?: string;
+  deliveryAddress?: FurniDeliveryAddress;
+  notes?: string;
 };
 
 export type CartItem = {

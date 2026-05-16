@@ -3,6 +3,7 @@
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { formatNgn } from "@/lib/format-currency";
 import type { FurniOrderStatus } from "@/lib/furni-types";
 
 const statuses: FurniOrderStatus[] = [
@@ -52,7 +53,7 @@ export default function AdminOrdersPage() {
                   <td className="py-3 pr-4 font-medium text-furni-primary">{order.id}</td>
                   <td className="py-3 pr-4 text-furni-muted">{order.customer}</td>
                   <td className="py-3 pr-4 text-furni-muted">{order.items}</td>
-                  <td className="py-3 pr-4 text-furni-muted">${order.total.toFixed(2)}</td>
+                  <td className="py-3 pr-4 text-furni-muted">{formatNgn(order.total)}</td>
                   <td className="py-3 pr-4">
                     <select
                       value={order.status}

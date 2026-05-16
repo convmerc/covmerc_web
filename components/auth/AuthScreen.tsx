@@ -7,6 +7,7 @@ import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { FurniImage } from "@/components/ui/FurniImage";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniInput } from "@/components/ui/FurniInput";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import type { AuthUser } from "@/lib/auth-types";
 
@@ -97,14 +98,14 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
   if (sessionLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-furni-surface">
-        <p className="text-sm text-furni-muted">Loading your session…</p>
+      <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
+        <LoadingState message="Loading your session…" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-furni-surface">
+    <div className="min-h-screen bg-furni-surface covmerc-surface-texture">
       <div className="grid min-h-screen lg:grid-cols-2">
         {/* Brand panel */}
         <div className="relative hidden overflow-hidden bg-furni-primary lg:block">
@@ -121,7 +122,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
             </Link>
 
             <div className="space-y-5">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs uppercase tracking-[0.15em] text-furni-accent">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 covmerc-eyebrow-light">
                 <span aria-hidden>✦</span>
                 {isLogin ? "Welcome back" : "Join Covmerc"}
               </p>
@@ -182,17 +183,16 @@ export function AuthScreen({ mode }: AuthScreenProps) {
           <div className="flex flex-1 items-center justify-center px-4 pb-10 md:px-8 lg:px-10">
             <div className="w-full max-w-md animate-fade-up">
               <div className="mb-8 space-y-2 lg:hidden">
-                <p className="text-xs uppercase tracking-[0.2em] text-furni-muted">
-                  {isLogin ? "Sign in" : "Register"}
-                </p>
-                <h2 className="font-display text-3xl text-furni-primary">
+                <p className="covmerc-eyebrow">{isLogin ? "Sign in" : "Register"}</p>
+                <h2 className="font-display text-3xl text-balance text-furni-primary">
                   {isLogin ? "Welcome back" : "Create your account"}
                 </h2>
               </div>
 
               <div className="hidden lg:block">
-                <h2 className="font-display text-3xl text-furni-primary">
-                  {isLogin ? "Sign in" : "Create account"}
+                <p className="covmerc-eyebrow">{isLogin ? "Sign in" : "Create account"}</p>
+                <h2 className="mt-2 font-display text-3xl text-balance text-furni-primary">
+                  {isLogin ? "Welcome back" : "Create your account"}
                 </h2>
                 <p className="mt-2 text-sm text-furni-muted">
                   {isLogin
@@ -210,7 +210,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
                 <div className="flex items-center gap-3">
                   <span className="h-px flex-1 bg-furni-primary/10" />
-                  <span className="text-xs uppercase tracking-wide text-furni-muted">
+                  <span className="text-xs font-medium uppercase tracking-wide text-furni-muted">
                     or use email
                   </span>
                   <span className="h-px flex-1 bg-furni-primary/10" />
@@ -249,7 +249,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
                         placeholder="••••••••"
                         value={password}
                         onChange={(event) => setPassword(event.target.value)}
-                        className="w-full rounded-xl border border-furni-primary/20 bg-white px-3 py-2.5 pr-10 text-sm text-furni-ink outline-none transition focus:border-furni-primary focus:ring-2 focus:ring-furni-primary/15"
+                        className="covmerc-input pr-10"
                       />
                       <button
                         type="button"

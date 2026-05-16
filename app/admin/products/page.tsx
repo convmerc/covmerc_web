@@ -6,6 +6,7 @@ import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniInput } from "@/components/ui/FurniInput";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { formatNgn } from "@/lib/format-currency";
 import type { FurniProduct, ProductCategory } from "@/lib/furni-types";
 
 type ProductForm = {
@@ -22,6 +23,8 @@ type ProductForm = {
   finish: string;
 };
 
+type StatusFilter = "all" | "pending" | "approved" | "rejected";
+
 const defaultForm: ProductForm = {
   name: "",
   price: "",
@@ -36,7 +39,7 @@ const defaultForm: ProductForm = {
   finish: ""
 };
 
-function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
+function toProductPayload(form: ProductForm, status: string): Omit<FurniProduct, "id"> {
   const originalPrice = Number(form.price);
   return {
     name: form.name,
@@ -57,23 +60,52 @@ function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
       finish: form.finish
     },
     featured: false,
-    status: "approved",
+    status,
     rating: 0
   };
 }
 
+function statusBadgeClass(status: string) {
+  const normalized = status.toLowerCase();
+  if (normalized === "approved" || normalized === "active") {
+    return "bg-furni-success/20 text-furni-success";
+  }
+  if (normalized === "pending") {
+    return "bg-furni-warning/20 text-furni-warning";
+  }
+  if (normalized === "rejected") {
+    return "bg-red-100 text-red-700";
+  }
+  return "bg-slate-100 text-slate-700";
+}
+
 export default function AdminProductsPage() {
-  const { products, addProduct, updateProduct, deleteProduct } = useFurniStore();
+  const { products, categories, addProduct, updateProduct, deleteProduct } = useFurniStore();
   const [form, setForm] = useState<ProductForm>(defaultForm);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const categoryOptions = useMemo(() => {
+    if (categories.length > 0) {
+      return categories.map((entry) => entry.name);
+    }
+    return ["Chairs", "Tables", "Sofas"];
+  }, [categories]);
+
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      if (statusFilter === "all") return true;
+      return product.status.toLowerCase() === statusFilter;
+    });
+  }, [products, statusFilter]);
 
   const sortedProducts = useMemo(
-    () => [...products].sort((a, b) => a.name.localeCompare(b.name)),
-    [products]
+    () => [...filteredProducts].sort((a, b) => a.name.localeCompare(b.name)),
+    [filteredProducts]
   );
 
   function resetForm() {
-    setForm(defaultForm);
+    setForm({ ...defaultForm, category: categoryOptions[0] ?? "Chairs" });
     setEditingProductId(null);
   }
 
@@ -96,13 +128,14 @@ export default function AdminProductsPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const payload = toProductPayload(form);
-
     try {
       if (editingProductId) {
-        await updateProduct(editingProductId, payload);
+        const payload = toProductPayload(form, "approved");
+        const { status, ...editable } = payload;
+        void status;
+        await updateProduct(editingProductId, editable);
       } else {
-        await addProduct(payload);
+        await addProduct(toProductPayload(form, "pending"));
       }
       resetForm();
     } catch {
@@ -110,10 +143,18 @@ export default function AdminProductsPage() {
     }
   }
 
+  async function setProductStatus(productId: string, status: string) {
+    try {
+      await updateProduct(productId, { status });
+    } catch {
+      window.alert("Unable to update product status.");
+    }
+  }
+
   return (
     <AdminLayout
       title="Inventory Management"
-      subtitle="Add, edit, and remove products in your storefront catalog."
+      subtitle="Review pending listings, approve products for the storefront, and manage catalog data."
     >
       <FurniCard>
         <form className="grid gap-3 md:grid-cols-2" onSubmit={handleSubmit}>
@@ -137,20 +178,22 @@ export default function AdminProductsPage() {
               onChange={(event) =>
                 setForm((current) => ({
                   ...current,
-                  category: event.target.value as ProductCategory
+                  category: event.target.value
                 }))
               }
             >
-              <option>Chairs</option>
-              <option>Tables</option>
-              <option>Sofas</option>
+              {categoryOptions.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
             </select>
           </label>
 
           <FurniInput
             required
             type="number"
-            label="Price"
+            label="Price (NGN)"
             min={1}
             value={form.price}
             onChange={(event) =>
@@ -232,7 +275,7 @@ export default function AdminProductsPage() {
 
           <div className="md:col-span-2 flex flex-wrap gap-2">
             <FurniButton type="submit">
-              {editingProductId ? "Update Product" : "Add Product"}
+              {editingProductId ? "Update Product" : "Submit for review"}
             </FurniButton>
             {editingProductId ? (
               <FurniButton type="button" variant="outline" onClick={resetForm}>
@@ -244,15 +287,35 @@ export default function AdminProductsPage() {
       </FurniCard>
 
       <FurniCard>
-        <h2 className="text-lg font-semibold text-furni-primary">Inventory Table</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-lg font-semibold text-furni-primary">Inventory Table</h2>
+          <div className="flex flex-wrap gap-2">
+            {(["all", "pending", "approved", "rejected"] as StatusFilter[]).map((filter) => (
+              <button
+                key={filter}
+                type="button"
+                onClick={() => setStatusFilter(filter)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize ${
+                  statusFilter === filter
+                    ? "bg-furni-primary text-white"
+                    : "bg-furni-surface text-furni-primary ring-1 ring-furni-primary/15"
+                }`}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-4 overflow-x-auto">
-          <table className="w-full min-w-[640px] border-collapse text-sm">
+          <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
               <tr className="border-b border-furni-primary/10 text-left text-furni-muted">
                 <th className="py-2 pr-4 font-medium">Name</th>
                 <th className="py-2 pr-4 font-medium">Price</th>
                 <th className="py-2 pr-4 font-medium">Category</th>
                 <th className="py-2 pr-4 font-medium">Stock</th>
+                <th className="py-2 pr-4 font-medium">Status</th>
                 <th className="py-2 pr-4 font-medium">Actions</th>
               </tr>
             </thead>
@@ -260,11 +323,38 @@ export default function AdminProductsPage() {
               {sortedProducts.map((product) => (
                 <tr key={product.id} className="border-b border-furni-primary/5">
                   <td className="py-3 pr-4 font-medium text-furni-primary">{product.name}</td>
-                  <td className="py-3 pr-4 text-furni-muted">${product.price}</td>
-                  <td className="py-3 pr-4 text-furni-muted">{product.category}</td>
+                  <td className="py-3 pr-4 text-furni-muted">{formatNgn(product.price)}</td>
+                  <td className="py-3 pr-4 text-furni-muted">
+                    {product.categoryName || product.category}
+                  </td>
                   <td className="py-3 pr-4 text-furni-muted">{product.stock}</td>
                   <td className="py-3 pr-4">
-                    <div className="flex gap-2">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusBadgeClass(product.status)}`}
+                    >
+                      {product.status}
+                    </span>
+                  </td>
+                  <td className="py-3 pr-4">
+                    <div className="flex flex-wrap gap-2">
+                      {product.status.toLowerCase() === "pending" ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => void setProductStatus(product.id, "approved")}
+                            className="rounded-lg border border-furni-success/30 px-2 py-1 text-xs font-medium text-furni-success hover:bg-furni-success/10"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void setProductStatus(product.id, "rejected")}
+                            className="rounded-lg border border-furni-danger/25 px-2 py-1 text-xs font-medium text-furni-danger hover:bg-furni-danger/5"
+                          >
+                            Reject
+                          </button>
+                        </>
+                      ) : null}
                       <button
                         type="button"
                         onClick={() => populateForEdit(product)}

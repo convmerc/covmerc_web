@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterSignup } from "@/components/newsletter/NewsletterSignup";
 import { companyContact } from "@/lib/site-content";
 
 const socialLinks = [
@@ -22,13 +23,15 @@ const helpLinks = [
 
 const legalLinks = [
   { href: "/privacy", label: "Privacy Policy" },
-  { href: "/terms", label: "Terms of Service" }
+  { href: "/terms", label: "Terms of Service" },
+  { href: "/shipping", label: "Shipping" },
+  { href: "/returns", label: "Returns" }
 ] as const;
 
 export function Footer() {
   return (
-    <footer className="border-t border-furni-primary/10 bg-white">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 text-sm text-furni-muted md:grid-cols-2 lg:grid-cols-4 md:px-6 lg:px-8">
+    <footer className="border-t border-furni-primary/10 bg-white bg-gradient-to-b from-furni-surface to-white">
+      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 text-sm text-furni-muted md:grid-cols-2 lg:grid-cols-5 md:px-6 lg:px-8">
         <div className="space-y-3 lg:col-span-1">
           <p className="font-display text-3xl text-furni-primary">Covmerc</p>
           <p className="max-w-sm text-sm leading-relaxed">
@@ -75,6 +78,8 @@ export function Footer() {
             ))}
           </div>
         </div>
+
+        <NewsletterSignup className="lg:col-span-1" />
 
         <div>
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-furni-primary">

@@ -10,7 +10,8 @@ const adminLinks = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/products", label: "Inventory" },
   { href: "/admin/orders", label: "Orders" },
-  { href: "/admin/content", label: "Content" }
+  { href: "/admin/content", label: "Content" },
+  { href: "/dashboard/admin/data", label: "Firestore data" }
 ] as const;
 
 export function AdminLayout({
@@ -42,8 +43,8 @@ export function AdminLayout({
 
   if (authLoading || !canAccessAdmin) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-furni-surface">
-        <p className="text-sm text-furni-muted">Checking admin access...</p>
+      <main className="flex min-h-screen items-center justify-center bg-furni-surface px-4">
+        <p className="text-sm text-furni-muted">Checking admin access…</p>
       </main>
     );
   }
@@ -60,7 +61,11 @@ export function AdminLayout({
               <Link
                 key={link.href}
                 href={link.href}
-                className={`rounded-xl px-3 py-2 transition ${pathname === link.href ? "bg-white text-furni-primary" : "text-white/80 hover:bg-white/10 hover:text-white"}`}
+                className={`rounded-xl px-3 py-2 transition ${
+                  pathname === link.href || pathname.startsWith(`${link.href}/`)
+                    ? "bg-white text-furni-primary"
+                    : "text-white/80 hover:bg-white/10 hover:text-white"
+                }`}
               >
                 {link.label}
               </Link>
@@ -78,9 +83,8 @@ export function AdminLayout({
 
         <section className="space-y-4">
           <header>
-            <h1 className="text-3xl font-semibold tracking-tight text-furni-primary">
-              {title}
-            </h1>
+            <p className="covmerc-eyebrow">Operations</p>
+            <h1 className="mt-2 font-display text-3xl text-furni-primary">{title}</h1>
             <p className="mt-1 text-sm text-furni-muted">{subtitle}</p>
           </header>
           {children}

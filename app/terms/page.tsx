@@ -1,5 +1,4 @@
-import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { LegalDocument } from "@/components/content/LegalDocument";
 import { RelatedPages } from "@/components/content/RelatedPages";
@@ -11,9 +10,7 @@ import {
 
 export default function TermsPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-furni-surface">
-      <TopNav />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-12 md:px-6 lg:px-8">
+    <MarketingShell maxWidth="4xl">
         <PageHero
           eyebrow="Legal"
           title="Terms of Service"
@@ -33,8 +30,6 @@ export default function TermsPage() {
           title="Help & policies"
           links={[...relatedPageGroups.legal, ...relatedPageGroups.help]}
         />
-      </main>
-      <Footer />
-    </div>
+    </MarketingShell>
   );
 }
