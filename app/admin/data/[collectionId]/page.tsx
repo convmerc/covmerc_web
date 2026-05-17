@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 import type { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
@@ -249,13 +250,19 @@ export default function CollectionDataPage() {
 
   return (
     <main className="space-y-5">
-      <header className="rounded-3xl border border-furni-primary/10 bg-white p-5 shadow-soft ">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+      <header className="rounded-3xl border border-furni-primary/10 bg-white p-5 shadow-soft">
+        <Link
+          href="/admin/data"
+          className="text-sm font-semibold text-furni-primary hover:underline"
+        >
+          ← All collections
+        </Link>
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p className="text-xs uppercase tracking-wide text-furni-muted ">
-              Data table
-            </p>
-            <h1 className="mt-1 text-2xl font-semibold">{collectionConfig.label}</h1>
+            <p className="covmerc-eyebrow">Data table</p>
+            <h1 className="mt-2 font-display text-2xl text-furni-primary">
+              {collectionConfig.label}
+            </h1>
           </div>
           <span
             className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${

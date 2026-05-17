@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminSectionHeader } from "@/components/admin/AdminSectionHeader";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
@@ -45,12 +46,16 @@ export default function AdminContentPage() {
 
   return (
     <AdminLayout
-      title="Content Manager"
-      subtitle="Publish journal articles to Firestore (shared with mobile and the data manager)."
+      title="Journal"
+      subtitle="Publish editorial content to Firestore — shared with the storefront and mobile app."
     >
-      <FurniCard>
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,400px),1fr]">
+      <FurniCard interactive={false}>
         <form className="grid gap-3" onSubmit={handleSubmit}>
-          <h2 className="text-lg font-semibold text-furni-primary">Add Blog Post</h2>
+          <AdminSectionHeader
+            title="New post"
+            description="Posts publish to the blog collection immediately."
+          />
           {error ? (
             <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
           ) : null}
@@ -95,19 +100,17 @@ export default function AdminContentPage() {
         </form>
       </FurniCard>
 
-      <FurniCard>
-        <h2 className="text-lg font-semibold text-furni-primary">Recent Blog Entries</h2>
-        <p className="mt-1 text-xs text-furni-muted">
-          Advanced edits:{" "}
-          <Link href="/admin/data/blogPosts" className="font-medium text-furni-primary hover:underline">
-            Firestore data manager →
-          </Link>
-        </p>
-        <div className="mt-3 grid gap-2">
+      <FurniCard interactive={false}>
+        <AdminSectionHeader
+          title="Recent entries"
+          description="Latest posts from your catalog."
+          action={{ label: "Data manager →", href: "/admin/data/blogPosts" }}
+        />
+        <div className="mt-4 grid gap-2">
           {blogPosts.slice(0, 8).map((post) => (
             <div
               key={post.id}
-              className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-furni-surface px-3 py-2 text-sm text-furni-muted"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-furni-primary/8 bg-furni-surface/80 px-3 py-3 text-sm transition hover:bg-furni-surface"
             >
               <div>
                 <p className="font-medium text-furni-primary">{post.title}</p>
@@ -127,6 +130,7 @@ export default function AdminContentPage() {
           ))}
         </div>
       </FurniCard>
+      </div>
     </AdminLayout>
   );
 }

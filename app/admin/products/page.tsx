@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { AdminPillTabs } from "@/components/admin/AdminPillTabs";
+import { AdminSectionHeader } from "@/components/admin/AdminSectionHeader";
 import { ProductImageUpload } from "@/components/product/ProductImageUpload";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -170,14 +172,20 @@ export default function AdminProductsPage() {
 
   return (
     <AdminLayout
-      title="Inventory Management"
+      title="Inventory"
       subtitle="Review pending listings, approve products for the storefront, and manage catalog data."
     >
-      <FurniCard>
-        <form className="grid gap-3 md:grid-cols-2" onSubmit={handleSubmit}>
-          <h2 className="md:col-span-2 text-lg font-semibold text-furni-primary">
-            {editingProductId ? "Edit Product" : "Add New Product"}
-          </h2>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,380px),1fr]">
+      <FurniCard interactive={false} className="xl:sticky xl:top-6 xl:self-start">
+        <form className="grid gap-3" onSubmit={handleSubmit}>
+          <AdminSectionHeader
+            title={editingProductId ? "Edit product" : "Add product"}
+            description={
+              editingProductId
+                ? "Update listing details and save changes."
+                : "New listings are submitted for review before going live."
+            }
+          />
 
           <FurniInput
             required
@@ -306,56 +314,53 @@ export default function AdminProductsPage() {
         </form>
       </FurniCard>
 
-      <FurniCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-lg font-semibold text-furni-primary">Inventory Table</h2>
-          <div className="flex flex-wrap gap-2">
-            {(["all", "pending", "approved", "rejected"] as StatusFilter[]).map((filter) => (
-              <button
-                key={filter}
-                type="button"
-                onClick={() => setStatusFilter(filter)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium capitalize ${
-                  statusFilter === filter
-                    ? "bg-furni-primary text-white"
-                    : "bg-furni-surface text-furni-primary ring-1 ring-furni-primary/15"
-                }`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
+      <FurniCard interactive={false} className="min-w-0">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <AdminSectionHeader
+            title="Catalog"
+            description={`${sortedProducts.length} listing${sortedProducts.length === 1 ? "" : "s"} shown`}
+          />
+          <AdminPillTabs
+            value={statusFilter}
+            options={["all", "pending", "approved", "rejected"] as const}
+            onChange={setStatusFilter}
+          />
         </div>
 
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[760px] border-collapse text-sm">
             <thead>
-              <tr className="border-b border-furni-primary/10 text-left text-furni-muted">
-                <th className="py-2 pr-4 font-medium">Name</th>
-                <th className="py-2 pr-4 font-medium">Price</th>
-                <th className="py-2 pr-4 font-medium">Category</th>
-                <th className="py-2 pr-4 font-medium">Stock</th>
-                <th className="py-2 pr-4 font-medium">Status</th>
-                <th className="py-2 pr-4 font-medium">Actions</th>
+              <tr className="border-b border-furni-primary/10 bg-furni-surface/60 text-left text-xs uppercase tracking-wide text-furni-muted">
+                <th className="px-2 py-3 font-semibold">Name</th>
+                <th className="px-2 py-3 font-semibold">Price</th>
+                <th className="px-2 py-3 font-semibold">Category</th>
+                <th className="px-2 py-3 font-semibold">Stock</th>
+                <th className="px-2 py-3 font-semibold">Status</th>
+                <th className="px-2 py-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
               {sortedProducts.map((product) => (
-                <tr key={product.id} className="border-b border-furni-primary/5">
-                  <td className="py-3 pr-4 font-medium text-furni-primary">{product.name}</td>
-                  <td className="py-3 pr-4 text-furni-muted">{formatNgn(product.price)}</td>
-                  <td className="py-3 pr-4 text-furni-muted">
+                <tr
+                  key={product.id}
+                  className="border-b border-furni-primary/5 transition hover:bg-furni-surface/50"
+                >
+                  <td className="px-2 py-3 font-semibold text-furni-primary">{product.name}</td>
+                  <td className="px-2 py-3 tabular-nums text-furni-muted">
+                    {formatNgn(product.price)}
+                  </td>
+                  <td className="px-2 py-3 text-furni-muted">
                     {product.categoryName || product.category}
                   </td>
-                  <td className="py-3 pr-4 text-furni-muted">{product.stock}</td>
-                  <td className="py-3 pr-4">
+                  <td className="px-2 py-3 tabular-nums text-furni-muted">{product.stock}</td>
+                  <td className="px-2 py-3">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize ${statusBadgeClass(product.status)}`}
+                      className={`rounded-full px-2.5 py-1 text-xs font-semibold capitalize ${statusBadgeClass(product.status)}`}
                     >
                       {product.status}
                     </span>
                   </td>
-                  <td className="py-3 pr-4">
+                  <td className="px-2 py-3">
                     <div className="flex flex-wrap gap-2">
                       {product.status.toLowerCase() === "pending" ? (
                         <>
@@ -401,6 +406,7 @@ export default function AdminProductsPage() {
           </table>
         </div>
       </FurniCard>
+      </div>
     </AdminLayout>
   );
 }
