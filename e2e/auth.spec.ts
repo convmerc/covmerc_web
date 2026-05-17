@@ -37,7 +37,8 @@ test.describe("Authentication", () => {
   test("admin login page redirects to shared auth", async ({ page }) => {
     await page.goto("/admin/login");
     await expect(page).toHaveURL(/\/auth\/login/);
-    expect(page.url()).toContain("next=%2Fadmin");
+    const next = new URL(page.url()).searchParams.get("next");
+    expect(next).toBe("/admin");
   });
 
   test("checkout redirects unauthenticated users to login", async ({ page }) => {
