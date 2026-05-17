@@ -10,6 +10,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { countOrdersByStatus, weeklyOrderBars } from "@/lib/admin-analytics";
 import { fetchAdminMetrics, type MetricResult } from "@/lib/admin-firestore";
+import { fetchAllBusinesses } from "@/lib/admin-ops";
 import { formatNgn } from "@/lib/format-currency";
 
 const CHART_HEIGHT_PX = 160;
@@ -18,10 +19,22 @@ export default function AdminOverviewPage() {
   const { orders, products, storeLoading } = useFurniStore();
   const [metrics, setMetrics] = useState<MetricResult[]>([]);
   const [metricsLoading, setMetricsLoading] = useState(true);
+  const [pendingVendors, setPendingVendors] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setMetricsLoading(true);
+    void fetchAllBusinesses()
+      .then((businesses) => {
+        if (!cancelled) {
+          setPendingVendors(
+            businesses.filter((b) => b.status.toLowerCase() === "pending").length
+          );
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setPendingVendors(0);
+      });
     void fetchAdminMetrics()
       .then((result) => {
         if (!cancelled) setMetrics(result);
@@ -81,7 +94,7 @@ export default function AdminOverviewPage() {
         />
       </section>
 
-      {(pendingOrders > 0 || pendingProducts > 0) && (
+      {(pendingOrders > 0 || pendingProducts > 0 || pendingVendors > 0) && (
         <FurniCard interactive={false} className="border-furni-warning/30 bg-furni-warning/5">
           <p className="text-sm font-semibold text-furni-primary">Needs attention</p>
           <ul className="mt-2 space-y-1 text-sm text-furni-muted">
@@ -93,6 +106,11 @@ export default function AdminOverviewPage() {
             {pendingProducts > 0 ? (
               <li>
                 {pendingProducts} product listing{pendingProducts === 1 ? "" : "s"} awaiting review.
+              </li>
+            ) : null}
+            {pendingVendors > 0 ? (
+              <li>
+                {pendingVendors} vendor application{pendingVendors === 1 ? "" : "s"} awaiting approval.
               </li>
             ) : null}
           </ul>
@@ -173,6 +191,12 @@ export default function AdminOverviewPage() {
       </FurniCard>
 
       <section aria-label="Shortcuts" className="grid gap-4 md:grid-cols-2">
+        <AdminQuickLinkCard
+          title="Vendor applications"
+          description="Review business profiles and approve sellers from the mobile app."
+          href="/admin/vendors"
+          icon="🏪"
+        />
         <AdminQuickLinkCard
           title="Inventory"
           description="Approve vendor listings, edit products, and manage stock."

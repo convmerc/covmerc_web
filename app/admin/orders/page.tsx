@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { AdminSectionHeader } from "@/components/admin/AdminSectionHeader";
@@ -84,7 +85,14 @@ export default function AdminOrdersPage() {
                     key={order.id}
                     className="border-b border-furni-primary/5 transition hover:bg-furni-surface/50"
                   >
-                    <td className="px-5 py-4 font-semibold text-furni-primary">{order.id}</td>
+                    <td className="px-5 py-4 font-semibold text-furni-primary">
+                      <Link
+                        href={`/admin/orders/${order.id}`}
+                        className="hover:underline"
+                      >
+                        {order.id}
+                      </Link>
+                    </td>
                     <td className="px-5 py-4 text-furni-muted">{order.customer}</td>
                     <td className="px-5 py-4 tabular-nums text-furni-muted">{order.items}</td>
                     <td className="px-5 py-4 font-medium tabular-nums text-furni-ink">

@@ -25,6 +25,7 @@ type ProductForm = {
   dimensions: string;
   weight: string;
   finish: string;
+  featured: boolean;
 };
 
 type StatusFilter = "all" | "pending" | "approved" | "rejected";
@@ -40,7 +41,8 @@ const defaultForm: ProductForm = {
   material: "",
   dimensions: "",
   weight: "",
-  finish: ""
+  finish: "",
+  featured: false
 };
 
 function toProductPayload(form: ProductForm, status: string): Omit<FurniProduct, "id"> {
@@ -64,7 +66,7 @@ function toProductPayload(form: ProductForm, status: string): Omit<FurniProduct,
       weight: form.weight,
       finish: form.finish
     },
-    featured: false,
+    featured: form.featured,
     status,
     rating: 0
   };
@@ -137,7 +139,8 @@ export default function AdminProductsPage() {
       material: product.specs.material,
       dimensions: product.specs.dimensions,
       weight: product.specs.weight,
-      finish: product.specs.finish
+      finish: product.specs.finish,
+      featured: product.featured ?? false
     });
   }
 
@@ -300,6 +303,18 @@ export default function AdminProductsPage() {
               setForm((current) => ({ ...current, finish: event.target.value }))
             }
           />
+
+          <label className="flex items-center gap-2 text-sm text-furni-muted">
+            <input
+              type="checkbox"
+              checked={form.featured}
+              onChange={(event) =>
+                setForm((current) => ({ ...current, featured: event.target.checked }))
+              }
+              className="h-4 w-4 rounded border-furni-primary/30"
+            />
+            <span>Feature on storefront highlights</span>
+          </label>
 
           <div className="md:col-span-2 flex flex-wrap gap-2">
             <FurniButton type="submit">

@@ -248,6 +248,47 @@ export async function createBlogPostInFirestore(
   return ref.id;
 }
 
+export async function updateBlogPostInFirestore(
+  id: string,
+  post: Partial<
+    Pick<
+      FurniBlogPost,
+      | "title"
+      | "excerpt"
+      | "content"
+      | "category"
+      | "coverImage"
+      | "author"
+      | "slug"
+      | "status"
+    >
+  >
+): Promise<void> {
+  const { db } = getFirebase();
+  const payload: Record<string, unknown> = { updatedAt: serverTimestamp() };
+
+  if (post.title !== undefined) payload.title = post.title;
+  if (post.excerpt !== undefined) payload.excerpt = post.excerpt;
+  if (post.content !== undefined) payload.content = post.content;
+  if (post.category !== undefined) payload.category = post.category;
+  if (post.coverImage !== undefined) payload.coverImage = post.coverImage;
+  if (post.author !== undefined) payload.author = post.author;
+  if (post.slug !== undefined) payload.slug = post.slug;
+  if (post.status !== undefined) {
+    payload.status = post.status;
+    if (post.status === "published") {
+      payload.publishedAt = serverTimestamp();
+    }
+  }
+
+  await updateDoc(doc(db, BLOG_POSTS_COLLECTION, id), payload);
+}
+
+export async function deleteBlogPostFromFirestore(id: string): Promise<void> {
+  const { db } = getFirebase();
+  await deleteDoc(doc(db, BLOG_POSTS_COLLECTION, id));
+}
+
 function mapProductDocs(
   docs: Array<{ id: string; data: Record<string, unknown> }>,
   options: { includeUnapproved?: boolean }

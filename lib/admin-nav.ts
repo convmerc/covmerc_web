@@ -29,15 +29,27 @@ export const ADMIN_PRIMARY_NAV: AdminNavItem[] = [
     label: "Journal",
     icon: "✎",
     description: "Blog and editorial"
+  },
+  {
+    href: "/admin/vendors",
+    label: "Vendors",
+    icon: "🏪",
+    description: "Applications and approvals"
   }
 ];
 
 export const ADMIN_OPERATIONS_NAV: AdminNavItem[] = [
   {
-    href: "/admin/support",
-    label: "Support",
+    href: "/admin/messages",
+    label: "Messages",
     icon: "💬",
-    description: "Customer tickets"
+    description: "Customer conversations"
+  },
+  {
+    href: "/admin/support",
+    label: "Support tickets",
+    icon: "🎫",
+    description: "Ticket queue"
   },
   {
     href: "/admin/announcements",
