@@ -30,26 +30,41 @@ export function CovmercOgImage({
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
         <div
           style={{
-            width: 56,
-            height: 56,
-            borderRadius: 14,
+            width: 72,
+            height: 72,
+            borderRadius: 18,
             background: "#F9BF29",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            color: "#1f4d3a",
-            fontSize: 28,
+            color: "#2a463c",
+            fontSize: 36,
             fontWeight: 700,
+            boxShadow: "0 8px 32px rgba(249, 191, 41, 0.35)",
           }}
         >
           C
         </div>
-        <span style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em" }}>
-          Covmerc
-        </span>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
+          <span style={{ fontSize: 36, fontWeight: 600, letterSpacing: "-0.02em" }}>Covmerc</span>
+          <span
+            style={{
+              fontSize: 14,
+              fontWeight: 600,
+              letterSpacing: "0.22em",
+              textTransform: "uppercase",
+              padding: "4px 10px",
+              borderRadius: 999,
+              background: "rgba(255,255,255,0.15)",
+              color: "#F9BF29",
+            }}
+          >
+            Studio
+          </span>
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 900 }}>

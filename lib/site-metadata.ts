@@ -19,6 +19,30 @@ const defaultOgImage = {
   alt: siteConfig.title,
 } as const;
 
+/** Absolute OG image URL for crawlers that require a full URL. */
+export function defaultOgImageUrl(): string {
+  return resolveOgImageUrl(siteConfig.defaultOgImagePath) ?? siteConfig.defaultOgImagePath;
+}
+
+/** Home page metadata — keeps default OG/Twitter images (child openGraph replaces parent). */
+export const homePageMetadata: Metadata = {
+  title: { absolute: siteConfig.title },
+  description: siteConfig.description,
+  alternates: { canonical: siteConfig.url },
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    images: [defaultOgImage],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: siteConfig.title,
+    description: siteConfig.description,
+    images: [defaultOgImageUrl()],
+  },
+};
+
 /** Resolve product or external image URLs for Open Graph (must be absolute). */
 export function resolveOgImageUrl(imageUrl?: string): string | undefined {
   if (!imageUrl?.trim()) return undefined;
@@ -63,7 +87,7 @@ export const defaultMetadata: Metadata = {
     title: siteConfig.title,
     description: siteConfig.description,
     creator: siteConfig.twitterHandle,
-    images: [siteConfig.defaultOgImagePath],
+    images: [defaultOgImageUrl()],
   },
   robots: {
     index: true,
@@ -85,6 +109,9 @@ export function createPageMetadata({
   const url = `${siteConfig.url}${path}`;
   const resolved = resolveOgImageUrl(imageUrl);
   const ogImages = resolved ? [{ url: resolved, alt: title }] : [defaultOgImage];
+  const twitterImages = resolved
+    ? [resolved]
+    : [defaultOgImageUrl()];
 
   return {
     title,
@@ -99,7 +126,7 @@ export function createPageMetadata({
     twitter: {
       title: `${title} | ${siteConfig.name}`,
       description,
-      images: ogImages.map((entry) => entry.url),
+      images: twitterImages,
     },
   };
 }
