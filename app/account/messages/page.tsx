@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
@@ -58,11 +59,7 @@ export default function AccountMessagesPage() {
   }
 
   if (loading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading messages…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="list" message="Loading messages…" count={4} />;
   }
 
   return (

@@ -20,6 +20,11 @@ import {
 import type { AuthResult, AuthUser } from "@/lib/auth-types";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
 import { ensureUserDocument, resolveAuthUser } from "@/lib/auth-user";
+import {
+  applyPasswordReset,
+  sendPasswordReset,
+  verifyPasswordReset
+} from "@/lib/auth-password-reset";
 import { getFirebase, signInWithGoogle } from "@/lib/firebase";
 
 export type { AuthUser, UserType } from "@/lib/auth-types";
@@ -35,6 +40,11 @@ type AuthSessionValue = {
     password: string
   ) => Promise<AuthResult>;
   loginWithGoogle: () => Promise<AuthResult>;
+  requestPasswordReset: (email: string) => Promise<AuthResult>;
+  verifyPasswordResetCode: (
+    oobCode: string
+  ) => Promise<{ success: true; email: string } | { success: false; message: string }>;
+  completePasswordReset: (oobCode: string, newPassword: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
 };
 
@@ -120,6 +130,54 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    const trimmed = email.trim();
+    if (!trimmed) {
+      return { success: false, message: "Please enter your email address." };
+    }
+
+    try {
+      await sendPasswordReset(trimmed);
+      return { success: true };
+    } catch (error) {
+      const code =
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        typeof (error as { code: string }).code === "string"
+          ? (error as { code: string }).code
+          : "";
+
+      // Do not reveal whether the email is registered.
+      if (code === "auth/user-not-found" || code === "auth/invalid-email") {
+        if (code === "auth/invalid-email") {
+          return { success: false, message: getAuthErrorMessage(error) };
+        }
+        return { success: true };
+      }
+
+      return { success: false, message: getAuthErrorMessage(error) };
+    }
+  }, []);
+
+  const verifyPasswordResetCode = useCallback(async (oobCode: string) => {
+    try {
+      const email = await verifyPasswordReset(oobCode);
+      return { success: true as const, email };
+    } catch (error) {
+      return { success: false as const, message: getAuthErrorMessage(error) };
+    }
+  }, []);
+
+  const completePasswordReset = useCallback(async (oobCode: string, newPassword: string) => {
+    try {
+      await applyPasswordReset(oobCode, newPassword);
+      return { success: true };
+    } catch (error) {
+      return { success: false, message: getAuthErrorMessage(error) };
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     const { auth } = getFirebase();
     await signOut(auth);
@@ -134,6 +192,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       loginWithEmail,
       registerWithEmail,
       loginWithGoogle,
+      requestPasswordReset,
+      verifyPasswordResetCode,
+      completePasswordReset,
       logout
     }),
     [
@@ -141,6 +202,9 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       authLoading,
       loginWithEmail,
       loginWithGoogle,
+      requestPasswordReset,
+      verifyPasswordResetCode,
+      completePasswordReset,
       logout,
       registerWithEmail
     ]

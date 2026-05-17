@@ -26,7 +26,7 @@ export default function AccountWishlistPage() {
   );
 
   if (wishlistLoading || storeLoading) {
-    return <LoadingState message="Loading your wishlist…" />;
+    return <LoadingState variant="grid" message="Loading your wishlist…" count={4} />;
   }
 
   if (wishlistProductIds.length === 0) {

@@ -22,7 +22,11 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   if (session.status === "loading" || session.status === "unauthenticated") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-furni-surface px-4">
-        <LoadingState message="Checking admin access…" />
+        <LoadingState
+          variant="page"
+          message="Checking admin access…"
+          description="Verifying your admin permissions"
+        />
       </div>
     );
   }

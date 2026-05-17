@@ -8,6 +8,7 @@ import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import {
   CheckoutStepper,
   type CheckoutStep
@@ -242,9 +243,9 @@ function CheckoutPageContent() {
       <CheckoutStepper currentStep={currentStep} />
 
       {authLoading ? (
-        <FurniCard className="mt-8">
-          <p className="text-sm text-furni-muted">Loading your account…</p>
-        </FurniCard>
+        <div className="mt-8">
+          <LoadingState variant="inline" message="Loading your account…" />
+        </div>
       ) : null}
 
       {!authLoading && !currentUser && currentStep !== "Confirmation" ? (
@@ -517,7 +518,7 @@ export default function CheckoutPage() {
     <Suspense
       fallback={
         <MarketingShell maxWidth="4xl">
-          <p className="text-sm text-furni-muted">Loading checkout…</p>
+          <LoadingState variant="checkout" message="Loading checkout…" />
         </MarketingShell>
       }
     >

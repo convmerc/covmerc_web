@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import {
@@ -51,11 +52,7 @@ export default function VendorOverviewPage() {
   }, [products, orders]);
 
   if (loading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading vendor dashboard…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="card" message="Loading vendor dashboard…" className="w-full" />;
   }
 
   return (

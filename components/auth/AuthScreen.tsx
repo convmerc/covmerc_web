@@ -43,6 +43,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
 
   const isLogin = mode === "login";
 
@@ -51,6 +52,9 @@ export function AuthScreen({ mode }: AuthScreenProps) {
     const next = params.get("next");
     if (next) {
       setNextPath(next);
+    }
+    if (params.get("reset") === "success") {
+      setResetSuccess(true);
     }
   }, []);
 
@@ -95,11 +99,14 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
   const registerHref = `/auth/register${nextPath !== "/shop" ? `?next=${encodeURIComponent(nextPath)}` : ""}`;
   const loginHref = `/auth/login${nextPath !== "/shop" ? `?next=${encodeURIComponent(nextPath)}` : ""}`;
+  const forgotHref = `/auth/forgot-password${
+    email.trim() ? `?email=${encodeURIComponent(email.trim())}` : ""
+  }`;
 
   if (sessionLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState message="Loading your session…" />
+        <LoadingState variant="page" message="Loading your session…" />
       </div>
     );
   }
@@ -238,8 +245,24 @@ export function AuthScreen({ mode }: AuthScreenProps) {
                     onChange={(event) => setEmail(event.target.value)}
                   />
 
+                  {isLogin && resetSuccess ? (
+                    <p className="rounded-xl bg-furni-primary/5 px-3 py-2 text-sm text-furni-primary ring-1 ring-furni-primary/10">
+                      Your password was updated. Sign in with your new password.
+                    </p>
+                  ) : null}
+
                   <label className="flex w-full flex-col gap-1.5 text-sm text-furni-muted">
-                    <span className="text-xs font-medium">Password</span>
+                    <span className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-medium">Password</span>
+                      {isLogin ? (
+                        <Link
+                          href={forgotHref}
+                          className="text-xs font-medium text-furni-primary hover:underline"
+                        >
+                          Forgot password?
+                        </Link>
+                      ) : null}
+                    </span>
                     <div className="relative">
                       <input
                         required

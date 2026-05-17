@@ -8,6 +8,7 @@ import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniImage } from "@/components/ui/FurniImage";
 import { OrderStatusBadge } from "@/components/ui/OrderStatusBadge";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { fetchOrderById } from "@/lib/store-firestore";
 import type { FurniOrder } from "@/lib/furni-types";
@@ -43,11 +44,7 @@ export default function AccountOrderDetailPage() {
   }, [currentUser?.id, currentUser?.userType, params.id]);
 
   if (loading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading order…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="card" message="Loading order…" className="w-full" />;
   }
 
   if (notFound || !order) {

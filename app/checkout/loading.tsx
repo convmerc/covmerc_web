@@ -4,7 +4,7 @@ import { LoadingState } from "@/components/ui/LoadingState";
 export default function CheckoutLoading() {
   return (
     <MarketingShell maxWidth="4xl">
-      <LoadingState message="Loading checkout…" />
+      <LoadingState variant="checkout" message="Loading checkout…" />
     </MarketingShell>
   );
 }

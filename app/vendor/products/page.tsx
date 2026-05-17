@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { FurniImage } from "@/components/ui/FurniImage";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { fetchVendorProducts } from "@/lib/store-marketplace";
@@ -42,11 +43,7 @@ export default function VendorProductsPage() {
   }, [currentUser?.id]);
 
   if (loading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading your products…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="grid" message="Loading your products…" count={4} />;
   }
 
   return (
