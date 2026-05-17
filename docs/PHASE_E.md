@@ -21,10 +21,10 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Add `public/og/og-default.jpg` (1200×630) and optional route-specific images
-- [ ] Wire `openGraph.images` / `twitter.images` in `lib/site-metadata.ts`
-- [ ] Replace critical Unsplash placeholders in seed data and hero sections
-- [ ] Verify product pages still use dynamic OG from `app/product/[id]/layout.tsx`
+- [x] Generated OG via `app/opengraph-image.tsx`, `app/twitter-image.tsx`, `app/shop/opengraph-image.tsx`
+- [x] Default `openGraph.images` / `twitter.images` in `lib/site-metadata.ts`
+- [x] Absolute URLs for product OG via `resolveOgImageUrl()`
+- [ ] Replace critical Unsplash placeholders in seed data and hero sections (optional)
 
 **Effort:** ~0.5–1 day · **No backend**
 
@@ -36,10 +36,10 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Storage rules: `products/{userId}/**` write for `request.auth.uid == userId`
-- [ ] `lib/storage-upload.ts` — `uploadProductImage(file, { vendorId, productId })` → `downloadURL`
-- [ ] UI: file input + preview on `app/vendor/products/new` and `app/admin/products`
-- [ ] Persist `imageUrl` + `imageUrls[]` in Firestore (Flutter-aligned shape)
+- [x] `storage.rules` — `products/{ownerId}/**` (deploy with `firebase deploy --only storage`)
+- [x] `lib/storage-upload.ts` + `components/product/ProductImageUpload.tsx`
+- [x] Vendor `app/vendor/products/new` and admin `app/admin/products` forms
+- [x] Persist `imageUrl` + `imageUrls[]` in Firestore (Flutter-aligned shape)
 - [ ] Optional: `POST /api/upload/product-image` with Admin SDK for stricter control
 
 **Effort:** ~2–3 days
@@ -54,11 +54,11 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Collection `blogPosts`: `title`, `excerpt`, `content`, `coverImage`, `category`, `author`, `publishedAt`, `slug`, `status`
-- [ ] `subscribeToBlogPosts()` in `lib/store-firestore.ts`
-- [ ] Replace `FurniStoreProvider` blog `localStorage` with Firestore subscription
-- [ ] Route `app/blog/[slug]/page.tsx` + `generateMetadata`; redirect `/blog/[id]` if needed
-- [ ] Admin authoring in `/admin/content` or Firestore data manager
+- [x] Collection `blogPosts`: `title`, `excerpt`, `content`, `coverImage`, `category`, `author`, `publishedAt`, `slug`, `status`
+- [x] `subscribeToBlogPosts()` + `createBlogPostInFirestore()` in `lib/store-firestore.ts`
+- [x] `FurniStoreProvider` uses Firestore (seed fallback when empty)
+- [x] `app/blog/[slug]/page.tsx` + `layout.tsx` metadata; legacy id URLs match by id or slug
+- [x] Admin: `/admin/content` + data manager `blogPosts`
 
 **Effort:** ~2–3 days
 
@@ -70,11 +70,11 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Price range (client-side first; Firestore range queries + indexes later)
-- [ ] “In stock only” toggle
-- [ ] Optional: material/finish from `product.specs`
-- [ ] Sync filters to URL: `?category=&min=&max=&inStock=1`
-- [ ] Update `app/shop/page.tsx` filter UI (sidebar + mobile)
+- [x] Price range (client-side; `min` / `max` URL params)
+- [x] “In stock only” toggle (`inStock=1`)
+- [x] Material / finish from `product.specs`
+- [x] URL sync: `?category=&min=&max=&inStock=1&material=&finish=&q=&sort=`
+- [x] `app/shop/page.tsx` sidebar + mobile filter panel
 
 **Effort:** ~1 day (filters only)
 
@@ -86,10 +86,10 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Add Playwright; tests under `e2e/`
-- [ ] Flows: shop → product → cart → checkout (Pay on Delivery or mocked Paystack)
-- [ ] Flows: login → account orders; contact form
-- [ ] CI job in `.github/workflows/ci.yml` (test Firebase project or emulators)
+- [x] Playwright in `e2e/` + `playwright.config.ts` (`npm run test:e2e`)
+- [x] Commerce: shop → cart → checkout payment step (Pay on Delivery)
+- [x] Auth redirect + contact form smoke tests
+- [x] CI job `e2e` in `.github/workflows/ci.yml` (uses `ci-placeholder` + seed fallback)
 
 **Effort:** ~2–3 days
 
@@ -101,9 +101,9 @@ Recommended: one PR per milestone (E1, E2, …) or one PR when a milestone group
 
 **Tasks**
 
-- [ ] Firestore: `wishlists/{userId}/items` or `users/{uid}.wishlistProductIds`
-- [ ] Heart on `ProductCard`; `/account/wishlist`
-- [ ] “Add to cart” from wishlist via existing `addToCart`
+- [x] Firestore `wishlists/{userId}/items/{productId}` + `firestore.rules`
+- [x] `WishlistButton` on `ProductCard` and product page; `/account/wishlist`
+- [x] Add to cart from wishlist via `ProductCard`
 
 **Effort:** ~2 days
 

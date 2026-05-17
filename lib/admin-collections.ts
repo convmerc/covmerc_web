@@ -72,6 +72,34 @@ export const MANAGED_COLLECTIONS: ManagedCollectionConfig[] = [
       status: "draft",
       audience: "all"
     }
+  },
+  {
+    id: "blogPosts",
+    label: "Blog Posts",
+    collectionPath: "blogPosts",
+    description:
+      "Design journal articles for web and mobile. Use status published for live posts.",
+    readOnly: false,
+    editableFields: [
+      "title",
+      "slug",
+      "excerpt",
+      "content",
+      "coverImage",
+      "category",
+      "author",
+      "status"
+    ],
+    createTemplate: {
+      title: "",
+      slug: "",
+      excerpt: "",
+      content: "",
+      coverImage: "",
+      category: "Design",
+      author: "Covmerc Editorial",
+      status: "draft"
+    }
   }
 ];
 

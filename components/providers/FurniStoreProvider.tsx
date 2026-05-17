@@ -9,14 +9,15 @@ import {
   useState,
   type ReactNode
 } from "react";
-import { initialBlogPosts } from "@/lib/furni-data";
 import {
   buildOrderLineItems,
+  createBlogPostInFirestore,
   createOrderInFirestore,
   createProductInFirestore,
   deleteProductFromFirestore,
   fetchAllOrders,
   fetchOrdersForUser,
+  subscribeToBlogPosts,
   subscribeToProducts,
   updateOrderStatusInFirestore,
   updateProductInFirestore
@@ -35,6 +36,11 @@ import type {
 } from "@/lib/furni-types";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { trackAddToCart, trackPurchase } from "@/lib/analytics";
+import {
+  addProductToWishlist,
+  removeProductFromWishlist,
+  subscribeToWishlistProductIds
+} from "@/lib/wishlist-firestore";
 
 type FurniStoreContextValue = {
   products: FurniProduct[];
@@ -47,6 +53,10 @@ type FurniStoreContextValue = {
   estimateDeliveryFee: (city: string) => number;
   storeLoading: boolean;
   storeError: string | null;
+  wishlistProductIds: string[];
+  wishlistLoading: boolean;
+  isInWishlist: (productId: string) => boolean;
+  toggleWishlist: (productId: string) => Promise<void>;
   addToCart: (productId: string, quantity?: number) => void;
   updateCartItem: (productId: string, quantity: number) => void;
   removeCartItem: (productId: string) => void;
@@ -55,8 +65,11 @@ type FurniStoreContextValue = {
   updateProduct: (id: string, product: Partial<FurniProduct>) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   addBlogPost: (
-    post: Pick<FurniBlogPost, "title" | "excerpt" | "content" | "category" | "coverImage">
-  ) => void;
+    post: Pick<FurniBlogPost, "title" | "excerpt" | "content" | "category" | "coverImage"> & {
+      slug?: string;
+      status?: FurniBlogPost["status"];
+    }
+  ) => Promise<void>;
   updateOrderStatus: (orderId: string, status: FurniOrderStatus) => Promise<void>;
   createOrder: (
     shipping: CheckoutShipping,
@@ -67,8 +80,6 @@ type FurniStoreContextValue = {
 };
 
 const FurniStoreContext = createContext<FurniStoreContextValue | null>(null);
-
-const blogStorageKey = "furni-blog-posts";
 
 function cartStorageKey(userId: string | null) {
   return userId ? `covmerc-cart-${userId}` : "covmerc-cart-guest";
@@ -109,29 +120,44 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
   const { currentUser, authLoading } = useAuthSession();
   const [products, setProducts] = useState<FurniProduct[]>([]);
   const [categories, setCategories] = useState<StoreCategory[]>([]);
-  const [blogPosts, setBlogPosts] = useState<FurniBlogPost[]>(initialBlogPosts);
+  const [blogPosts, setBlogPosts] = useState<FurniBlogPost[]>([]);
   const [orders, setOrders] = useState<FurniOrder[]>([]);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [storeLoading, setStoreLoading] = useState(true);
   const [storeError, setStoreError] = useState<string | null>(null);
   const [cartHydrated, setCartHydrated] = useState(false);
+  const [wishlistProductIds, setWishlistProductIds] = useState<string[]>([]);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const raw = window.localStorage.getItem(blogStorageKey);
-    if (raw) {
-      try {
-        setBlogPosts(JSON.parse(raw) as FurniBlogPost[]);
-      } catch {
-        setBlogPosts(initialBlogPosts);
-      }
+    if (!currentUser?.id) {
+      setWishlistProductIds([]);
+      setWishlistLoading(false);
+      return;
     }
-  }, []);
+
+    setWishlistLoading(true);
+    const unsubscribe = subscribeToWishlistProductIds(
+      currentUser.id,
+      (ids) => {
+        setWishlistProductIds(ids);
+        setWishlistLoading(false);
+      },
+      () => setWishlistLoading(false)
+    );
+
+    return unsubscribe;
+  }, [currentUser?.id]);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem(blogStorageKey, JSON.stringify(blogPosts));
-  }, [blogPosts]);
+    const includeDrafts = currentUser?.userType === "admin";
+    const unsubscribe = subscribeToBlogPosts(
+      setBlogPosts,
+      (error) => setStoreError(error.message),
+      { includeDrafts }
+    );
+    return unsubscribe;
+  }, [currentUser?.userType]);
 
   useEffect(() => {
     setStoreLoading(true);
@@ -275,6 +301,26 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => setCartItems([]), []);
 
+  const isInWishlist = useCallback(
+    (productId: string) => wishlistProductIds.includes(productId),
+    [wishlistProductIds]
+  );
+
+  const toggleWishlist = useCallback(
+    async (productId: string) => {
+      if (!currentUser?.id) {
+        throw new Error("Sign in to save items to your wishlist.");
+      }
+
+      if (wishlistProductIds.includes(productId)) {
+        await removeProductFromWishlist(currentUser.id, productId);
+      } else {
+        await addProductToWishlist(currentUser.id, productId);
+      }
+    },
+    [currentUser?.id, wishlistProductIds]
+  );
+
   const addProduct = useCallback(async (product: Omit<FurniProduct, "id">) => {
     await createProductInFirestore(product);
   }, []);
@@ -289,24 +335,19 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addBlogPost = useCallback(
-    (
+    async (
       post: Pick<
         FurniBlogPost,
         "title" | "excerpt" | "content" | "category" | "coverImage"
-      >
+      > & {
+        slug?: string;
+        status?: FurniBlogPost["status"];
+      }
     ) => {
-      const nextPost: FurniBlogPost = {
-        id: `${post.title.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`,
+      await createBlogPostInFirestore({
         ...post,
-        publishedAt: new Date().toLocaleDateString("en-US", {
-          month: "short",
-          day: "2-digit",
-          year: "numeric"
-        }),
         author: "Covmerc Admin"
-      };
-
-      setBlogPosts((current) => [nextPost, ...current]);
+      });
     },
     []
   );
@@ -404,6 +445,10 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       estimateDeliveryFee,
       storeLoading,
       storeError,
+      wishlistProductIds,
+      wishlistLoading,
+      isInWishlist,
+      toggleWishlist,
       addToCart,
       updateCartItem,
       removeCartItem,
@@ -427,6 +472,10 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       estimateDeliveryFee,
       storeLoading,
       storeError,
+      wishlistProductIds,
+      wishlistLoading,
+      isInWishlist,
+      toggleWishlist,
       addToCart,
       updateCartItem,
       removeCartItem,

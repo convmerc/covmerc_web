@@ -19,6 +19,7 @@ import {
   shopCategories
 } from "@/lib/catalog-content";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { blogPostHref } from "@/lib/blog-utils";
 
 export function HomePage() {
   const { products, blogPosts, addToCart } = useFurniStore();
@@ -323,7 +324,7 @@ export function HomePage() {
         />
         <div className="grid gap-5 md:grid-cols-3">
           {latestPosts.map((post) => (
-            <Link key={post.id} href={`/blog/${post.id}`}>
+            <Link key={post.id} href={blogPostHref(post)}>
               <FurniCard className="h-full overflow-hidden p-0">
                 <FurniImage src={post.coverImage} alt={post.title} variant="card" />
                 <div className="space-y-2 p-4">

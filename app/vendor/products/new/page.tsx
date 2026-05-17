@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { ProductImageUpload } from "@/components/product/ProductImageUpload";
 import { useRouter } from "next/navigation";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
@@ -16,7 +17,7 @@ type ProductForm = {
   price: string;
   category: ProductCategory;
   stock: string;
-  image: string;
+  imageUrls: string[];
   shortDescription: string;
   description: string;
   material: string;
@@ -30,7 +31,7 @@ const defaultForm: ProductForm = {
   price: "",
   category: "Chairs",
   stock: "1",
-  image: "",
+  imageUrls: [],
   shortDescription: "",
   description: "",
   material: "",
@@ -41,6 +42,7 @@ const defaultForm: ProductForm = {
 
 function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
   const originalPrice = Number(form.price);
+  const imageUrls = form.imageUrls.filter(Boolean);
   return {
     name: form.name,
     category: form.category,
@@ -49,8 +51,8 @@ function toProductPayload(form: ProductForm): Omit<FurniProduct, "id"> {
     originalPrice,
     discount: 0,
     stock: Number(form.stock),
-    image: form.image,
-    imageUrls: form.image ? [form.image] : [],
+    image: imageUrls[0] ?? "",
+    imageUrls,
     shortDescription: form.shortDescription,
     description: form.description,
     specs: {
@@ -70,6 +72,7 @@ export default function VendorNewProductPage() {
   const { currentUser } = useAuthSession();
   const { categories } = useFurniStore();
   const [form, setForm] = useState<ProductForm>(defaultForm);
+  const [uploadFolderId] = useState(() => crypto.randomUUID());
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -81,6 +84,10 @@ export default function VendorNewProductPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!currentUser?.id) return;
+    if (form.imageUrls.length === 0) {
+      setError("Add at least one product image.");
+      return;
+    }
 
     setSaving(true);
     setError("");
@@ -149,12 +156,14 @@ export default function VendorNewProductPage() {
               ))}
             </select>
           </label>
-          <FurniInput
-            required
-            label="Image URL"
-            value={form.image}
-            onChange={(e) => setForm((c) => ({ ...c, image: e.target.value }))}
-          />
+          <div className="md:col-span-2">
+            <ProductImageUpload
+              ownerId={currentUser?.id ?? ""}
+              folderId={`drafts/${uploadFolderId}`}
+              imageUrls={form.imageUrls}
+              onChange={(imageUrls) => setForm((c) => ({ ...c, imageUrls }))}
+            />
+          </div>
           <FurniInput
             label="Short description"
             value={form.shortDescription}

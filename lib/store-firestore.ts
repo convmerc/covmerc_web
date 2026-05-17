@@ -15,7 +15,9 @@ import {
   type Unsubscribe
 } from "firebase/firestore";
 import { getFirebase } from "@/lib/firebase";
-import { initialProducts } from "@/lib/furni-data";
+import { slugifyBlogTitle, uniqueBlogSlug } from "@/lib/blog-utils";
+import { shouldUseSeedFirestoreFallback } from "@/lib/firestore-fallback";
+import { initialBlogPosts, initialProducts } from "@/lib/furni-data";
 import {
   buildCovmercOrderItems,
   buildPaymentStatus,
@@ -28,15 +30,19 @@ import {
   productToFirestore,
   shippingToDeliveryAddress
 } from "@/lib/store-mappers";
+import { parseFirestoreDate } from "@/lib/store-mappers";
 import type {
   CartItem,
   CheckoutShipping,
+  FurniBlogPost,
+  FurniBlogPostStatus,
   FurniOrder,
   FurniOrderStatus,
   FurniProduct
 } from "@/lib/furni-types";
 
 const PRODUCTS_COLLECTION = "products";
+const BLOG_POSTS_COLLECTION = "blogPosts";
 const ORDERS_COLLECTION = "orders";
 const USERS_COLLECTION = "users";
 const CATEGORIES_COLLECTION = "categories";
@@ -54,6 +60,178 @@ function normalizeSeedProducts(products: FurniProduct[]): FurniProduct[] {
 }
 
 const seedProducts = normalizeSeedProducts(initialProducts);
+const seedBlogPosts = initialBlogPosts;
+
+function formatBlogPublishedAt(value: unknown, fallback = ""): string {
+  const date = parseFirestoreDate(value);
+  if (date) {
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+      year: "numeric"
+    });
+  }
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+function mapFirestoreBlogPost(
+  id: string,
+  data: Record<string, unknown>
+): FurniBlogPost | null {
+  const title = typeof data.title === "string" ? data.title.trim() : "";
+  if (!title) return null;
+
+  const slug =
+    typeof data.slug === "string" && data.slug.trim()
+      ? data.slug.trim()
+      : slugifyBlogTitle(title) || id;
+
+  const statusRaw = typeof data.status === "string" ? data.status : "published";
+  const status: FurniBlogPostStatus =
+    statusRaw === "draft" ? "draft" : "published";
+
+  return {
+    id,
+    slug,
+    title,
+    excerpt: typeof data.excerpt === "string" ? data.excerpt : "",
+    content: typeof data.content === "string" ? data.content : "",
+    coverImage:
+      typeof data.coverImage === "string"
+        ? data.coverImage
+        : typeof data.imageUrl === "string"
+          ? data.imageUrl
+          : "",
+    category: typeof data.category === "string" ? data.category : "Design",
+    publishedAt: formatBlogPublishedAt(
+      data.publishedAt,
+      formatBlogPublishedAt(data.createdAt, "")
+    ),
+    author:
+      typeof data.author === "string" && data.author.trim()
+        ? data.author
+        : "Covmerc Editorial",
+    status
+  };
+}
+
+function mapBlogDocs(
+  docs: Array<{ id: string; data: Record<string, unknown> }>,
+  options?: { includeDrafts?: boolean }
+): FurniBlogPost[] {
+  const posts = docs
+    .map((entry) => mapFirestoreBlogPost(entry.id, entry.data))
+    .filter((entry): entry is FurniBlogPost => Boolean(entry))
+    .filter((entry) => options?.includeDrafts || entry.status === "published");
+
+  return posts.sort((a, b) => {
+    const aTime = Date.parse(a.publishedAt);
+    const bTime = Date.parse(b.publishedAt);
+    if (Number.isFinite(aTime) && Number.isFinite(bTime)) {
+      return bTime - aTime;
+    }
+    return b.title.localeCompare(a.title);
+  });
+}
+
+export async function fetchBlogPostsFromFirestore(options?: {
+  includeDrafts?: boolean;
+}): Promise<FurniBlogPost[]> {
+  const { db } = getFirebase();
+  const snapshot = await getDocs(collection(db, BLOG_POSTS_COLLECTION));
+
+  if (snapshot.empty) {
+    return seedBlogPosts;
+  }
+
+  const posts = mapBlogDocs(
+    snapshot.docs.map((entry) => ({
+      id: entry.id,
+      data: entry.data() as Record<string, unknown>
+    })),
+    options
+  );
+
+  return posts.length > 0 ? posts : seedBlogPosts;
+}
+
+export async function fetchBlogPostBySlug(
+  slug: string,
+  options?: { includeDrafts?: boolean }
+): Promise<FurniBlogPost | null> {
+  const posts = await fetchBlogPostsFromFirestore(options);
+  return (
+    posts.find((post) => post.slug === slug || post.id === slug) ?? null
+  );
+}
+
+export function subscribeToBlogPosts(
+  onData: (posts: FurniBlogPost[]) => void,
+  onError?: (error: Error) => void,
+  options?: { includeDrafts?: boolean }
+): Unsubscribe {
+  const { db } = getFirebase();
+
+  return onSnapshot(
+    collection(db, BLOG_POSTS_COLLECTION),
+    (snapshot) => {
+      if (snapshot.empty) {
+        onData(seedBlogPosts);
+        return;
+      }
+
+      const posts = mapBlogDocs(
+        snapshot.docs.map((entry) => ({
+          id: entry.id,
+          data: entry.data() as Record<string, unknown>
+        })),
+        options
+      );
+
+      onData(posts.length > 0 ? posts : seedBlogPosts);
+    },
+    (error) => {
+      if (shouldUseSeedFirestoreFallback()) {
+        onData(seedBlogPosts);
+        return;
+      }
+      onError?.(error);
+    }
+  );
+}
+
+export async function createBlogPostInFirestore(
+  post: Pick<
+    FurniBlogPost,
+    "title" | "excerpt" | "content" | "category" | "coverImage"
+  > & {
+    author?: string;
+    slug?: string;
+    status?: FurniBlogPostStatus;
+  }
+): Promise<string> {
+  const { db } = getFirebase();
+  const existing = await fetchBlogPostsFromFirestore({ includeDrafts: true });
+  const baseSlug = post.slug?.trim() || slugifyBlogTitle(post.title);
+  const slug = uniqueBlogSlug(baseSlug || `post-${Date.now()}`, existing);
+  const status = post.status ?? "published";
+
+  const ref = await addDoc(collection(db, BLOG_POSTS_COLLECTION), {
+    title: post.title,
+    excerpt: post.excerpt,
+    content: post.content,
+    coverImage: post.coverImage,
+    category: post.category,
+    author: post.author ?? "Covmerc Admin",
+    slug,
+    status,
+    publishedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+
+  return ref.id;
+}
 
 function mapProductDocs(
   docs: Array<{ id: string; data: Record<string, unknown> }>,
@@ -111,7 +289,13 @@ export function subscribeToProducts(
 
       onData(products.length > 0 ? products : seedProducts);
     },
-    (error) => onError?.(error)
+    (error) => {
+      if (shouldUseSeedFirestoreFallback()) {
+        onData(seedProducts);
+        return;
+      }
+      onError?.(error);
+    }
   );
 }
 
@@ -149,9 +333,14 @@ export async function updateProductInFirestore(
   }
   if (product.discount !== undefined) payload.discount = product.discount;
   if (product.stock !== undefined) payload.stock = product.stock;
-  if (product.image !== undefined) {
+  if (product.imageUrls !== undefined) {
+    payload.imageUrls = product.imageUrls;
+    if (product.imageUrls.length > 0) {
+      payload.imageUrl = product.imageUrls[0];
+    }
+  } else if (product.image !== undefined) {
     payload.imageUrl = product.image;
-    payload.imageUrls = product.imageUrls?.length ? product.imageUrls : [product.image];
+    payload.imageUrls = product.image ? [product.image] : [];
   }
   if (product.description !== undefined) payload.description = product.description;
   if (product.status !== undefined) payload.status = product.status;

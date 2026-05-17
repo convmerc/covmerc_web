@@ -1,11 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniInput } from "@/components/ui/FurniInput";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { blogPostHref } from "@/lib/blog-utils";
 
 export default function AdminContentPage() {
   const { blogPosts, addBlogPost } = useFurniStore();
@@ -16,24 +18,42 @@ export default function AdminContentPage() {
   const [coverImage, setCoverImage] = useState(
     "https://images.unsplash.com/photo-1616486029423-aaa4789e8c9a?auto=format&fit=crop&w=1200&q=80"
   );
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    addBlogPost({ title, excerpt, content, category, coverImage });
-    setTitle("");
-    setExcerpt("");
-    setContent("");
-    setCategory("Design");
+    setSubmitting(true);
+    setError(null);
+
+    try {
+      await addBlogPost({ title, excerpt, content, category, coverImage });
+      setTitle("");
+      setExcerpt("");
+      setContent("");
+      setCategory("Design");
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to publish post."
+      );
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
     <AdminLayout
       title="Content Manager"
-      subtitle="Publish homepage blog cards directly from the admin dashboard."
+      subtitle="Publish journal articles to Firestore (shared with mobile and the data manager)."
     >
       <FurniCard>
         <form className="grid gap-3" onSubmit={handleSubmit}>
           <h2 className="text-lg font-semibold text-furni-primary">Add Blog Post</h2>
+          {error ? (
+            <p className="rounded-xl bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+          ) : null}
           <FurniInput
             required
             label="Title"
@@ -69,24 +89,40 @@ export default function AdminContentPage() {
               onChange={(event) => setCoverImage(event.target.value)}
             />
           </div>
-          <FurniButton type="submit" className="w-max">
-            Publish Post
+          <FurniButton type="submit" className="w-max" disabled={submitting}>
+            {submitting ? "Publishing…" : "Publish Post"}
           </FurniButton>
         </form>
       </FurniCard>
 
       <FurniCard>
         <h2 className="text-lg font-semibold text-furni-primary">Recent Blog Entries</h2>
+        <p className="mt-1 text-xs text-furni-muted">
+          Advanced edits:{" "}
+          <Link href="/dashboard/admin/data/blogPosts" className="font-medium text-furni-primary hover:underline">
+            Firestore data manager →
+          </Link>
+        </p>
         <div className="mt-3 grid gap-2">
-          {blogPosts.slice(0, 5).map((post) => (
+          {blogPosts.slice(0, 8).map((post) => (
             <div
               key={post.id}
-              className="rounded-xl bg-furni-surface px-3 py-2 text-sm text-furni-muted"
+              className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-furni-surface px-3 py-2 text-sm text-furni-muted"
             >
-              <p className="font-medium text-furni-primary">{post.title}</p>
-              <p className="text-xs">
-                {post.category} • {post.publishedAt}
-              </p>
+              <div>
+                <p className="font-medium text-furni-primary">{post.title}</p>
+                <p className="text-xs">
+                  {post.category} · {post.status} · {post.publishedAt}
+                </p>
+              </div>
+              {post.status === "published" ? (
+                <Link
+                  href={blogPostHref(post)}
+                  className="text-xs font-semibold text-furni-primary hover:underline"
+                >
+                  View →
+                </Link>
+              ) : null}
             </div>
           ))}
         </div>

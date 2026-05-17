@@ -17,6 +17,7 @@ import { ProductReviews } from "@/components/product/ProductReviews";
 import { ProductVendorBadge } from "@/components/product/ProductVendorBadge";
 import { ProductGallery } from "@/components/product/ProductGallery";
 import { StockBadge } from "@/components/product/StockBadge";
+import { WishlistButton } from "@/components/shop/WishlistButton";
 import { trackViewItem } from "@/lib/analytics";
 
 export default function ProductDetailsPage() {
@@ -86,7 +87,10 @@ export default function ProductDetailsPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-furni-muted">
               {displayCategory}
             </p>
-            <h1 className="font-display text-4xl text-furni-primary">{product.name}</h1>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h1 className="font-display text-4xl text-furni-primary">{product.name}</h1>
+              <WishlistButton productId={product.id} className="static bg-furni-surface" />
+            </div>
             <StockBadge stock={product.stock} />
             <p className="text-2xl font-semibold text-furni-ink">{formatNgn(product.price)}</p>
             {product.discount > 0 && product.originalPrice > product.price ? (

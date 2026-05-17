@@ -20,6 +20,11 @@ const shortcuts = [
     href: "/account/messages",
     title: "Messages",
     description: "Chat with Covmerc support about orders, products, or delivery."
+  },
+  {
+    href: "/account/wishlist",
+    title: "Wishlist",
+    description: "Saved pieces you want to buy later—add them to cart in one tap."
   }
 ] as const;
 
@@ -27,7 +32,7 @@ export default function AccountOverviewPage() {
   const { currentUser } = useAuthSession();
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {shortcuts.map((item) => (
         <Link key={item.href} href={item.href}>
           <FurniCard className="h-full transition hover:-translate-y-0.5">

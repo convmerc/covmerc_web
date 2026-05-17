@@ -2,9 +2,11 @@
 
 import { useMemo, useState } from "react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { ProductImageUpload } from "@/components/product/ProductImageUpload";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniInput } from "@/components/ui/FurniInput";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { formatNgn } from "@/lib/format-currency";
 import type { FurniProduct, ProductCategory } from "@/lib/furni-types";
@@ -14,7 +16,7 @@ type ProductForm = {
   price: string;
   category: ProductCategory;
   stock: string;
-  image: string;
+  imageUrls: string[];
   shortDescription: string;
   description: string;
   material: string;
@@ -30,7 +32,7 @@ const defaultForm: ProductForm = {
   price: "",
   category: "Chairs",
   stock: "",
-  image: "",
+  imageUrls: [],
   shortDescription: "",
   description: "",
   material: "",
@@ -41,6 +43,7 @@ const defaultForm: ProductForm = {
 
 function toProductPayload(form: ProductForm, status: string): Omit<FurniProduct, "id"> {
   const originalPrice = Number(form.price);
+  const imageUrls = form.imageUrls.filter(Boolean);
   return {
     name: form.name,
     category: form.category,
@@ -49,8 +52,8 @@ function toProductPayload(form: ProductForm, status: string): Omit<FurniProduct,
     originalPrice,
     discount: 0,
     stock: Number(form.stock),
-    image: form.image,
-    imageUrls: [form.image],
+    image: imageUrls[0] ?? "",
+    imageUrls,
     shortDescription: form.shortDescription,
     description: form.description,
     specs: {
@@ -80,10 +83,15 @@ function statusBadgeClass(status: string) {
 }
 
 export default function AdminProductsPage() {
+  const { currentUser } = useAuthSession();
   const { products, categories, addProduct, updateProduct, deleteProduct } = useFurniStore();
   const [form, setForm] = useState<ProductForm>(defaultForm);
+  const [uploadFolderId] = useState(() => crypto.randomUUID());
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+
+  const imageUploadFolderId = editingProductId ?? `drafts/${uploadFolderId}`;
+  const imageUploadOwnerId = currentUser?.id ?? "";
 
   const categoryOptions = useMemo(() => {
     if (categories.length > 0) {
@@ -116,7 +124,12 @@ export default function AdminProductsPage() {
       category: product.category,
       price: String(product.price),
       stock: String(product.stock),
-      image: product.image,
+      imageUrls:
+        product.imageUrls?.length > 0
+          ? product.imageUrls
+          : product.image
+            ? [product.image]
+            : [],
       shortDescription: product.shortDescription,
       description: product.description,
       material: product.specs.material,
@@ -128,6 +141,10 @@ export default function AdminProductsPage() {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (form.imageUrls.length === 0) {
+      window.alert("Add at least one product image.");
+      return;
+    }
     try {
       if (editingProductId) {
         const payload = toProductPayload(form, "approved");
@@ -210,15 +227,18 @@ export default function AdminProductsPage() {
               setForm((current) => ({ ...current, stock: event.target.value }))
             }
           />
-          <FurniInput
-            required
-            label="Image URL"
-            className="md:col-span-2"
-            value={form.image}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, image: event.target.value }))
-            }
-          />
+          {imageUploadOwnerId ? (
+            <div className="md:col-span-2">
+              <ProductImageUpload
+                ownerId={imageUploadOwnerId}
+                folderId={imageUploadFolderId}
+                imageUrls={form.imageUrls}
+                onChange={(imageUrls) =>
+                  setForm((current) => ({ ...current, imageUrls }))
+                }
+              />
+            </div>
+          ) : null}
           <FurniInput
             required
             label="Short Description"
