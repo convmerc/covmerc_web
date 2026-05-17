@@ -86,6 +86,44 @@ npm run dev
 
 ---
 
+## Deploy to Firebase Hosting
+
+This app deploys to **Firebase Hosting** (Next.js SSR + API routes via Cloud Functions). The Firebase project ID is **`convmerc-baeef`** (see `.firebaserc`).
+
+**Requirements:** Blaze plan, Firebase CLI logged in (`firebase login`), and `.env.local` (or env vars) for build.
+
+```bash
+# One-time: ensure project alias
+firebase use convmerc-baeef
+
+# Deploy site (builds Next.js and uploads)
+npm run deploy:hosting
+
+# Deploy Firestore + Storage rules only
+npm run deploy:rules
+```
+
+**Live URLs** (default Hosting sites):
+
+- https://convmerc-baeef.web.app
+- https://convmerc-baeef.firebaseapp.com
+
+Set `NEXT_PUBLIC_SITE_URL` to your canonical URL (custom domain or default `.web.app`) before production deploy.
+
+**GitHub Actions:** On push to `main`, `dev`, or `phase-e` (after CI passes), CD deploys to Hosting if these are configured:
+
+| Type | Name |
+|------|------|
+| Secret | `FIREBASE_SERVICE_ACCOUNT` |
+| Secret | `NEXT_PUBLIC_FIREBASE_*` |
+| Secret | `PAYSTACK_SECRET_KEY`, `RESEND_API_KEY` (optional) |
+| Variable | `FIREBASE_PROJECT_ID` = `convmerc-baeef` |
+| Variable | `NEXT_PUBLIC_SITE_URL` |
+
+`main` → production Hosting. `dev` / `phase-e` → 30-day preview channel.
+
+---
+
 ## Folder structure (current)
 
 ```txt

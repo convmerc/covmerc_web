@@ -25,8 +25,11 @@ export type FurniProduct = {
   rating: number;
 };
 
+export type FurniBlogPostStatus = "draft" | "published";
+
 export type FurniBlogPost = {
   id: string;
+  slug: string;
   title: string;
   excerpt: string;
   content: string;
@@ -34,6 +37,7 @@ export type FurniBlogPost = {
   category: string;
   publishedAt: string;
   author: string;
+  status: FurniBlogPostStatus;
 };
 
 export type FurniTestimonial = {

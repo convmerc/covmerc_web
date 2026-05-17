@@ -21,11 +21,6 @@ const nextConfig = {
         protocol: "https",
         hostname: "covmerc-baeef.firebasestorage.app",
         pathname: "/**"
-      },
-      {
-        protocol: "https",
-        hostname: "convmerc-baeef.firebasestorage.app",
-        pathname: "/**"
       }
     ]
   }

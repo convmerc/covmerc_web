@@ -6,6 +6,7 @@ import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { formatNgn } from "@/lib/format-currency";
 import type { FurniProduct } from "@/lib/furni-types";
+import { WishlistButton } from "@/components/shop/WishlistButton";
 
 type ProductCardProps = {
   product: FurniProduct;
@@ -47,6 +48,11 @@ export function ProductCard({
             </span>
           ) : null}
         </div>
+        <WishlistButton
+          productId={product.id}
+          className="absolute right-3 top-3"
+          size="sm"
+        />
       </Link>
 
       <div className={`space-y-2 ${layout === "compact" ? "p-3" : "p-4"}`}>
@@ -81,6 +87,7 @@ export function ProductCard({
               <FurniButton
                 variant="primary"
                 className="px-2.5 py-1.5 text-xs"
+                data-testid="product-add"
                 onClick={() => onAddToCart(product.id)}
                 disabled={product.stock <= 0}
               >

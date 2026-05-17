@@ -11,6 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { CtaBanner } from "@/components/ui/CtaBanner";
 import { LoadingState } from "@/components/ui/LoadingState";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { blogPostHref } from "@/lib/blog-utils";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { relatedPageGroups } from "@/lib/site-content";
@@ -59,7 +60,7 @@ export default function BlogPage() {
       ) : (
         <>
           {showFeatured ? (
-            <Link href={`/blog/${featured.id}`} className="mt-10 block animate-fade-up">
+            <Link href={blogPostHref(featured)} className="mt-10 block animate-fade-up">
               <FurniCard className="grid overflow-hidden p-0 lg:grid-cols-[1.2fr,1fr]">
                 <FurniImage
                   src={featured.coverImage}
@@ -111,7 +112,7 @@ export default function BlogPage() {
           ) : (
             <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {gridPosts.map((post) => (
-                <Link key={post.id} href={`/blog/${post.id}`}>
+                <Link key={post.id} href={blogPostHref(post)}>
                   <FurniCard className="h-full overflow-hidden p-0">
                     <FurniImage src={post.coverImage} alt={post.title} variant="card" />
                     <div className="space-y-2 p-4">

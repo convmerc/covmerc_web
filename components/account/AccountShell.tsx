@@ -13,6 +13,7 @@ const links = [
   { href: "/account/orders", label: "Orders" },
   { href: "/account/addresses", label: "Addresses" },
   { href: "/account/messages", label: "Messages" },
+  { href: "/account/wishlist", label: "Wishlist" },
 ] as const;
 
 export function AccountShell({ children }: { children: ReactNode }) {
