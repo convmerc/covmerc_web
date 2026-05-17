@@ -41,6 +41,125 @@ export type LegalSection = {
   list?: string[];
 };
 
+export type PolicyHighlight = {
+  icon: string;
+  label: string;
+  value: string;
+  description?: string;
+};
+
+export type ProcessStep = {
+  title: string;
+  description: string;
+};
+
+export type HelpChannel = {
+  icon: string;
+  title: string;
+  description: string;
+  href: string;
+  cta: string;
+};
+
+export const policyLastUpdated = "May 16, 2026" as const;
+
+export const shippingHighlights: PolicyHighlight[] = [
+  { icon: "🚚", label: "Lagos metro", value: "3–7 days", description: "In-stock items after payment" },
+  { icon: "🇳🇬", label: "Nationwide", value: "7–14 days", description: "Major cities & hubs" },
+  { icon: "💳", label: "Free delivery", value: "₦500k+", description: "Where noted at checkout" },
+  { icon: "📦", label: "Metro fee from", value: "₦5,000", description: "Calculated by city & size" }
+];
+
+export const returnsHighlights: PolicyHighlight[] = [
+  { icon: "↩️", label: "Return window", value: "14 days", description: "From delivery date" },
+  { icon: "💰", label: "Refund timing", value: "7–14 days", description: "After inspection" },
+  { icon: "📸", label: "Damage reports", value: "48 hours", description: "Include photos" },
+  { icon: "🛋️", label: "Custom items", value: "Final sale", description: "Unless defective" }
+];
+
+export const privacyHighlights: PolicyHighlight[] = [
+  { icon: "🔒", label: "We never", value: "Sell data", description: "Your info stays with Covmerc" },
+  { icon: "☁️", label: "Hosted on", value: "Firebase", description: "Encrypted in transit" },
+  { icon: "✉️", label: "Privacy requests", value: "24–72 hrs", description: "Typical response time" },
+  { icon: "📱", label: "Syncs across", value: "Web + app", description: "One account experience" }
+];
+
+export const supportChannels: HelpChannel[] = [
+  {
+    icon: "📦",
+    title: "Order & delivery",
+    description: "Tracking, rescheduling, and delivery-day questions.",
+    href: "/contact",
+    cta: "Message support"
+  },
+  {
+    icon: "↩️",
+    title: "Returns & refunds",
+    description: "Start a return and understand eligibility windows.",
+    href: "/returns",
+    cta: "Returns policy"
+  },
+  {
+    icon: "🚚",
+    title: "Shipping & fees",
+    description: "Coverage, timelines, and free-delivery thresholds.",
+    href: "/shipping",
+    cta: "Delivery guide"
+  },
+  {
+    icon: "👤",
+    title: "Account & app",
+    description: "Sign-in, profile updates, and syncing with mobile.",
+    href: "/auth/login",
+    cta: "Sign in"
+  }
+];
+
+export const supportProcessSteps: ProcessStep[] = [
+  {
+    title: "Search or browse FAQs",
+    description:
+      "Most order, delivery, and care questions are answered below—no wait required."
+  },
+  {
+    title: "Message us with context",
+    description:
+      "Use the contact form with your order number so we route you to the right specialist."
+  },
+  {
+    title: "We resolve & follow up",
+    description:
+      "You will receive email updates. Urgent delivery issues are prioritized same business day."
+  }
+];
+
+export const contactSlaCards = [
+  {
+    icon: "⚡",
+    title: "Urgent delivery",
+    value: "Same day",
+    description: "Call during business hours for same-day delivery issues."
+  },
+  {
+    icon: "✉️",
+    title: "Email support",
+    value: "< 24 hrs",
+    description: "Weekday replies from our Lagos studio team."
+  },
+  {
+    icon: "🎨",
+    title: "Design advice",
+    value: "1–2 days",
+    description: "Sizing and styling questions—we review your space notes."
+  },
+  {
+    icon: "🤝",
+    title: "Partnerships",
+    value: "2–3 days",
+    description: "Vendor and press inquiries reviewed by our partnerships lead."
+  }
+] as const;
+
 export const privacySections: LegalSection[] = [
   {
     id: "overview",
@@ -229,13 +348,29 @@ export const supportFaqs: SupportFaq[] = [
     question: "What is your return policy?",
     answer:
       "Most standard furniture items can be returned within 14 days of delivery if unused and in original packaging. Custom pieces and clearance items may be final sale. See our Terms of Service for full details.",
-    href: "/terms",
-    hrefLabel: "Read return terms"
+    href: "/returns",
+    hrefLabel: "Read returns policy"
   },
   {
     question: "Do you deliver outside Lagos?",
     answer:
-      "Yes. We deliver to major cities across Nigeria. Delivery fees and timelines are calculated at checkout based on your address and product size. Remote areas may require additional lead time."
+      "Yes. We deliver to major cities across Nigeria. Delivery fees and timelines are calculated at checkout based on your address and product size. Remote areas may require additional lead time.",
+    href: "/shipping",
+    hrefLabel: "Shipping & delivery"
+  },
+  {
+    question: "What are delivery fees and free shipping?",
+    answer:
+      "Lagos metro deliveries start from ₦5,000; nationwide from ₦8,500. Orders over ₦500,000 may qualify for free delivery where shown at checkout.",
+    href: "/shipping",
+    hrefLabel: "See fee details"
+  },
+  {
+    question: "How do I report damage on delivery?",
+    answer:
+      "Contact us within 48 hours with photos of the packaging and product. We will arrange inspection, exchange, or refund depending on the situation.",
+    href: "/returns",
+    hrefLabel: "Damage & returns"
   },
   {
     question: "How do I care for wood and fabric finishes?",
@@ -330,6 +465,19 @@ export const shippingSections: LegalSection[] = [
       "When your order ships, you will receive an email with tracking details. Signed-in customers can also view status and tracking under Account → Orders.",
       "If tracking has not updated within 48 hours of a “Shipped” status, contact support@covmerc.com with your order ID."
     ]
+  },
+  {
+    id: "access",
+    title: "Building access & assembly",
+    paragraphs: [
+      "Please provide accurate delivery instructions at checkout—gate codes, floor level, and whether a lift is available. Our carriers may need to reschedule if access is restricted.",
+      "Basic assembly may be available in Lagos for select items. White-glove delivery and full assembly can be quoted on request via our contact form."
+    ],
+    list: [
+      "Measure doorways and stairwells before ordering large pieces",
+      "Someone 18+ must be present to sign for delivery",
+      "Report access issues before your scheduled window when possible"
+    ]
   }
 ];
 
@@ -364,6 +512,14 @@ export const returnsSections: LegalSection[] = [
     paragraphs: [
       "Exchanges are treated as a return plus a new order. Contact us within 48 hours of delivery if you notice visible damage—include photos of the packaging and product.",
       "For vendor-fulfilled marketplace items, Covmerc coordinates with the seller on your behalf."
+    ]
+  },
+  {
+    id: "pickup",
+    title: "Pickup & packaging",
+    paragraphs: [
+      "Approved returns in Lagos may be collected by our logistics partner. Outside Lagos, we will provide a return address or carrier label when applicable.",
+      "Items must be securely repackaged in original materials where possible. We may deduct from your refund if items arrive damaged due to poor repackaging."
     ]
   }
 ];

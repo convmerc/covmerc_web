@@ -124,7 +124,8 @@ export function ProductImageUpload({
         onChange={(event) => {
           const url = event.target.value.trim();
           if (!url) {
-            onChange([]);
+            // Clear only the cover slot; keep other uploaded images.
+            onChange(imageUrls.slice(1));
             return;
           }
           onChange([url, ...imageUrls.slice(1)]);
