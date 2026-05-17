@@ -20,6 +20,7 @@ export function TopNav() {
   const isAdmin = currentUser?.userType === "admin";
   const isVendor =
     currentUser?.userType === "vendor" || currentUser?.userType === "admin";
+  const showSellLink = !isVendor;
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobilePanelRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +32,10 @@ export function TopNav() {
     { href: "/support", label: "Support" },
     { href: "/contact", label: "Contact" }
   ];
+
+  if (!isVendor) {
+    navItems.push({ href: "/sell", label: "Sell" });
+  }
 
   if (currentUser) {
     navItems.push({ href: "/account", label: "Account" });
@@ -124,6 +129,13 @@ export function TopNav() {
               className="hidden rounded-full border border-white/25 px-3 py-1.5 text-xs font-medium text-white/90 transition hover:bg-white/10 md:inline-flex"
             >
               Vendor
+            </Link>
+          ) : showSellLink ? (
+            <Link
+              href="/sell"
+              className="hidden rounded-full border border-furni-accent/40 bg-furni-accent/15 px-3 py-1.5 text-xs font-semibold text-furni-accent transition hover:bg-furni-accent/25 md:inline-flex"
+            >
+              Sell
             </Link>
           ) : null}
           <Link
@@ -229,7 +241,11 @@ export function TopNav() {
                 <Link href="/vendor" className={navLinkClass(pathname.startsWith("/vendor"))}>
                   Vendor portal
                 </Link>
-              ) : null}
+              ) : (
+                <Link href="/sell" className={navLinkClass(pathname.startsWith("/sell"))}>
+                  Sell on Covmerc
+                </Link>
+              )}
               {currentUser ? (
                 <Link href="/account" className={navLinkClass(pathname.startsWith("/account"))}>
                   Account

@@ -44,13 +44,10 @@ export default function AccountWishlistPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold text-furni-primary">Saved items</h2>
-        <p className="mt-1 text-sm text-furni-muted">
-          {wishlistProducts.length}{" "}
-          {wishlistProducts.length === 1 ? "piece" : "pieces"} saved for later.
-        </p>
-      </div>
+      <p className="text-sm text-furni-muted">
+        {wishlistProducts.length}{" "}
+        {wishlistProducts.length === 1 ? "piece" : "pieces"} saved for later.
+      </p>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
         {wishlistProducts.map((product) => (

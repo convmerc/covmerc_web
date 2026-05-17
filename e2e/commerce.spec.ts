@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("Storefront commerce", () => {
-  test("guest can add to cart and reach checkout payment", async ({ page }) => {
+  test("guest can browse shop and add to cart", async ({ page }) => {
     await page.goto("/shop");
     const addButton = page.getByTestId("product-add").first();
     await expect(addButton).toBeVisible({ timeout: 30_000 });
@@ -10,23 +10,18 @@ test.describe("Storefront commerce", () => {
     await page.goto("/cart");
     await expect(page.getByRole("heading", { name: /review your cart/i })).toBeVisible();
     await expect(page.getByText(/your cart is empty/i)).not.toBeVisible();
+  });
 
-    await page.getByRole("link", { name: /proceed to checkout/i }).click();
-    await expect(page).toHaveURL(/\/checkout/);
+  test("checkout requires sign in", async ({ page }) => {
+    await page.goto("/shop");
+    const addButton = page.getByTestId("product-add").first();
+    await expect(addButton).toBeVisible({ timeout: 30_000 });
+    await addButton.click();
 
-    const checkout = page.locator("#main-content");
-    await checkout.getByLabel(/full name/i).fill("E2E Guest");
-    await checkout.getByLabel(/^email$/i).fill("e2e-guest@example.com");
-    await checkout.getByLabel(/phone/i).fill("08000000000");
-    await checkout.getByLabel(/street address/i).fill("12 Admiralty Way");
-    await checkout.getByLabel(/^city$/i).fill("Ibadan");
-    await checkout.getByLabel(/postal/i).fill("101241");
-
-    await checkout.getByRole("button", { name: /continue to payment/i }).click();
-    await expect(checkout.getByRole("heading", { name: /payment method/i })).toBeVisible();
-
-    await checkout.locator("select").first().selectOption("Pay on Delivery");
-    await expect(checkout.getByRole("button", { name: /confirm order/i })).toBeVisible();
+    await page.goto("/cart");
+    await page.getByRole("link", { name: /sign in to checkout/i }).click();
+    await expect(page).toHaveURL(/\/auth\/login/);
+    await expect(page.url()).toContain("next=%2Fcheckout");
   });
 
   test("product detail page shows add to cart", async ({ page }) => {

@@ -26,4 +26,23 @@ test.describe("Authentication", () => {
     await page.goto("/account/wishlist");
     await expect(page).toHaveURL(/\/auth\/login/);
   });
+
+  test("sell page is public without sign-in", async ({ page }) => {
+    await page.goto("/sell");
+    await expect(page.getByRole("heading", { name: /sell furniture on covmerc/i })).toBeVisible();
+    await expect(page.getByText(/no account needed/i)).toBeVisible();
+    await expect(page.getByRole("link", { name: /create account/i })).toBeVisible();
+  });
+
+  test("admin login page redirects to shared auth", async ({ page }) => {
+    await page.goto("/admin/login");
+    await expect(page).toHaveURL(/\/auth\/login/);
+    expect(page.url()).toContain("next=%2Fadmin");
+  });
+
+  test("checkout redirects unauthenticated users to login", async ({ page }) => {
+    await page.goto("/checkout");
+    await expect(page).toHaveURL(/\/auth\/login/);
+    await expect(page.url()).toContain("next=");
+  });
 });

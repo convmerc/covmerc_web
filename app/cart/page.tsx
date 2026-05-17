@@ -8,6 +8,8 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { checkoutHref } from "@/lib/checkout-path";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniImage } from "@/components/ui/FurniImage";
@@ -15,6 +17,7 @@ import { formatNgn } from "@/lib/format-currency";
 import { relatedPageGroups } from "@/lib/site-content";
 
 export default function CartPage() {
+  const { currentUser } = useAuthSession();
   const {
     cartItems,
     products,
@@ -24,6 +27,7 @@ export default function CartPage() {
     clearCart,
     addToCart
   } = useFurniStore();
+  const proceedHref = checkoutHref(Boolean(currentUser));
 
   const detailedItems = cartItems
     .map((item) => ({
@@ -54,7 +58,7 @@ export default function CartPage() {
         <EmptyState
           icon="cart"
           title="Your cart is empty"
-          description="Browse our catalog and add pieces you love—you can check out as a guest or with your Covmerc account."
+          description="Browse our catalog and add pieces you love. Sign in when you are ready to check out."
         >
           <Link href="/shop">
             <FurniButton variant="accent">Shop collection</FurniButton>
@@ -156,9 +160,9 @@ export default function CartPage() {
                 <span>{formatNgn(cartSubtotal)}</span>
               </p>
               <div className="mt-6 grid gap-2">
-                <Link href="/checkout">
+                <Link href={proceedHref}>
                   <FurniButton variant="accent" fullWidth>
-                    Proceed to checkout
+                    {currentUser ? "Proceed to checkout" : "Sign in to checkout"}
                   </FurniButton>
                 </Link>
                 <Link href="/shop">

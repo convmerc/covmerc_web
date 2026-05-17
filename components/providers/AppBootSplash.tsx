@@ -2,7 +2,6 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { CovmercSplash } from "@/components/brand/CovmercSplash";
-import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 
 const BOOT_SESSION_KEY = "covmerc-boot-complete";
@@ -12,7 +11,6 @@ const EXIT_MS = 420;
 type BootPhase = "splash" | "exiting" | "done";
 
 export function AppBootSplash({ children }: { children: ReactNode }) {
-  const { authLoading } = useAuthSession();
   const { storeLoading } = useFurniStore();
   const [phase, setPhase] = useState<BootPhase>("splash");
   const [minElapsed, setMinElapsed] = useState(false);
@@ -35,10 +33,10 @@ export function AppBootSplash({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (skipBoot || phase !== "splash") return;
-    if (!authLoading && !storeLoading && minElapsed) {
+    if (!storeLoading && minElapsed) {
       setPhase("exiting");
     }
-  }, [authLoading, storeLoading, minElapsed, phase, skipBoot]);
+  }, [storeLoading, minElapsed, phase, skipBoot]);
 
   useEffect(() => {
     if (phase !== "exiting") return;

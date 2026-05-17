@@ -328,7 +328,15 @@ export function subscribeToProducts(
         onData(seedProducts);
         return;
       }
-      onError?.(error);
+
+      console.warn("[Covmerc] Product subscription failed, using catalog fallback:", error);
+      onData(
+        options?.includeUnapproved
+          ? seedProducts
+          : seedProducts.filter((product) =>
+              isStorefrontProduct({ status: product.status ?? "approved" })
+            )
+      );
     }
   );
 }

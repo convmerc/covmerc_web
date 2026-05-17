@@ -28,7 +28,7 @@ import { getFirebase } from "@/lib/firebase";
 
 type AdminAccessResult = {
   isAdmin: boolean;
-  source?: "custom-claim" | "admins-collection" | "users-role-field";
+  source?: "custom-claim" | "admins-collection" | "users-role-field" | "users-type-field";
 };
 
 export type CollectionRow = {
@@ -110,6 +110,9 @@ export async function checkAdminAccess(user: User): Promise<AdminAccessResult> {
   const userDoc = await getDoc(doc(db, "users", user.uid));
   if (userDoc.exists()) {
     const userData = userDoc.data();
+    if (userData.isAdmin === true || userData.userType === "admin") {
+      return { isAdmin: true, source: "users-type-field" };
+    }
     const role = userData.role;
     const roles = userData.roles;
     if (role === "admin" || (Array.isArray(roles) && roles.includes("admin"))) {

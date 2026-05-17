@@ -58,7 +58,8 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
       firebaseUser.email?.split("@")[0] ||
       "Covmerc User",
     email: firebaseUser.email ?? profile?.email ?? "",
-    userType: isAdmin ? "admin" : isVendor ? "vendor" : "customer"
+    userType: isAdmin ? "admin" : isVendor ? "vendor" : "customer",
+    vendorStatus: profile?.vendorStatus ?? null
   };
 }
 

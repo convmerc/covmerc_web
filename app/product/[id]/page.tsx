@@ -9,6 +9,8 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { TrustBar } from "@/components/shop/TrustBar";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
+import { useAuthSession } from "@/components/providers/AuthSessionProvider";
+import { checkoutHref } from "@/lib/checkout-path";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { formatNgn } from "@/lib/format-currency";
@@ -23,7 +25,9 @@ import { trackViewItem } from "@/lib/analytics";
 export default function ProductDetailsPage() {
   const params = useParams<{ id: string }>();
   const { products, addToCart } = useFurniStore();
+  const { currentUser } = useAuthSession();
   const [quantity, setQuantity] = useState(1);
+  const buyNowHref = checkoutHref(Boolean(currentUser));
 
   const product = products.find((entry) => entry.id === params.id);
 
@@ -137,8 +141,10 @@ export default function ProductDetailsPage() {
               >
                 Add to cart
               </FurniButton>
-              <Link href="/checkout">
-                <FurniButton variant="outline">Buy now</FurniButton>
+              <Link href={buyNowHref}>
+                <FurniButton variant="outline">
+                  {currentUser ? "Buy now" : "Sign in to buy"}
+                </FurniButton>
               </Link>
               <Link href="/support">
                 <FurniButton variant="ghost">Ask about this piece</FurniButton>

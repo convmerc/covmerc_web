@@ -23,7 +23,6 @@ import {
   updateProductInFirestore
 } from "@/lib/store-firestore";
 import { fetchCategoriesFromFirestore, type StoreCategory } from "@/lib/categories";
-import { guestUserIdFromEmail } from "@/lib/guest-user";
 import { queueOrderConfirmationEmail } from "@/lib/order-notifications";
 import { calculateDeliveryFee, orderGrandTotal } from "@/lib/shipping";
 import type {
@@ -373,8 +372,12 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
         throw new Error("Your cart is empty.");
       }
 
-      const isGuest = !currentUser;
-      const userId = currentUser?.id ?? guestUserIdFromEmail(shipping.email);
+      if (!currentUser) {
+        throw new Error("Sign in to complete your order.");
+      }
+
+      const userId = currentUser.id;
+      const isGuest = false;
       const deliveryFee = calculateDeliveryFee(cartSubtotal, shipping.city);
       const totalAmount = orderGrandTotal(cartSubtotal, deliveryFee);
 

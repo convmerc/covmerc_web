@@ -99,7 +99,7 @@ export default function AdminContentPage() {
         <h2 className="text-lg font-semibold text-furni-primary">Recent Blog Entries</h2>
         <p className="mt-1 text-xs text-furni-muted">
           Advanced edits:{" "}
-          <Link href="/dashboard/admin/data/blogPosts" className="font-medium text-furni-primary hover:underline">
+          <Link href="/admin/data/blogPosts" className="font-medium text-furni-primary hover:underline">
             Firestore data manager →
           </Link>
         </p>

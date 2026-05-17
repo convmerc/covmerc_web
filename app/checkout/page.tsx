@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Suspense, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { MarketingShell } from "@/components/layout/MarketingShell";
 import { PageHero } from "@/components/content/PageHero";
 import { RelatedPages } from "@/components/content/RelatedPages";
@@ -25,8 +25,10 @@ import type { CheckoutShipping } from "@/lib/furni-types";
 import { isPaystackEnabledClient } from "@/lib/paystack-client";
 import type { CovmercAddress } from "@/lib/marketplace-types";
 import { subscribeToUserAddresses } from "@/lib/store-marketplace";
+import { checkoutLoginPath } from "@/lib/checkout-path";
 
 function CheckoutPageContent() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { cartCount, cartSubtotal, createOrder, estimateDeliveryFee } = useFurniStore();
   const { currentUser, authLoading } = useAuthSession();
@@ -44,7 +46,6 @@ function CheckoutPageContent() {
   });
   const [paymentMethod, setPaymentMethod] = useState("Card");
   const [confirmedOrderId, setConfirmedOrderId] = useState("");
-  const [checkoutAsGuest, setCheckoutAsGuest] = useState(true);
   const [savedAddresses, setSavedAddresses] = useState<CovmercAddress[]>([]);
   const [selectedAddressId, setSelectedAddressId] = useState("");
 
@@ -55,8 +56,14 @@ function CheckoutPageContent() {
   const orderTotal = orderGrandTotal(cartSubtotal, deliveryFee);
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!currentUser && currentStep !== "Confirmation") {
+      router.replace(checkoutLoginPath());
+    }
+  }, [authLoading, currentUser, currentStep, router]);
+
+  useEffect(() => {
     if (!currentUser) return;
-    setCheckoutAsGuest(false);
     setShippingDetails((current) => ({
       ...current,
       fullName: current.fullName || currentUser.name,
@@ -219,10 +226,9 @@ function CheckoutPageContent() {
     }
   }
 
-  const canCheckout = cartCount > 0 && (Boolean(currentUser) || checkoutAsGuest);
+  const canCheckout = cartCount > 0 && Boolean(currentUser);
   const showShipping = canCheckout && currentStep === "Shipping";
   const showPayment = canCheckout && currentStep === "Payment";
-  const isGuestOrder = checkoutAsGuest || !currentUser;
 
   return (
     <MarketingShell maxWidth="4xl">
@@ -237,39 +243,18 @@ function CheckoutPageContent() {
       <PageHero
         eyebrow="Secure checkout"
         title="Complete your order"
-        description="Checkout as a guest or with your Covmerc account. Delivery fees are calculated from your city."
+        description="Sign in to complete your order. Delivery fees are calculated from your city."
       />
 
       <CheckoutStepper currentStep={currentStep} />
 
-      {authLoading ? (
+      {authLoading || (!currentUser && currentStep !== "Confirmation") ? (
         <div className="mt-8">
-          <LoadingState variant="inline" message="Loading your account…" />
+          <LoadingState
+            variant="inline"
+            message={authLoading ? "Loading your account…" : "Redirecting to sign in…"}
+          />
         </div>
-      ) : null}
-
-      {!authLoading && !currentUser && currentStep !== "Confirmation" ? (
-        <FurniCard className="mt-8">
-          <h2 className="font-display text-xl text-furni-primary">How would you like to checkout?</h2>
-          <p className="mt-2 text-sm text-furni-muted">
-            Guest checkout is available. Sign in to save your order history and track delivery.
-          </p>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <FurniButton
-              type="button"
-              variant={checkoutAsGuest ? "accent" : "outline"}
-              onClick={() => setCheckoutAsGuest(true)}
-            >
-              Continue as guest
-            </FurniButton>
-            <Link href="/auth/login?next=/checkout">
-              <FurniButton variant={checkoutAsGuest ? "outline" : "accent"}>Sign in</FurniButton>
-            </Link>
-            <Link href="/auth/register?next=/checkout">
-              <FurniButton variant="outline">Create account</FurniButton>
-            </Link>
-          </div>
-        </FurniCard>
       ) : null}
 
       {cartCount === 0 && currentStep !== "Confirmation" ? (
@@ -491,13 +476,11 @@ function CheckoutPageContent() {
             placed. A confirmation will be sent to {shippingDetails.email}.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
-            {!isGuestOrder ? (
-              <Link href="/account/orders">
-                <FurniButton variant="accent">View your orders</FurniButton>
-              </Link>
-            ) : null}
+            <Link href="/account/orders">
+              <FurniButton variant="accent">View your orders</FurniButton>
+            </Link>
             <Link href="/shop">
-              <FurniButton variant={isGuestOrder ? "accent" : "outline"}>Continue shopping</FurniButton>
+              <FurniButton variant="outline">Continue shopping</FurniButton>
             </Link>
             {currentUser?.userType === "admin" ? (
               <Link href="/admin/orders">

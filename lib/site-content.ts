@@ -29,10 +29,116 @@ export const relatedPageGroups = {
   ],
   explore: [
     { href: "/shop", label: "Shop Collection", description: "Browse curated furniture" },
+    { href: "/sell", label: "Sell on Covmerc", description: "List furniture on our marketplace" },
     { href: "/about", label: "Our Story", description: "Craft, sourcing & values" },
     { href: "/blog", label: "Design Blog", description: "Tips for modern living" }
   ]
 } as const;
+
+export const sellPageSteps: ProcessStep[] = [
+  {
+    title: "Download the Covmerc app",
+    description:
+      "Vendor registration happens in our mobile app—the same account you use to shop on the web. Install Covmerc on iOS or Android to get started."
+  },
+  {
+    title: "Register as a vendor",
+    description:
+      "Complete your business profile, upload verification details, and tell us about the furniture you make or source. Our team reviews every application."
+  },
+  {
+    title: "List & sell nationwide",
+    description:
+      "Once approved, add products from the app. Manage listings, track orders, and grow sales from the vendor portal on this website."
+  }
+];
+
+export const sellPageBenefits = [
+  {
+    icon: "📱",
+    title: "One account everywhere",
+    description:
+      "Sign in on web and mobile with the same Covmerc profile—cart, orders, and vendor tools stay in sync."
+  },
+  {
+    icon: "🛋️",
+    title: "Reach more buyers",
+    description:
+      "Showcase chairs, tables, sofas, and decor to customers shopping Covmerc studio pieces and marketplace listings."
+  },
+  {
+    icon: "✓",
+    title: "Reviewed listings",
+    description:
+      "We check photos, specs, and pricing so buyers trust what they see—better conversions for serious makers."
+  },
+  {
+    icon: "🚚",
+    title: "Orders & fulfillment",
+    description:
+      "View vendor orders on the web dashboard, update buyers through Covmerc support, and coordinate delivery across Nigeria."
+  }
+] as const;
+
+export const sellPageFaqs = [
+  {
+    question: "Do I need an account to learn about selling?",
+    answer:
+      "No. This page is open to everyone. Browse requirements and download the app without signing in. Create a Covmerc account when you apply in the app—or sign in on the web first if you already shop with us."
+  },
+  {
+    question: "Why do I register in the app?",
+    answer:
+      "Vendor onboarding includes business verification and document uploads that are built into the Covmerc mobile app today—the same flow our makers already use. The web vendor portal is for day-to-day selling after you are approved."
+  },
+  {
+    question: "How long does approval take?",
+    answer:
+      "Most applications are reviewed within a few business days. You will see your status in the app and can sign in here once your account is marked as an approved vendor."
+  },
+  {
+    question: "What can I sell on Covmerc?",
+    answer:
+      "We focus on furniture and home pieces—chairs, tables, sofas, storage, lighting, and decor from verified makers and resellers. Listings must be accurate, well photographed, and available to fulfill across Nigeria."
+  },
+  {
+    question: "Can I add products on the website?",
+    answer:
+      "Yes. Approved vendors can add products from the app or submit new listings from the web vendor portal (pending review before they go live)."
+  }
+] as const;
+
+export const sellPageEligibility = [
+  "Furniture makers, workshops, and showrooms in Nigeria",
+  "Resellers with clear product photos and honest specifications",
+  "Businesses able to fulfill orders and coordinate delivery",
+  "Sellers willing to pass Covmerc listing review before going live"
+] as const;
+
+export const sellPageRequirements = [
+  {
+    title: "Business details",
+    description: "Legal or trading name, contact phone, and city (we are headquartered in Ibadan)."
+  },
+  {
+    title: "Verification documents",
+    description: "ID and business proof as prompted in the app—required before approval."
+  },
+  {
+    title: "Sample listings",
+    description: "At least one product with clear photos, dimensions, materials, and pricing in Naira."
+  },
+  {
+    title: "Fulfillment plan",
+    description: "How you prepare, pack, and hand off orders for delivery across Nigeria."
+  }
+] as const;
+
+export const sellPageHighlights = [
+  { label: "Review time", value: "2–5 days", description: "Typical vendor application turnaround" },
+  { label: "Market", value: "Nigeria", description: "Buyers nationwide, studio based in Ibadan" },
+  { label: "Categories", value: "Furniture", description: "Home, living, dining & decor" }
+] as const;
 
 export type LegalSection = {
   id: string;
