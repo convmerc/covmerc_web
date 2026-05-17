@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { OrderStatusBadge } from "@/components/ui/OrderStatusBadge";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { FurniButton } from "@/components/ui/FurniButton";
@@ -21,11 +22,7 @@ export default function AccountOrdersPage() {
   }, [currentUser, refreshOrders]);
 
   if (storeLoading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading orders…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="list" message="Loading orders…" count={4} />;
   }
 
   if (orders.length === 0) {

@@ -30,6 +30,9 @@ export function getAuthErrorMessage(error: unknown): string {
       return "An account already exists with this email using a different sign-in method.";
     case "auth/too-many-requests":
       return "Too many attempts. Please wait a moment and try again.";
+    case "auth/invalid-action-code":
+    case "auth/expired-action-code":
+      return "This reset link is invalid or has expired. Request a new one.";
     case "auth/network-request-failed":
       return "Network error. Check your connection and try again.";
     default:

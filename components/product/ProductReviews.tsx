@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FurniCard } from "@/components/ui/FurniCard";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { fetchProductReviews, type ProductReview } from "@/lib/product-reviews";
 
 type Props = {
@@ -31,8 +32,8 @@ export function ProductReviews({ productId, fallbackRating = 0 }: Props) {
 
   if (loading) {
     return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading reviews…</p>
+      <FurniCard className="p-5">
+        <LoadingState variant="inline" message="Loading reviews…" />
       </FurniCard>
     );
   }

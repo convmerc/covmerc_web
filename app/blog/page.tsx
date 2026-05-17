@@ -45,7 +45,7 @@ export default function BlogPage() {
 
       {storeLoading ? (
         <div className="mt-10">
-          <LoadingState message="Loading articles…" />
+          <LoadingState variant="blog" message="Loading articles…" count={6} />
         </div>
       ) : blogPosts.length === 0 ? (
         <EmptyState

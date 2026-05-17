@@ -6,6 +6,7 @@ import { useEffect, type ReactNode } from "react";
 import { SkipToContent } from "@/components/layout/SkipToContent";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 const links = [
@@ -31,8 +32,8 @@ export function AccountShell({ children }: { children: ReactNode }) {
     return (
       <div className="flex min-h-screen flex-col bg-furni-surface">
         <TopNav />
-        <main className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center px-4 py-16">
-          <p className="text-sm text-furni-muted">Loading your account…</p>
+        <main className="mx-auto flex w-full max-w-5xl flex-1 px-4 py-16">
+          <LoadingState variant="page" message="Loading your account…" className="w-full" />
         </main>
         <Footer />
       </div>

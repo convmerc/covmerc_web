@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { LoadingState } from "@/components/ui/LoadingState";
 import { OrderStatusBadge } from "@/components/ui/OrderStatusBadge";
 import { FurniCard } from "@/components/ui/FurniCard";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
@@ -30,11 +31,7 @@ export default function VendorOrdersPage() {
   }, [currentUser?.id]);
 
   if (loading) {
-    return (
-      <FurniCard>
-        <p className="text-sm text-furni-muted">Loading orders…</p>
-      </FurniCard>
-    );
+    return <LoadingState variant="list" message="Loading orders…" count={4} />;
   }
 
   if (orders.length === 0) {
