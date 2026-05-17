@@ -36,16 +36,13 @@ export default function TermsPage() {
       />
       <PolicyMetaBar lastUpdated={policyLastUpdated} links={policyLinks} />
 
-      <div className="mt-8 lg:hidden">
-        <PolicyHighlights items={termsHighlights} />
-      </div>
-
       <LegalDocument
         sections={termsSections}
         contactLabel="Legal notices"
         contactEmail={companyContact.legalEmail}
         alternateHref="/privacy"
         alternateLabel="Privacy Policy"
+        highlights={termsHighlights}
       />
 
       <CtaBanner

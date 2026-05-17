@@ -46,7 +46,7 @@ export default function AccountOverviewPage() {
       ))}
 
       {currentUser?.userType === "vendor" ? (
-        <FurniCard className="md:col-span-3 bg-furni-primary text-white">
+        <FurniCard className="md:col-span-2 lg:col-span-4 bg-furni-primary text-white">
           <h2 className="font-display text-xl text-furni-accent">Vendor portal</h2>
           <p className="mt-2 text-sm text-white/85">
             Manage your product listings and vendor orders from the web dashboard.
@@ -56,7 +56,7 @@ export default function AccountOverviewPage() {
           </Link>
         </FurniCard>
       ) : (
-        <FurniCard className="md:col-span-3">
+        <FurniCard className="md:col-span-2 lg:col-span-4">
           <h2 className="font-display text-xl text-furni-primary">Sell on Covmerc</h2>
           <p className="mt-2 text-sm text-furni-muted">
             Register as a vendor in the Covmerc mobile app to list products on the marketplace.

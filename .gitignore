@@ -22,6 +22,9 @@ pnpm-debug.log*
 .vscode
 .idea
 
+.env.production
+.firebase/
+
 # Playwright
 /test-results/
 /playwright-report/
