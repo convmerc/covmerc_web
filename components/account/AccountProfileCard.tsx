@@ -2,6 +2,7 @@
 
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
+import { isAdminUserType } from "@/lib/user-role";
 import { getVendorOnboardingState } from "@/lib/vendor-onboarding";
 
 function initials(name: string) {
@@ -14,7 +15,7 @@ function initials(name: string) {
 }
 
 function accountBadge(userType: string, vendorState: ReturnType<typeof getVendorOnboardingState>) {
-  if (userType === "admin") {
+  if (isAdminUserType(userType)) {
     return { label: "Admin", className: "bg-furni-accent/25 text-furni-primary" };
   }
   if (userType === "vendor") {

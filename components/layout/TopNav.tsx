@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { FurniButton } from "@/components/ui/FurniButton";
+import { isAdminUser } from "@/lib/admin-access";
 
 function navLinkClass(isActive: boolean) {
   return `block rounded-lg px-3 py-2 font-medium transition ${
@@ -17,9 +18,9 @@ export function TopNav() {
   const pathname = usePathname();
   const { cartCount } = useFurniStore();
   const { currentUser, logout } = useAuthSession();
-  const isAdmin = currentUser?.userType === "admin";
+  const isAdmin = isAdminUser(currentUser);
   const isVendor =
-    currentUser?.userType === "vendor" || currentUser?.userType === "admin";
+    currentUser?.userType === "vendor" || isAdmin;
   const showSellLink = !isVendor;
   const [mobileOpen, setMobileOpen] = useState(false);
   const mobilePanelRef = useRef<HTMLDivElement>(null);
@@ -32,6 +33,10 @@ export function TopNav() {
     { href: "/support", label: "Support" },
     { href: "/contact", label: "Contact" }
   ];
+
+  if (isAdmin) {
+    navItems.splice(1, 0, { href: "/admin", label: "Admin" });
+  }
 
   if (!isVendor) {
     navItems.push({ href: "/sell", label: "Sell" });

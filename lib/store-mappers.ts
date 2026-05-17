@@ -356,13 +356,32 @@ export function shippingToDeliveryAddress(
 export function mapUserProfile(data: Record<string, unknown> | undefined) {
   if (!data) return null;
 
+  const rawType = asString(
+    data.userType ?? data.type ?? data.accountType,
+    "customer"
+  ).toLowerCase();
+  const role = asString(data.role).toLowerCase();
+  const roles = Array.isArray(data.roles)
+    ? data.roles.map((entry) => String(entry).toLowerCase())
+    : [];
+  const isAdmin =
+    asBoolean(data.isAdmin) ||
+    rawType === "admin" ||
+    role === "admin" ||
+    roles.includes("admin");
+  const userType = isAdmin
+    ? "admin"
+    : rawType === "vendor"
+      ? "vendor"
+      : "customer";
+
   return {
     uid: asString(data.uid),
     name: asString(data.name ?? data.displayName, "Customer"),
     email: asString(data.email),
     phone: asString(data.phone),
-    userType: asString(data.userType, "customer"),
-    isAdmin: asBoolean(data.isAdmin) || data.userType === "admin",
+    userType,
+    isAdmin,
     vendorStatus: asString(data.vendorStatus) || undefined
   };
 }

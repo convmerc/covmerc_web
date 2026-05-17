@@ -13,6 +13,7 @@ import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import { useFurniStore } from "@/components/providers/FurniStoreProvider";
 import { formatNgn } from "@/lib/format-currency";
 import { companyContact } from "@/lib/site-content";
+import { isAdminUser } from "@/lib/admin-access";
 import { canAccessVendorPortal } from "@/lib/vendor-onboarding";
 
 function greeting(name: string) {
@@ -33,7 +34,8 @@ export default function AccountOverviewPage() {
     refreshOrders
   } = useFurniStore();
 
-  const isVendor = canAccessVendorPortal(currentUser);
+  const isAdmin = isAdminUser(currentUser);
+  const isVendor = !isAdmin && canAccessVendorPortal(currentUser);
 
   useEffect(() => {
     if (currentUser) {
@@ -168,7 +170,28 @@ export default function AccountOverviewPage() {
         </FurniCard>
       </section>
 
-      {isVendor ? (
+      {isAdmin ? (
+        <FurniCard className="bg-furni-primary text-white" interactive={false}>
+          <h2 className="font-display text-xl text-furni-accent">Admin dashboard</h2>
+          <p className="mt-2 text-sm text-white/85">
+            Manage orders, products, content, support tickets, and Firestore data from the admin
+            console.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-3">
+            <Link href="/admin">
+              <FurniButton variant="accent">Open admin dashboard</FurniButton>
+            </Link>
+            <Link href="/admin/orders">
+              <FurniButton
+                variant="outline"
+                className="border-white/30 text-white hover:bg-white/10"
+              >
+                View orders
+              </FurniButton>
+            </Link>
+          </div>
+        </FurniCard>
+      ) : isVendor ? (
         <FurniCard className="bg-furni-primary text-white" interactive={false}>
           <h2 className="font-display text-xl text-furni-accent">Vendor portal</h2>
           <p className="mt-2 text-sm text-white/85">

@@ -110,12 +110,17 @@ export async function checkAdminAccess(user: User): Promise<AdminAccessResult> {
   const userDoc = await getDoc(doc(db, "users", user.uid));
   if (userDoc.exists()) {
     const userData = userDoc.data();
-    if (userData.isAdmin === true || userData.userType === "admin") {
+    const userType = String(userData.userType ?? "").toLowerCase();
+    if (userData.isAdmin === true || userType === "admin") {
       return { isAdmin: true, source: "users-type-field" };
     }
-    const role = userData.role;
+    const role = String(userData.role ?? "").toLowerCase();
     const roles = userData.roles;
-    if (role === "admin" || (Array.isArray(roles) && roles.includes("admin"))) {
+    if (
+      role === "admin" ||
+      (Array.isArray(roles) &&
+        roles.some((entry) => String(entry).toLowerCase() === "admin"))
+    ) {
       return { isAdmin: true, source: "users-role-field" };
     }
   }

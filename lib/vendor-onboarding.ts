@@ -1,4 +1,5 @@
 import type { AuthUser } from "@/lib/auth-types";
+import { isAdminUserType } from "@/lib/user-role";
 
 /** Mirrors vendor lifecycle fields on Firestore `users` (set by the mobile app). */
 export type VendorOnboardingState =
@@ -13,7 +14,7 @@ export function getVendorOnboardingState(user: AuthUser | null): VendorOnboardin
     return "guest";
   }
 
-  if (user.userType === "admin" || user.userType === "vendor") {
+  if (isAdminUserType(user.userType) || user.userType === "vendor") {
     return "approved";
   }
 
@@ -38,5 +39,5 @@ export function canAccessVendorPortal(user: AuthUser | null): boolean {
   if (!user) {
     return false;
   }
-  return user.userType === "vendor" || user.userType === "admin";
+  return user.userType === "vendor" || isAdminUserType(user.userType);
 }

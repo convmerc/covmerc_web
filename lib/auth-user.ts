@@ -5,6 +5,7 @@ import { checkAdminAccess } from "@/lib/admin-firestore";
 import { withTimeout } from "@/lib/async-timeout";
 import { getFirebase } from "@/lib/firebase";
 import { mapUserProfile } from "@/lib/store-mappers";
+import { isAdminProfile, isVendorProfile, normalizeUserType } from "@/lib/user-role";
 
 const PROFILE_TIMEOUT_MS = 8_000;
 const ADMIN_CHECK_TIMEOUT_MS = 5_000;
@@ -33,7 +34,7 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
     userSnap?.data() as Record<string, unknown> | undefined
   );
 
-  let isAdmin = profile?.isAdmin === true || profile?.userType === "admin";
+  let isAdmin = isAdminProfile(profile);
 
   if (!isAdmin) {
     const adminAccess = await withTimeout(
@@ -44,11 +45,7 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
     isAdmin = adminAccess.isAdmin;
   }
 
-  const isVendor =
-    !isAdmin &&
-    (profile?.userType === "vendor" ||
-      profile?.vendorStatus === "approved" ||
-      profile?.vendorStatus === "active");
+  const isVendor = !isAdmin && isVendorProfile(profile);
 
   return {
     id: firebaseUser.uid,
@@ -58,7 +55,7 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
       firebaseUser.email?.split("@")[0] ||
       "Covmerc User",
     email: firebaseUser.email ?? profile?.email ?? "",
-    userType: isAdmin ? "admin" : isVendor ? "vendor" : "customer",
+    userType: normalizeUserType(profile?.userType, isAdmin),
     vendorStatus: profile?.vendorStatus ?? null
   };
 }
@@ -66,12 +63,11 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
 /** Resolves profile with timeouts; never rejects — uses Firebase basics on failure. */
 export async function resolveAuthUserSafe(firebaseUser: User): Promise<AuthUser> {
   try {
-    return await withTimeout(
-      resolveAuthUser(firebaseUser),
-      PROFILE_TIMEOUT_MS + ADMIN_CHECK_TIMEOUT_MS,
-      fallbackAuthUser(firebaseUser)
-    );
-  } catch {
+    return await resolveAuthUser(firebaseUser);
+  } catch (error) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn("[Covmerc] resolveAuthUser failed, using fallback session:", error);
+    }
     return fallbackAuthUser(firebaseUser);
   }
 }

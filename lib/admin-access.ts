@@ -1,9 +1,10 @@
 import type { AuthUser } from "@/lib/auth-types";
+import { isAdminUserType } from "@/lib/user-role";
 
 export const ADMIN_HOME_PATH = "/admin";
 
 export function isAdminUser(user: AuthUser | null | undefined): boolean {
-  return user?.userType === "admin";
+  return isAdminUserType(user?.userType);
 }
 
 export function isAdminOnlyPath(path: string): boolean {

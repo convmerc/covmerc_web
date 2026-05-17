@@ -52,6 +52,7 @@ type AuthSessionValue = {
   ) => Promise<{ success: true; email: string } | { success: false; message: string }>;
   completePasswordReset: (oobCode: string, newPassword: string) => Promise<AuthResult>;
   logout: () => Promise<void>;
+  refreshSession: () => Promise<void>;
 };
 
 const AuthSessionContext = createContext<AuthSessionValue | null>(null);
@@ -208,6 +209,24 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     setCurrentUser(null);
   }, []);
 
+  const refreshSession = useCallback(async () => {
+    const { auth } = getFirebase();
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+      setCurrentUser(null);
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      await firebaseUser.getIdToken(true);
+      const user = await resolveAuthUserSafe(firebaseUser);
+      setCurrentUser(user);
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
   const value = useMemo<AuthSessionValue>(
     () => ({
       currentUser,
@@ -219,7 +238,8 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       requestPasswordReset,
       verifyPasswordResetCode,
       completePasswordReset,
-      logout
+      logout,
+      refreshSession
     }),
     [
       currentUser,
@@ -230,6 +250,7 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
       verifyPasswordResetCode,
       completePasswordReset,
       logout,
+      refreshSession,
       registerWithEmail
     ]
   );
