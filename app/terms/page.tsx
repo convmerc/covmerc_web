@@ -3,7 +3,6 @@ import { PageHero } from "@/components/content/PageHero";
 import { LegalDocument } from "@/components/content/LegalDocument";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PolicyMetaBar } from "@/components/content/PolicyMetaBar";
-import { PolicyHighlights } from "@/components/content/PolicyHighlights";
 import { CtaBanner } from "@/components/ui/CtaBanner";
 import {
   companyContact,

@@ -137,6 +137,12 @@ function mapBlogDocs(
 export async function fetchBlogPostsFromFirestore(options?: {
   includeDrafts?: boolean;
 }): Promise<FurniBlogPost[]> {
+  if (shouldUseSeedFirestoreFallback()) {
+    return options?.includeDrafts
+      ? seedBlogPosts
+      : seedBlogPosts.filter((post) => post.status === "published");
+  }
+
   const { db } = getFirebase();
   const snapshot = await getDocs(collection(db, BLOG_POSTS_COLLECTION));
 
@@ -170,6 +176,15 @@ export function subscribeToBlogPosts(
   onError?: (error: Error) => void,
   options?: { includeDrafts?: boolean }
 ): Unsubscribe {
+  if (shouldUseSeedFirestoreFallback()) {
+    onData(
+      options?.includeDrafts
+        ? seedBlogPosts
+        : seedBlogPosts.filter((post) => post.status === "published")
+    );
+    return () => {};
+  }
+
   const { db } = getFirebase();
 
   return onSnapshot(
@@ -246,6 +261,14 @@ function mapProductDocs(
 export async function fetchProductsFromFirestore(options?: {
   includeUnapproved?: boolean;
 }): Promise<FurniProduct[]> {
+  if (shouldUseSeedFirestoreFallback()) {
+    return options?.includeUnapproved
+      ? seedProducts
+      : seedProducts.filter((product) =>
+          isStorefrontProduct({ status: product.status ?? "approved" })
+        );
+  }
+
   const { db } = getFirebase();
   const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
 
@@ -269,6 +292,17 @@ export function subscribeToProducts(
   onError?: (error: Error) => void,
   options?: { includeUnapproved?: boolean }
 ): Unsubscribe {
+  if (shouldUseSeedFirestoreFallback()) {
+    onData(
+      options?.includeUnapproved
+        ? seedProducts
+        : seedProducts.filter((product) =>
+            isStorefrontProduct({ status: product.status ?? "approved" })
+          )
+    );
+    return () => {};
+  }
+
   const { db } = getFirebase();
 
   return onSnapshot(

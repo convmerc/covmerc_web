@@ -4,7 +4,7 @@ test.describe("Authentication", () => {
   test("login page renders email sign-in", async ({ page }) => {
     await page.goto("/auth/login");
     await expect(page.getByLabel(/email/i)).toBeVisible();
-    await expect(page.getByLabel(/password/i)).toBeVisible();
+    await expect(page.locator('input[type="password"]')).toBeVisible();
     await expect(page.locator("form button[type='submit']")).toHaveText("Sign in");
   });
 
