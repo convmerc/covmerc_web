@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
-import { initialBlogPosts } from "@/lib/furni-data";
-import { fetchProductsFromFirestore } from "@/lib/store-firestore";
+import { fetchBlogPostsFromFirestore, fetchProductsFromFirestore } from "@/lib/store-firestore";
 import { siteConfig } from "@/lib/site-metadata";
 
 const staticRoutes = [
@@ -29,12 +28,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : path === "/shop" ? 0.9 : 0.7
   }));
 
-  const blogEntries = initialBlogPosts.map((post) => ({
-    url: `${siteConfig.url}/blog/${post.id}`,
-    lastModified,
-    changeFrequency: "monthly" as const,
-    priority: 0.6
-  }));
+  let blogEntries: MetadataRoute.Sitemap = [];
+
+  try {
+    const posts = await fetchBlogPostsFromFirestore();
+    blogEntries = posts.map((post) => ({
+      url: `${siteConfig.url}/blog/${post.slug}`,
+      lastModified,
+      changeFrequency: "monthly" as const,
+      priority: 0.6
+    }));
+  } catch {
+    blogEntries = [];
+  }
 
   let productEntries: MetadataRoute.Sitemap = [];
 

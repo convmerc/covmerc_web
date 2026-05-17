@@ -1,0 +1,87 @@
+/** Shared layout for Next.js `ImageResponse` OG assets (E1). */
+
+export const ogImageSize = {
+  width: 1200,
+  height: 630,
+} as const;
+
+type CovmercOgProps = {
+  eyebrow?: string;
+  title?: string;
+  subtitle?: string;
+};
+
+export function CovmercOgImage({
+  eyebrow = "Covmerc Studio",
+  title = "Modern furniture for Nigerian homes",
+  subtitle = "Curated collections · Secure checkout · Lagos delivery",
+}: CovmercOgProps) {
+  return (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 72,
+        background: "linear-gradient(135deg, #2a463c 0%, #3B5D50 45%, #1f4d3a 100%)",
+        color: "#ffffff",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+        <div
+          style={{
+            width: 56,
+            height: 56,
+            borderRadius: 14,
+            background: "#F9BF29",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#1f4d3a",
+            fontSize: 28,
+            fontWeight: 700,
+          }}
+        >
+          C
+        </div>
+        <span style={{ fontSize: 28, fontWeight: 600, letterSpacing: "-0.02em" }}>
+          Covmerc
+        </span>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, maxWidth: 900 }}>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 22,
+            fontWeight: 600,
+            letterSpacing: "0.2em",
+            textTransform: "uppercase",
+            color: "#F9BF29",
+          }}
+        >
+          {eyebrow}
+        </p>
+        <p
+          style={{
+            margin: 0,
+            fontSize: 56,
+            fontWeight: 700,
+            lineHeight: 1.1,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          {title}
+        </p>
+        <p style={{ margin: 0, fontSize: 26, lineHeight: 1.4, color: "rgba(255,255,255,0.88)" }}>
+          {subtitle}
+        </p>
+      </div>
+
+      <p style={{ margin: 0, fontSize: 20, color: "rgba(255,255,255,0.65)" }}>covmerc.com</p>
+    </div>
+  );
+}

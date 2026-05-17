@@ -150,6 +150,8 @@ export const initialProducts: FurniProduct[] = rawProducts.map(defineSeedProduct
 export const initialBlogPosts: FurniBlogPost[] = [
   {
     id: "sustainable-craftsmanship",
+    slug: "sustainable-craftsmanship",
+    status: "published",
     title: "Sustainable Craftsmanship in Every Joint",
     excerpt:
       "How Covmerc sources certified wood, low-emission fabrics, and timeless silhouettes to reduce waste.",
@@ -163,6 +165,8 @@ export const initialBlogPosts: FurniBlogPost[] = [
   },
   {
     id: "modern-living-tips",
+    slug: "modern-living-tips",
+    status: "published",
     title: "Modern Living Tips for Small Spaces",
     excerpt:
       "Practical layout ideas to make compact homes feel open, calm, and highly functional.",
@@ -176,6 +180,8 @@ export const initialBlogPosts: FurniBlogPost[] = [
   },
   {
     id: "how-to-style-green-tones",
+    slug: "how-to-style-green-tones",
+    status: "published",
     title: "Styling Forest Green Interiors",
     excerpt:
       "Use earthy color accents and natural textures to build depth in your home.",

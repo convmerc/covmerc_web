@@ -9,6 +9,7 @@ on:
     branches:
       - dev
       - main
+      - phase-e
 
 permissions:
   contents: read
@@ -22,7 +23,7 @@ jobs:
       github.event.workflow_run.conclusion == 'success' &&
       github.event.workflow_run.event == 'push'
     environment: ${{ github.event.workflow_run.head_branch == 'main' && 'production' || 'development' }}
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -39,8 +40,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
-        run: npm run build
+      - name: Write production env for Firebase build
         env:
           NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
           NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
@@ -50,6 +50,16 @@ jobs:
           NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
           NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
           NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL }}
+          NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY: ${{ secrets.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY }}
+          PAYSTACK_SECRET_KEY: ${{ secrets.PAYSTACK_SECRET_KEY }}
+          PAYSTACK_CALLBACK_URL: ${{ vars.PAYSTACK_CALLBACK_URL }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          ORDER_EMAIL_FROM: ${{ vars.ORDER_EMAIL_FROM }}
+          ORDER_NOTIFICATIONS_TO: ${{ vars.ORDER_NOTIFICATIONS_TO }}
+        run: bash scripts/write-deploy-env.sh
+
+      - name: Build
+        run: npm run build
 
       - name: Deploy to Firebase Hosting
         env:
@@ -65,20 +75,20 @@ jobs:
             echo "  Secret: FIREBASE_SERVICE_ACCOUNT (JSON service account)"
             echo "  Secret: NEXT_PUBLIC_FIREBASE_* (same values as .env.local)"
             echo "  Variable: FIREBASE_PROJECT_ID (e.g. convmerc-baeef)"
-            echo "  Variable: NEXT_PUBLIC_SITE_URL (optional)"
+            echo "  Variable: NEXT_PUBLIC_SITE_URL (e.g. https://convmerc-baeef.web.app)"
             exit 0
           fi
 
           echo "${FIREBASE_SERVICE_ACCOUNT}" > "${RUNNER_TEMP}/firebase-sa.json"
           export GOOGLE_APPLICATION_CREDENTIALS="${RUNNER_TEMP}/firebase-sa.json"
 
-          if [ "${HEAD_BRANCH}" = "dev" ]; then
-            npx --yes firebase-tools@14.9.0 hosting:channel:deploy "dev-${HEAD_SHA}" \
+          if [ "${HEAD_BRANCH}" = "dev" ] || [ "${HEAD_BRANCH}" = "phase-e" ]; then
+            npx firebase hosting:channel:deploy "preview-${HEAD_SHA}" \
               --project "${FIREBASE_PROJECT_ID}" \
               --expires 30d \
               --only hosting
           elif [ "${HEAD_BRANCH}" = "main" ]; then
-            npx --yes firebase-tools@14.9.0 deploy \
+            npx firebase deploy \
               --project "${FIREBASE_PROJECT_ID}" \
               --only hosting
           else
