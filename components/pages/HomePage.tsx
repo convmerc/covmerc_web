@@ -41,7 +41,7 @@ export function HomePage() {
         <>
           <MarketingHero
             size="large"
-            eyebrow="Covmerc Studio · Lagos"
+            eyebrow="Covmerc Studio · Ibadan"
             title={
               <>
                 Furniture for homes
@@ -64,7 +64,7 @@ export function HomePage() {
                   className="absolute -bottom-4 -left-2 max-w-[200px] border-white/20 bg-white/95 p-3 shadow-lg backdrop-blur md:-left-6"
                 >
                   <p className="text-[10px] uppercase tracking-wide text-furni-muted">This week</p>
-                  <p className="text-sm font-semibold text-furni-primary">Free Lagos delivery</p>
+                  <p className="text-sm font-semibold text-furni-primary">Free Ibadan delivery</p>
                   <p className="text-xs text-furni-muted">On orders over ₦150,000</p>
                 </FurniCard>
               </div>
@@ -139,7 +139,7 @@ export function HomePage() {
           action={{ href: "/shop", label: "Shop all" }}
         />
         {displayFeatured.length > 0 ? (
-          <div className="grid gap-5 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {displayFeatured.map((product) => (
               <ProductCard
                 key={product.id}
@@ -157,7 +157,7 @@ export function HomePage() {
         <SectionHeader
           eyebrow="Inspiration"
           title="Curated for real rooms"
-          description="Not sure where to start? These edit boards pair bestsellers with styling notes from our Lagos studio."
+          description="Not sure where to start? These edit boards pair bestsellers with styling notes from our Ibadan studio."
           align="center"
         />
         <div className="grid gap-5 md:grid-cols-3">
@@ -353,7 +353,7 @@ export function HomePage() {
             variant="light"
             eyebrow="Support"
             title="Questions before you buy?"
-            description="Our Lagos team helps with sizing, delivery, and post-purchase care."
+            description="Our Ibadan team helps with sizing, delivery, and post-purchase care."
             primary={{ href: "/support", label: "Help center" }}
             secondary={{ href: "/contact", label: "Contact us" }}
           />

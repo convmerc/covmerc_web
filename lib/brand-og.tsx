@@ -14,7 +14,7 @@ type CovmercOgProps = {
 export function CovmercOgImage({
   eyebrow = "Covmerc Studio",
   title = "Modern furniture for Nigerian homes",
-  subtitle = "Curated collections · Secure checkout · Lagos delivery",
+  subtitle = "Curated collections · Secure checkout · Ibadan studio",
 }: CovmercOgProps) {
   return (
     <div

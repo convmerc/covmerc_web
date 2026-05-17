@@ -3,7 +3,7 @@
 export const companyContact = {
   name: "Covmerc",
   tagline: "Modern furniture & interior studio",
-  address: "18 Minimal Avenue, Victoria Island, Lagos, Nigeria",
+  address: "12 Ring Road, Ibadan, Oyo State, Nigeria",
   phone: "+234 901 234 5678",
   email: "hello@covmerc.com",
   supportEmail: "support@covmerc.com",
@@ -19,7 +19,7 @@ export const companyContact = {
 export const relatedPageGroups = {
   help: [
     { href: "/support", label: "Help Center", description: "FAQs, orders & returns" },
-    { href: "/contact", label: "Contact Us", description: "Message our Lagos team" }
+    { href: "/contact", label: "Contact Us", description: "Message our Ibadan team" }
   ],
   legal: [
     { href: "/privacy", label: "Privacy Policy", description: "How we handle your data" },
@@ -64,7 +64,7 @@ export type HelpChannel = {
 export const policyLastUpdated = "May 16, 2026" as const;
 
 export const shippingHighlights: PolicyHighlight[] = [
-  { icon: "🚚", label: "Lagos metro", value: "3–7 days", description: "In-stock items after payment" },
+  { icon: "🚚", label: "Ibadan metro", value: "3–7 days", description: "In-stock items after payment" },
   { icon: "🇳🇬", label: "Nationwide", value: "7–14 days", description: "Major cities & hubs" },
   { icon: "💳", label: "Free delivery", value: "₦500k+", description: "Where noted at checkout" },
   { icon: "📦", label: "Metro fee from", value: "₦5,000", description: "Calculated by city & size" }
@@ -144,7 +144,7 @@ export const contactSlaCards = [
     icon: "✉️",
     title: "Email support",
     value: "< 24 hrs",
-    description: "Weekday replies from our Lagos studio team."
+    description: "Weekday replies from our Ibadan studio team."
   },
   {
     icon: "🎨",
@@ -352,16 +352,16 @@ export const supportFaqs: SupportFaq[] = [
     hrefLabel: "Read returns policy"
   },
   {
-    question: "Do you deliver outside Lagos?",
+    question: "Do you deliver outside Ibadan?",
     answer:
-      "Yes. We deliver to major cities across Nigeria. Delivery fees and timelines are calculated at checkout based on your address and product size. Remote areas may require additional lead time.",
+      "Yes. We deliver to major cities across Nigeria—including Lagos, Abuja, and Port Harcourt. Delivery fees and timelines are calculated at checkout based on your address and product size. Remote areas may require additional lead time.",
     href: "/shipping",
     hrefLabel: "Shipping & delivery"
   },
   {
     question: "What are delivery fees and free shipping?",
     answer:
-      "Lagos metro deliveries start from ₦5,000; nationwide from ₦8,500. Orders over ₦500,000 may qualify for free delivery where shown at checkout.",
+      "Ibadan metro deliveries start from ₦5,000; nationwide from ₦8,500. Orders over ₦500,000 may qualify for free delivery where shown at checkout.",
     href: "/shipping",
     hrefLabel: "See fee details"
   },
@@ -393,7 +393,7 @@ export const aboutMilestones = [
     year: "2022",
     title: "Covmerc begins",
     description:
-      "Started as a small studio curating locally made pieces for apartment owners in Lagos who wanted durable design without showroom markups."
+      "Started as a small studio in Ibadan curating locally made pieces for apartment owners who wanted durable design without showroom markups."
   },
   {
     year: "2024",
@@ -437,7 +437,7 @@ export const shippingSections: LegalSection[] = [
     id: "coverage",
     title: "Delivery coverage",
     paragraphs: [
-      "Covmerc delivers across Nigeria. Metro Lagos (including Lekki, Victoria Island, and Ikeja) typically receives the fastest turnaround. Other states are fulfilled via our partner carriers with tracking shared by email and in your account.",
+      "Covmerc delivers across Nigeria from our Ibadan studio. Metro Ibadan (including Bodija, Ring Road, and Challenge) typically receives the fastest turnaround. Lagos, Abuja, and other states are fulfilled via our partner carriers with tracking shared by email and in your account.",
       "Large furniture items may require scheduled delivery windows. Our team will contact you on the phone number provided at checkout to confirm access, building rules, and a suitable time slot."
     ]
   },
@@ -445,7 +445,7 @@ export const shippingSections: LegalSection[] = [
     id: "fees",
     title: "Delivery fees",
     paragraphs: [
-      "Delivery fees are calculated at checkout based on your city and order subtotal. Lagos metro deliveries start from ₦5,000; nationwide delivery from ₦8,500. Orders over ₦500,000 qualify for free delivery where noted at checkout.",
+      "Delivery fees are calculated at checkout based on your city and order subtotal. Ibadan metro deliveries start from ₦5,000; nationwide delivery from ₦8,500. Orders over ₦500,000 qualify for free delivery where noted at checkout.",
       "Fees cover standard curbside or in-home delivery as agreed with our logistics partner. Stair carries, assembly, and white-glove handling may incur additional charges—request a quote via Contact if needed."
     ]
   },
@@ -453,7 +453,7 @@ export const shippingSections: LegalSection[] = [
     id: "timelines",
     title: "Estimated timelines",
     paragraphs: [
-      "In-stock items in Lagos: typically 3–7 business days after payment confirmation.",
+      "In-stock items in Ibadan: typically 3–7 business days after payment confirmation.",
       "Nationwide: typically 7–14 business days depending on destination and product availability.",
       "Made-to-order or vendor-fulfilled pieces may take longer; estimated lead times appear on the product page when applicable."
     ]
@@ -471,7 +471,7 @@ export const shippingSections: LegalSection[] = [
     title: "Building access & assembly",
     paragraphs: [
       "Please provide accurate delivery instructions at checkout—gate codes, floor level, and whether a lift is available. Our carriers may need to reschedule if access is restricted.",
-      "Basic assembly may be available in Lagos for select items. White-glove delivery and full assembly can be quoted on request via our contact form."
+      "Basic assembly may be available in Ibadan for select items. White-glove delivery and full assembly can be quoted on request via our contact form."
     ],
     list: [
       "Measure doorways and stairwells before ordering large pieces",
@@ -518,7 +518,7 @@ export const returnsSections: LegalSection[] = [
     id: "pickup",
     title: "Pickup & packaging",
     paragraphs: [
-      "Approved returns in Lagos may be collected by our logistics partner. Outside Lagos, we will provide a return address or carrier label when applicable.",
+      "Approved returns in Ibadan may be collected by our logistics partner. Outside Ibadan, we will provide a return address or carrier label when applicable.",
       "Items must be securely repackaged in original materials where possible. We may deduct from your refund if items arrive damaged due to poor repackaging."
     ]
   }

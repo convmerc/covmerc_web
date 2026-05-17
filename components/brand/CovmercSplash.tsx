@@ -61,7 +61,7 @@ export function CovmercSplash({
       </div>
 
       <p className="covmerc-splash-footer absolute bottom-8 text-[11px] font-medium uppercase tracking-[0.28em] text-white/45">
-        Lagos · Nigeria
+        Ibadan · Nigeria
       </p>
     </div>
   );

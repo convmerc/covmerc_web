@@ -17,7 +17,7 @@ const values = [
   {
     title: "Built for real homes",
     description:
-      "Every piece is chosen for daily use: stable joints, fabrics that handle Lagos humidity, and proportions that work in apartments and family homes alike.",
+      "Every piece is chosen for daily use: stable joints, fabrics that handle Southwest Nigeria humidity, and proportions that work in apartments and family homes alike.",
     icon: "🏠"
   },
   {

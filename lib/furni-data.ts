@@ -171,7 +171,7 @@ export const initialBlogPosts: FurniBlogPost[] = [
     excerpt:
       "Practical layout ideas to make compact homes feel open, calm, and highly functional.",
     content:
-      "Living in a compact apartment does not mean living with clutter. The trick is choosing fewer, better pieces—and letting negative space do some of the work.\n\nStart with one anchor item, such as a slim sofa or a dining table with integrated storage. Build around it with lighting and textiles rather than filling every corner with furniture.\n\nMirrors opposite windows, light-toned rugs, and furniture with raised legs all help a room feel larger. In Lagos homes where entertaining matters, consider nesting tables or stackable seating you can tuck away after guests leave.",
+      "Living in a compact apartment does not mean living with clutter. The trick is choosing fewer, better pieces—and letting negative space do some of the work.\n\nStart with one anchor item, such as a slim sofa or a dining table with integrated storage. Build around it with lighting and textiles rather than filling every corner with furniture.\n\nMirrors opposite windows, light-toned rugs, and furniture with raised legs all help a room feel larger. In Nigerian homes where entertaining matters, consider nesting tables or stackable seating you can tuck away after guests leave.",
     coverImage:
       "https://images.unsplash.com/photo-1616046229478-9901c5536a45?auto=format&fit=crop&w=1200&q=80",
     category: "Lifestyle",

@@ -4,6 +4,8 @@ const nextConfig = {
   images: {
     dangerouslyAllowSVG: true,
     formats: ["image/avif", "image/webp"],
+    /** Used by FurniImage variants (thumb 75, card/inline 82, hero 88, detail 90). */
+    qualities: [75, 82, 88, 90],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     remotePatterns: [
@@ -19,7 +21,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "covmerc-baeef.firebasestorage.app",
+        hostname: "convmerc-baeef.firebasestorage.app",
         pathname: "/**"
       }
     ]

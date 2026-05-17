@@ -21,7 +21,7 @@ export default function SupportPage() {
       <PageHero
         eyebrow="Help Center"
         title="Answers when you need them"
-        description="Most questions are covered below. If you still need a human, our Lagos support team typically replies within one business day—faster for urgent delivery issues."
+        description="Most questions are covered below. If you still need a human, our Ibadan support team typically replies within one business day—faster for urgent delivery issues."
       >
         <div className="flex flex-wrap gap-3">
           {[
@@ -118,7 +118,7 @@ export default function SupportPage() {
       <CtaBanner
         className="mt-14"
         eyebrow="Still stuck?"
-        title="Talk to a real person in Lagos"
+        title="Talk to a real person in Ibadan"
         description={`Email ${companyContact.supportEmail} or call ${companyContact.phone} during studio hours. Include your order number for faster help.`}
         primary={{ href: "/contact", label: "Contact Covmerc" }}
         secondary={{ href: "/account/orders", label: "View orders" }}

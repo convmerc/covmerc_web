@@ -2,16 +2,48 @@ import type { User } from "firebase/auth";
 import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import type { AuthUser } from "@/lib/auth-types";
 import { checkAdminAccess } from "@/lib/admin-firestore";
+import { withTimeout } from "@/lib/async-timeout";
 import { getFirebase } from "@/lib/firebase";
 import { mapUserProfile } from "@/lib/store-mappers";
 
+const PROFILE_TIMEOUT_MS = 8_000;
+const ADMIN_CHECK_TIMEOUT_MS = 5_000;
+
+export function fallbackAuthUser(firebaseUser: User): AuthUser {
+  return {
+    id: firebaseUser.uid,
+    name:
+      firebaseUser.displayName ||
+      firebaseUser.email?.split("@")[0] ||
+      "Covmerc User",
+    email: firebaseUser.email ?? "",
+    userType: "customer"
+  };
+}
+
 export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
   const { db } = getFirebase();
-  const userSnap = await getDoc(doc(db, "users", firebaseUser.uid));
-  const profile = mapUserProfile(userSnap.data() as Record<string, unknown> | undefined);
-  const adminAccess = await checkAdminAccess(firebaseUser);
-  const isAdmin =
-    adminAccess.isAdmin || profile?.isAdmin === true || profile?.userType === "admin";
+  const userSnap = await withTimeout(
+    getDoc(doc(db, "users", firebaseUser.uid)),
+    PROFILE_TIMEOUT_MS,
+    null
+  );
+
+  const profile = mapUserProfile(
+    userSnap?.data() as Record<string, unknown> | undefined
+  );
+
+  let isAdmin = profile?.isAdmin === true || profile?.userType === "admin";
+
+  if (!isAdmin) {
+    const adminAccess = await withTimeout(
+      checkAdminAccess(firebaseUser),
+      ADMIN_CHECK_TIMEOUT_MS,
+      { isAdmin: false as const }
+    );
+    isAdmin = adminAccess.isAdmin;
+  }
+
   const isVendor =
     !isAdmin &&
     (profile?.userType === "vendor" ||
@@ -28,6 +60,19 @@ export async function resolveAuthUser(firebaseUser: User): Promise<AuthUser> {
     email: firebaseUser.email ?? profile?.email ?? "",
     userType: isAdmin ? "admin" : isVendor ? "vendor" : "customer"
   };
+}
+
+/** Resolves profile with timeouts; never rejects — uses Firebase basics on failure. */
+export async function resolveAuthUserSafe(firebaseUser: User): Promise<AuthUser> {
+  try {
+    return await withTimeout(
+      resolveAuthUser(firebaseUser),
+      PROFILE_TIMEOUT_MS + ADMIN_CHECK_TIMEOUT_MS,
+      fallbackAuthUser(firebaseUser)
+    );
+  } catch {
+    return fallbackAuthUser(firebaseUser);
+  }
 }
 
 export async function ensureUserDocument(

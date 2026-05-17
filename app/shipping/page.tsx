@@ -47,7 +47,7 @@ export default function ShippingPage() {
 
       <ProcessSteps
         title="From warehouse to your door"
-        description="Every Covmerc order follows the same transparent path—whether you are in Lagos or elsewhere in Nigeria."
+        description="Every Covmerc order follows the same transparent path—whether you are in Ibadan or elsewhere in Nigeria."
         steps={deliverySteps}
       />
 

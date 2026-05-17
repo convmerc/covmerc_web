@@ -5,11 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { FurniImage } from "@/components/ui/FurniImage";
-import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniInput } from "@/components/ui/FurniInput";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import type { AuthUser } from "@/lib/auth-types";
+import { consumeGoogleAuthReturnPath } from "@/lib/google-auth";
 
 type AuthMode = "login" | "register";
 
@@ -60,41 +61,53 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
   useEffect(() => {
     if (!sessionLoading && isAuthenticated && currentUser) {
-      redirectAfterAuth(currentUser, nextPath, router);
+      const afterGoogle = consumeGoogleAuthReturnPath();
+      redirectAfterAuth(currentUser, afterGoogle ?? nextPath, router);
     }
   }, [sessionLoading, isAuthenticated, currentUser, nextPath, router]);
 
   async function handleGoogle() {
     setError("");
     setPending(true);
-    const result = await loginWithGoogle();
-    setPending(false);
-
-    if (!result.success || !result.user) {
-      setError(result.message ?? "Google sign-in failed.");
-      return;
+    try {
+      const result = await loginWithGoogle(nextPath);
+      if (result.redirecting) {
+        return;
+      }
+      if (!result.success || !result.user) {
+        setError(result.message ?? "Google sign-in failed.");
+        return;
+      }
+      redirectAfterAuth(result.user, nextPath, router);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      if (!document.hidden) {
+        setPending(false);
+      }
     }
-
-    redirectAfterAuth(result.user, nextPath, router);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setPending(true);
+    try {
+      const result = isLogin
+        ? await loginWithEmail(email, password)
+        : await registerWithEmail(name, email, password);
 
-    const result = isLogin
-      ? await loginWithEmail(email, password)
-      : await registerWithEmail(name, email, password);
+      if (!result.success || !result.user) {
+        setError(result.message ?? "Unable to complete request.");
+        return;
+      }
 
-    setPending(false);
-
-    if (!result.success || !result.user) {
-      setError(result.message ?? "Unable to complete request.");
-      return;
+      redirectAfterAuth(result.user, nextPath, router);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
     }
-
-    redirectAfterAuth(result.user, nextPath, router);
   }
 
   const registerHref = `/auth/register${nextPath !== "/shop" ? `?next=${encodeURIComponent(nextPath)}` : ""}`;
@@ -105,9 +118,10 @@ export function AuthScreen({ mode }: AuthScreenProps) {
 
   if (sessionLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState variant="page" message="Loading your session…" />
-      </div>
+      <AuthLoadingState
+        message="Loading your session"
+        description="Checking if you're already signed in"
+      />
     );
   }
 
@@ -211,6 +225,8 @@ export function AuthScreen({ mode }: AuthScreenProps) {
               <div className="mt-8 space-y-4 rounded-3xl bg-white p-6 shadow-soft ring-1 ring-furni-primary/10 md:p-8">
                 <GoogleAuthButton
                   disabled={pending}
+                  loading={pending}
+                  loadingLabel={isLogin ? "Signing in…" : "Creating account…"}
                   label={isLogin ? "Sign in with Google" : "Sign up with Google"}
                   onClick={handleGoogle}
                 />
@@ -294,13 +310,12 @@ export function AuthScreen({ mode }: AuthScreenProps) {
                     </p>
                   ) : null}
 
-                  <FurniButton type="submit" fullWidth disabled={pending}>
-                    {pending
-                      ? "Please wait…"
-                      : isLogin
-                        ? "Sign in"
-                        : "Create account"}
-                  </FurniButton>
+                  <AuthSubmitButton
+                    loading={pending}
+                    loadingLabel={isLogin ? "Signing in…" : "Creating account…"}
+                  >
+                    {isLogin ? "Sign in" : "Create account"}
+                  </AuthSubmitButton>
                 </form>
 
                 <p className="text-center text-sm text-furni-muted">
