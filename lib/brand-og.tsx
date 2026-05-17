@@ -5,13 +5,17 @@ export const ogImageSize = {
   height: 630,
 } as const;
 
+export const brandLogoPublicPath = "/brand/covmerc-logo.png";
+
 type CovmercOgProps = {
+  logoSrc: string;
   eyebrow?: string;
   title?: string;
   subtitle?: string;
 };
 
 export function CovmercOgImage({
+  logoSrc,
   eyebrow = "Covmerc Studio",
   title = "Modern furniture for Nigerian homes",
   subtitle = "Curated collections · Secure checkout · Ibadan studio",
@@ -30,24 +34,18 @@ export function CovmercOgImage({
         fontFamily: "system-ui, sans-serif",
       }}
     >
-      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
-        <div
+      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={logoSrc}
+          alt=""
+          width={96}
+          height={96}
           style={{
-            width: 72,
-            height: 72,
-            borderRadius: 18,
-            background: "#F9BF29",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#2a463c",
-            fontSize: 36,
-            fontWeight: 700,
-            boxShadow: "0 8px 32px rgba(249, 191, 41, 0.35)",
+            objectFit: "contain",
+            borderRadius: 16,
           }}
-        >
-          C
-        </div>
+        />
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 8 }}>
           <span style={{ fontSize: 36, fontWeight: 600, letterSpacing: "-0.02em" }}>Covmerc</span>
           <span
