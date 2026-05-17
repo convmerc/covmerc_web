@@ -54,7 +54,7 @@ export function ForgotPasswordScreen() {
   if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState message="Loading…" />
+        <LoadingState variant="page" message="Preparing reset form…" />
       </div>
     );
   }

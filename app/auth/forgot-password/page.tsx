@@ -13,8 +13,8 @@ export default function ForgotPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-furni-surface px-4">
-          <LoadingState message="Loading…" />
+        <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
+          <LoadingState variant="page" message="Preparing reset form…" />
         </div>
       }
     >

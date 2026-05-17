@@ -149,7 +149,7 @@ export function HomePage() {
             ))}
           </div>
         ) : (
-          <LoadingState message="Loading our catalog…" />
+          <LoadingState variant="grid" message="Loading our catalog…" count={4} />
         )}
       </PageSection>
 

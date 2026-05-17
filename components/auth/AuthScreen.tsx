@@ -106,7 +106,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
   if (sessionLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState message="Loading your session…" />
+        <LoadingState variant="page" message="Loading your session…" />
       </div>
     );
   }

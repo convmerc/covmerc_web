@@ -96,7 +96,11 @@ export function ResetPasswordScreen() {
   if (authLoading || phase === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState message="Verifying reset link…" />
+        <LoadingState
+          variant="page"
+          message="Verifying reset link…"
+          description="Checking that your link is still valid"
+        />
       </div>
     );
   }

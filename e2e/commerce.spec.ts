@@ -14,18 +14,19 @@ test.describe("Storefront commerce", () => {
     await page.getByRole("link", { name: /proceed to checkout/i }).click();
     await expect(page).toHaveURL(/\/checkout/);
 
-    await page.getByLabel(/full name/i).fill("E2E Guest");
-    await page.getByLabel(/^email$/i).fill("e2e-guest@example.com");
-    await page.getByLabel(/phone/i).fill("08000000000");
-    await page.getByLabel(/street address/i).fill("12 Admiralty Way");
-    await page.getByLabel(/^city$/i).fill("Lagos");
-    await page.getByLabel(/postal/i).fill("101241");
+    const checkout = page.locator("#main-content");
+    await checkout.getByLabel(/full name/i).fill("E2E Guest");
+    await checkout.getByLabel(/^email$/i).fill("e2e-guest@example.com");
+    await checkout.getByLabel(/phone/i).fill("08000000000");
+    await checkout.getByLabel(/street address/i).fill("12 Admiralty Way");
+    await checkout.getByLabel(/^city$/i).fill("Lagos");
+    await checkout.getByLabel(/postal/i).fill("101241");
 
-    await page.getByRole("button", { name: /continue to payment/i }).click();
-    await expect(page.getByRole("heading", { name: /payment method/i })).toBeVisible();
+    await checkout.getByRole("button", { name: /continue to payment/i }).click();
+    await expect(checkout.getByRole("heading", { name: /payment method/i })).toBeVisible();
 
-    await page.locator("select").first().selectOption("Pay on Delivery");
-    await expect(page.getByRole("button", { name: /confirm order/i })).toBeVisible();
+    await checkout.locator("select").first().selectOption("Pay on Delivery");
+    await expect(checkout.getByRole("button", { name: /confirm order/i })).toBeVisible();
   });
 
   test("product detail page shows add to cart", async ({ page }) => {
