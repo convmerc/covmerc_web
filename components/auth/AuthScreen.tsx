@@ -10,6 +10,7 @@ import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 import type { AuthUser } from "@/lib/auth-types";
+import { defaultPostAuthPath, isAdminOnlyPath } from "@/lib/admin-access";
 import { consumeGoogleAuthReturnPath } from "@/lib/google-auth";
 
 type AuthMode = "login" | "register";
@@ -19,11 +20,11 @@ type AuthScreenProps = {
 };
 
 function redirectAfterAuth(user: AuthUser, nextPath: string, router: ReturnType<typeof useRouter>) {
-  if (nextPath.startsWith("/admin") && user.userType !== "admin") {
+  if (isAdminOnlyPath(nextPath) && user.userType !== "admin") {
     router.push("/shop");
     return;
   }
-  router.push(nextPath);
+  router.push(defaultPostAuthPath(user, nextPath));
 }
 
 export function AuthScreen({ mode }: AuthScreenProps) {
@@ -197,7 +198,7 @@ export function AuthScreen({ mode }: AuthScreenProps) {
               href="/shop"
               className="ml-auto text-sm font-medium text-furni-muted transition hover:text-furni-primary"
             >
-              Continue as guest →
+              Browse without signing in →
             </Link>
           </div>
 

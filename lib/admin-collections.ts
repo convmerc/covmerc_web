@@ -50,12 +50,24 @@ export const MANAGED_COLLECTIONS: ManagedCollectionConfig[] = [
     description:
       "Admin-operational tickets. Writable fields are restricted to moderation metadata.",
     readOnly: false,
-    editableFields: ["status", "priority", "assignedAdminId", "adminNote"],
+    editableFields: [
+      "status",
+      "priority",
+      "assignedAdminId",
+      "adminNote",
+      "subject",
+      "message",
+      "userId",
+      "userEmail",
+      "userName"
+    ],
     createTemplate: {
       status: "open",
       priority: "normal",
       assignedAdminId: "",
-      adminNote: ""
+      adminNote: "",
+      subject: "",
+      message: ""
     }
   },
   {
@@ -72,6 +84,14 @@ export const MANAGED_COLLECTIONS: ManagedCollectionConfig[] = [
       status: "draft",
       audience: "all"
     }
+  },
+  {
+    id: "businesses",
+    label: "Businesses",
+    collectionPath: "businesses",
+    description: "Vendor business profiles linked to user accounts.",
+    readOnly: true,
+    editableFields: []
   },
   {
     id: "blogPosts",

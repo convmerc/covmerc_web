@@ -27,7 +27,7 @@ export function VendorShell({ children }: { children: ReactNode }) {
       return;
     }
     if (currentUser.userType !== "vendor" && currentUser.userType !== "admin") {
-      router.replace("/shop");
+      router.replace("/sell");
     }
   }, [authLoading, currentUser, router]);
 

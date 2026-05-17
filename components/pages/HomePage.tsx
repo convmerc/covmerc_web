@@ -82,6 +82,11 @@ export function HomePage() {
                   Our story
                 </FurniButton>
               </Link>
+              <Link href="/sell">
+                <FurniButton variant="outline" className="border-white/40 px-6 text-white">
+                  Sell on Covmerc
+                </FurniButton>
+              </Link>
             </div>
             <div className="grid max-w-lg grid-cols-3 gap-3 pt-4">
               {stats.map((item) => (

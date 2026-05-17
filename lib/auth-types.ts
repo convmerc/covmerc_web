@@ -5,6 +5,8 @@ export type AuthUser = {
   name: string;
   email: string;
   userType: UserType;
+  /** Set by the Covmerc mobile app during vendor registration (e.g. pending, approved). */
+  vendorStatus?: string | null;
 };
 
 export type AuthResult = {

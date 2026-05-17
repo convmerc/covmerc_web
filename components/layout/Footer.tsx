@@ -11,6 +11,7 @@ const socialLinks = [
 
 const shopLinks = [
   { href: "/shop", label: "Shop Collection" },
+  { href: "/sell", label: "Sell on Covmerc" },
   { href: "/about", label: "About Covmerc" },
   { href: "/blog", label: "Design Blog" }
 ] as const;

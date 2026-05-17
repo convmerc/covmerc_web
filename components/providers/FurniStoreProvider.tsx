@@ -12,6 +12,8 @@ import {
 import {
   buildOrderLineItems,
   createBlogPostInFirestore,
+  deleteBlogPostFromFirestore,
+  updateBlogPostInFirestore,
   createOrderInFirestore,
   createProductInFirestore,
   deleteProductFromFirestore,
@@ -23,7 +25,6 @@ import {
   updateProductInFirestore
 } from "@/lib/store-firestore";
 import { fetchCategoriesFromFirestore, type StoreCategory } from "@/lib/categories";
-import { guestUserIdFromEmail } from "@/lib/guest-user";
 import { queueOrderConfirmationEmail } from "@/lib/order-notifications";
 import { calculateDeliveryFee, orderGrandTotal } from "@/lib/shipping";
 import type {
@@ -70,6 +71,23 @@ type FurniStoreContextValue = {
       status?: FurniBlogPost["status"];
     }
   ) => Promise<void>;
+  updateBlogPost: (
+    id: string,
+    post: Partial<
+      Pick<
+        FurniBlogPost,
+        | "title"
+        | "excerpt"
+        | "content"
+        | "category"
+        | "coverImage"
+        | "slug"
+        | "status"
+        | "author"
+      >
+    >
+  ) => Promise<void>;
+  deleteBlogPost: (id: string) => Promise<void>;
   updateOrderStatus: (orderId: string, status: FurniOrderStatus) => Promise<void>;
   createOrder: (
     shipping: CheckoutShipping,
@@ -352,6 +370,32 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
     []
   );
 
+  const updateBlogPost = useCallback(
+    async (
+      id: string,
+      post: Partial<
+        Pick<
+          FurniBlogPost,
+          | "title"
+          | "excerpt"
+          | "content"
+          | "category"
+          | "coverImage"
+          | "slug"
+          | "status"
+          | "author"
+        >
+      >
+    ) => {
+      await updateBlogPostInFirestore(id, post);
+    },
+    []
+  );
+
+  const deleteBlogPost = useCallback(async (id: string) => {
+    await deleteBlogPostFromFirestore(id);
+  }, []);
+
   const updateOrderStatus = useCallback(
     async (orderId: string, status: FurniOrderStatus) => {
       await updateOrderStatusInFirestore(orderId, status);
@@ -373,8 +417,12 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
         throw new Error("Your cart is empty.");
       }
 
-      const isGuest = !currentUser;
-      const userId = currentUser?.id ?? guestUserIdFromEmail(shipping.email);
+      if (!currentUser) {
+        throw new Error("Sign in to complete your order.");
+      }
+
+      const userId = currentUser.id;
+      const isGuest = false;
       const deliveryFee = calculateDeliveryFee(cartSubtotal, shipping.city);
       const totalAmount = orderGrandTotal(cartSubtotal, deliveryFee);
 
@@ -457,6 +505,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       updateProduct,
       deleteProduct,
       addBlogPost,
+      updateBlogPost,
+      deleteBlogPost,
       updateOrderStatus,
       createOrder,
       refreshOrders
@@ -484,6 +534,8 @@ export function FurniStoreProvider({ children }: { children: ReactNode }) {
       updateProduct,
       deleteProduct,
       addBlogPost,
+      updateBlogPost,
+      deleteBlogPost,
       updateOrderStatus,
       createOrder,
       refreshOrders
