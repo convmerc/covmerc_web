@@ -17,15 +17,59 @@ export type FirebaseServices = {
 
 let cached: FirebaseServices | null = null;
 
+const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID;
+
+/** Redirect URI Google OAuth must allow for Firebase popup/redirect sign-in. */
+export function getFirebaseAuthHandlerUrl(authDomain = resolveFirebaseAuthDomain()): string {
+  return `https://${authDomain}/__/auth/handler`;
+}
+
+export function resolveFirebaseAuthDomain(): string {
+  const fromEnv = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN?.trim();
+  if (fromEnv) {
+    return fromEnv.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  }
+  if (projectId) {
+    return `${projectId}.firebaseapp.com`;
+  }
+  return "";
+}
+
 export const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  authDomain: resolveFirebaseAuthDomain(),
+  projectId,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
+
+function warnFirebaseAuthDomainMismatch() {
+  if (process.env.NODE_ENV !== "development" || typeof window === "undefined") {
+    return;
+  }
+
+  const authDomain = firebaseConfig.authDomain;
+  const expected = projectId ? `${projectId}.firebaseapp.com` : "";
+
+  if (!authDomain) {
+    console.warn(
+      "[Covmerc] Missing NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN. Google sign-in may fail with redirect_uri_mismatch."
+    );
+    return;
+  }
+
+  if (expected && authDomain !== expected && !authDomain.endsWith(".web.app")) {
+    console.error(
+      `[Covmerc] AUTH_DOMAIN mismatch: env has "${authDomain}" but PROJECT_ID expects "${expected}". ` +
+        `Google sign-in will fail with redirect_uri_mismatch. Update .env.local and restart the dev server.`
+    );
+    console.info(
+      `[Covmerc] Register this redirect URI in Google Cloud OAuth (Web client): ${getFirebaseAuthHandlerUrl(expected)}`
+    );
+  }
+}
 
 function createFirebaseApp(): FirebaseServices {
   if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
@@ -50,6 +94,7 @@ function createFirebaseApp(): FirebaseServices {
 export function getFirebase(): FirebaseServices {
   if (!cached) {
     cached = createFirebaseApp();
+    warnFirebaseAuthDomainMismatch();
   }
   return cached;
 }
@@ -59,10 +104,4 @@ export const firebaseDb = () => getFirebase().db;
 export const firebaseStorage = () => getFirebase().storage;
 
 export const googleProvider = new GoogleAuthProvider();
-
-export async function signInWithGoogle(): Promise<UserCredential> {
-  const { auth } = getFirebase();
-  const { signInWithPopup } = await import("firebase/auth");
-  return signInWithPopup(auth, googleProvider);
-}
 

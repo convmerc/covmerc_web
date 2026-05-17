@@ -185,7 +185,7 @@ export default function CartPage() {
         <section className="mt-16 border-t border-furni-primary/10 pt-12">
           <h2 className="font-display text-2xl text-furni-primary">You might also like</h2>
           <p className="mt-1 text-sm text-furni-muted">Complete your room with these picks.</p>
-          <div className="mt-6 grid gap-5 sm:grid-cols-3">
+          <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {suggested.map((product) => (
               <ProductCard
                 key={product.id}

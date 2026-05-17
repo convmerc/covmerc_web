@@ -17,7 +17,7 @@ import { createPageMetadata } from "@/lib/site-metadata";
 export const metadata = createPageMetadata({
   title: "Contact",
   description:
-    "Contact Covmerc for orders, product advice, partnerships, and privacy requests. Our Lagos team responds within one business day.",
+    "Contact Covmerc for orders, product advice, partnerships, and privacy requests. Our Ibadan team responds within one business day.",
   path: "/contact"
 });
 
@@ -27,7 +27,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Contact"
         title="We are here to help—before and after you buy"
-        description="Whether you need delivery updates, sizing advice for a tight hallway, or you are a maker interested in selling on Covmerc, message us. Real people in Lagos read every note."
+        description="Whether you need delivery updates, sizing advice for a tight hallway, or you are a maker interested in selling on Covmerc, message us. Real people in Ibadan read every note."
       />
 
       <PolicyHighlights
@@ -83,7 +83,7 @@ export default function ContactPage() {
           <FurniCard className="overflow-hidden p-0">
             <div className="bg-gradient-to-br from-furni-primary to-furni-primary/80 px-6 py-8 text-white">
               <p className="covmerc-eyebrow-light">Studio & showroom</p>
-              <p className="mt-3 font-display text-2xl">Victoria Island, Lagos</p>
+              <p className="mt-3 font-display text-2xl">Ring Road, Ibadan</p>
               <p className="mt-2 text-sm text-white/85">
                 Visit by appointment or message us to schedule a walkthrough of select pieces.
               </p>

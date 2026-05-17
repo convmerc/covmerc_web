@@ -84,6 +84,36 @@ npm run dev
 - `/dashboard/admin` (should redirect or deny non-admins)
 - `/dashboard/admin/data`
 
+### Google sign-in (`redirect_uri_mismatch`)
+
+If Google login shows **Error 400: redirect_uri_mismatch**, fix OAuth settings (not app code):
+
+1. **`.env.local`** — use the real Firebase project (`convmerc-baeef`, not `covmerc-baeef`):
+
+   ```bash
+   NEXT_PUBLIC_FIREBASE_PROJECT_ID=convmerc-baeef
+   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=convmerc-baeef.firebaseapp.com
+   ```
+
+2. **Firebase Console** → Authentication → Sign-in method → **Google** → Enabled.
+
+3. **Firebase Console** → Authentication → Settings → **Authorized domains** — add:
+   - `localhost`
+   - `convmerc-baeef.web.app` (production hosting)
+   - `convmerc-baeef.firebaseapp.com`
+
+4. **Google Cloud Console** ([APIs & Credentials](https://console.cloud.google.com/apis/credentials?project=convmerc-baeef)) → **OAuth 2.0 Client IDs** → open the **Web client** used by Firebase (often auto-created).
+
+   **Authorized JavaScript origins:**
+   - `http://localhost:3000`
+   - `https://convmerc-baeef.web.app`
+   - `https://convmerc-baeef.firebaseapp.com`
+
+   **Authorized redirect URIs** (required):
+   - `https://convmerc-baeef.firebaseapp.com/__/auth/handler`
+
+   Save, wait 1–2 minutes, restart `npm run dev`, then try Google sign-in again.
+
 ---
 
 ## Deploy to Firebase Hosting

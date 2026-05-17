@@ -2,7 +2,7 @@ export const trustPillars = [
   {
     icon: "🚚",
     title: "Nationwide delivery",
-    description: "Transparent timelines to Lagos, Abuja, PH & more"
+    description: "Transparent timelines from Ibadan to Lagos, Abuja, PH & more"
   },
   {
     icon: "✓",
@@ -17,7 +17,7 @@ export const trustPillars = [
   {
     icon: "💬",
     title: "Human support",
-    description: "Lagos team replies within one business day"
+    description: "Ibadan team replies within one business day"
   }
 ] as const;
 

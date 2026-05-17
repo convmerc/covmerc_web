@@ -19,7 +19,7 @@ test.describe("Storefront commerce", () => {
     await checkout.getByLabel(/^email$/i).fill("e2e-guest@example.com");
     await checkout.getByLabel(/phone/i).fill("08000000000");
     await checkout.getByLabel(/street address/i).fill("12 Admiralty Way");
-    await checkout.getByLabel(/^city$/i).fill("Lagos");
+    await checkout.getByLabel(/^city$/i).fill("Ibadan");
     await checkout.getByLabel(/postal/i).fill("101241");
 
     await checkout.getByRole("button", { name: /continue to payment/i }).click();

@@ -11,4 +11,6 @@ export type AuthResult = {
   success: boolean;
   message?: string;
   user?: AuthUser;
+  /** Google sign-in started a full-page redirect (no user yet). */
+  redirecting?: boolean;
 };

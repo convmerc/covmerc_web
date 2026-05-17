@@ -19,13 +19,19 @@ import {
 } from "firebase/auth";
 import type { AuthResult, AuthUser } from "@/lib/auth-types";
 import { getAuthErrorMessage } from "@/lib/auth-errors";
-import { ensureUserDocument, resolveAuthUser } from "@/lib/auth-user";
+import { ensureUserDocument, resolveAuthUserSafe } from "@/lib/auth-user";
 import {
   applyPasswordReset,
   sendPasswordReset,
   verifyPasswordReset
 } from "@/lib/auth-password-reset";
-import { getFirebase, signInWithGoogle } from "@/lib/firebase";
+import { getFirebase } from "@/lib/firebase";
+import {
+  completeGoogleRedirectSignIn,
+  isPopupBlockedError,
+  signInWithGooglePopup,
+  startGoogleSignInRedirect
+} from "@/lib/google-auth";
 
 export type { AuthUser, UserType } from "@/lib/auth-types";
 
@@ -39,7 +45,7 @@ type AuthSessionValue = {
     email: string,
     password: string
   ) => Promise<AuthResult>;
-  loginWithGoogle: () => Promise<AuthResult>;
+  loginWithGoogle: (returnPath?: string) => Promise<AuthResult>;
   requestPasswordReset: (email: string) => Promise<AuthResult>;
   verifyPasswordResetCode: (
     oobCode: string
@@ -51,7 +57,7 @@ type AuthSessionValue = {
 const AuthSessionContext = createContext<AuthSessionValue | null>(null);
 
 async function buildAuthResult(firebaseUser: User): Promise<AuthResult> {
-  const user = await resolveAuthUser(firebaseUser);
+  const user = await resolveAuthUserSafe(firebaseUser);
   return { success: true, user };
 }
 
@@ -61,25 +67,32 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const { auth } = getFirebase();
+    let unsubscribe = () => {};
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) {
-        setCurrentUser(null);
-        setAuthLoading(false);
-        return;
-      }
-
+    void (async () => {
       try {
-        const user = await resolveAuthUser(firebaseUser);
-        setCurrentUser(user);
-      } catch {
-        setCurrentUser(null);
-      } finally {
-        setAuthLoading(false);
+        const redirectCredential = await completeGoogleRedirectSignIn();
+        if (redirectCredential?.user) {
+          await ensureUserDocument(redirectCredential.user);
+        }
+      } catch (error) {
+        console.error("[Covmerc] Google redirect sign-in failed:", error);
       }
-    });
 
-    return unsubscribe;
+      unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (!firebaseUser) {
+          setCurrentUser(null);
+          setAuthLoading(false);
+          return;
+        }
+
+        const user = await resolveAuthUserSafe(firebaseUser);
+        setCurrentUser(user);
+        setAuthLoading(false);
+      });
+    })();
+
+    return () => unsubscribe();
   }, []);
 
   const loginWithEmail = useCallback(async (email: string, password: string) => {
@@ -120,12 +133,23 @@ export function AuthSessionProvider({ children }: { children: ReactNode }) {
     []
   );
 
-  const loginWithGoogle = useCallback(async () => {
+  const loginWithGoogle = useCallback(async (returnPath = "/shop") => {
+    const safeReturn =
+      returnPath.startsWith("/") && !returnPath.startsWith("//") ? returnPath : "/shop";
+
     try {
-      const credential = await signInWithGoogle();
+      const credential = await signInWithGooglePopup();
       await ensureUserDocument(credential.user);
       return buildAuthResult(credential.user);
     } catch (error) {
+      if (isPopupBlockedError(error)) {
+        try {
+          await startGoogleSignInRedirect(safeReturn);
+          return { success: true, redirecting: true };
+        } catch (redirectError) {
+          return { success: false, message: getAuthErrorMessage(redirectError) };
+        }
+      }
       return { success: false, message: getAuthErrorMessage(error) };
     }
   }, []);

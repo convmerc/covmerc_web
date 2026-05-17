@@ -28,25 +28,44 @@ function GoogleIcon() {
 type GoogleAuthButtonProps = {
   label?: string;
   disabled?: boolean;
+  loading?: boolean;
+  loadingLabel?: string;
   onClick: () => void;
 };
 
 export function GoogleAuthButton({
   label = "Continue with Google",
   disabled = false,
+  loading = false,
+  loadingLabel = "Connecting…",
   onClick
 }: GoogleAuthButtonProps) {
+  const busy = disabled || loading;
+
   return (
     <FurniButton
       type="button"
       variant="outline"
       fullWidth
-      disabled={disabled}
+      disabled={busy}
       onClick={onClick}
-      className="gap-2 border-slate-200 bg-white text-furni-ink hover:bg-slate-50"
+      aria-busy={loading}
+      className="gap-2.5 border-slate-200 bg-white text-furni-ink hover:bg-slate-50"
     >
-      <GoogleIcon />
-      {label}
+      {loading ? (
+        <>
+          <span
+            className="inline-block h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-furni-primary/25 border-t-furni-primary"
+            aria-hidden
+          />
+          <span>{loadingLabel}</span>
+        </>
+      ) : (
+        <>
+          <GoogleIcon />
+          {label}
+        </>
+      )}
     </FurniButton>
   );
 }

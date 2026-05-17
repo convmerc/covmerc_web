@@ -40,7 +40,7 @@ export default function BlogPage() {
       <PageHero
         eyebrow="Covmerc Journal"
         title="Ideas for homes you actually live in"
-        description="Practical styling tips, material guides, and behind-the-scenes stories from our Lagos studio—written for renters, new homeowners, and anyone upgrading room by room."
+        description="Practical styling tips, material guides, and behind-the-scenes stories from our Ibadan studio—written for renters, new homeowners, and anyone upgrading room by room."
       />
 
       {storeLoading ? (

@@ -6,7 +6,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { AuthFormLayout } from "@/components/auth/AuthFormLayout";
 import { FurniButton } from "@/components/ui/FurniButton";
 import { FurniInput } from "@/components/ui/FurniInput";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 const GENERIC_SUCCESS =
@@ -39,23 +40,26 @@ export function ForgotPasswordScreen() {
     event.preventDefault();
     setError("");
     setPending(true);
-
-    const result = await requestPasswordReset(email);
-    setPending(false);
-
-    if (!result.success) {
-      setError(result.message ?? "Unable to send reset email.");
-      return;
+    try {
+      const result = await requestPasswordReset(email);
+      if (!result.success) {
+        setError(result.message ?? "Unable to send reset email.");
+        return;
+      }
+      setSent(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
     }
-
-    setSent(true);
   }
 
   if (authLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState variant="page" message="Preparing reset form…" />
-      </div>
+      <AuthLoadingState
+        message="Preparing reset form"
+        description="Loading secure password recovery"
+      />
     );
   }
 
@@ -115,9 +119,9 @@ export function ForgotPasswordScreen() {
             </p>
           ) : null}
 
-          <FurniButton type="submit" fullWidth disabled={pending}>
-            {pending ? "Sending…" : "Send reset link"}
-          </FurniButton>
+          <AuthSubmitButton loading={pending} loadingLabel="Sending reset link…">
+            Send reset link
+          </AuthSubmitButton>
 
           <p className="text-center text-sm text-furni-muted">
             Remember your password?{" "}

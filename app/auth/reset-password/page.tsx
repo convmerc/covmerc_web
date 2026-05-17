@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { ResetPasswordScreen } from "@/components/auth/ResetPasswordScreen";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
 import { createPageMetadata } from "@/lib/site-metadata";
 
 export const metadata = createPageMetadata({
@@ -13,9 +13,7 @@ export default function ResetPasswordPage() {
   return (
     <Suspense
       fallback={
-        <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-          <LoadingState variant="page" message="Verifying reset link…" />
-        </div>
+        <AuthLoadingState message="Verifying reset link" />
       }
     >
       <ResetPasswordScreen />

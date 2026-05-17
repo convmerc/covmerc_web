@@ -1,6 +1,32 @@
 import type { FirebaseError } from "firebase/app";
 
+import { getFirebaseAuthHandlerUrl, resolveFirebaseAuthDomain } from "@/lib/firebase";
+
+function isRedirectUriMismatch(error: unknown): boolean {
+  const message =
+    error instanceof Error
+      ? error.message
+      : typeof error === "object" && error !== null && "message" in error
+        ? String((error as { message: unknown }).message)
+        : "";
+
+  return /redirect_uri_mismatch/i.test(message);
+}
+
 export function getAuthErrorMessage(error: unknown): string {
+  if (isRedirectUriMismatch(error)) {
+    const authDomain = resolveFirebaseAuthDomain() || "YOUR_PROJECT_ID.firebaseapp.com";
+    const redirectUri = getFirebaseAuthHandlerUrl(authDomain);
+    return (
+      "Google sign-in is misconfigured (redirect URI mismatch). In Google Cloud Console → " +
+      "Credentials → your Web OAuth client, add this Authorized redirect URI: " +
+      redirectUri +
+      ". Also set NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=" +
+      authDomain +
+      " in .env.local and add localhost to Firebase Auth authorized domains."
+    );
+  }
+
   const code =
     typeof error === "object" &&
     error !== null &&
@@ -25,7 +51,7 @@ export function getAuthErrorMessage(error: unknown): string {
     case "auth/popup-closed-by-user":
       return "Google sign-in was cancelled.";
     case "auth/popup-blocked":
-      return "Pop-up was blocked. Allow pop-ups for this site and try again.";
+      return "Pop-up was blocked. Trying full-page sign-in instead…";
     case "auth/account-exists-with-different-credential":
       return "An account already exists with this email using a different sign-in method.";
     case "auth/too-many-requests":

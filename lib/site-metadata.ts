@@ -44,7 +44,7 @@ export const defaultMetadata: Metadata = {
     "Covmerc",
     "furniture",
     "modern interior",
-    "Lagos furniture",
+    "Ibadan furniture",
     "home decor",
     "ecommerce"
   ],

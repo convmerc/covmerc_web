@@ -177,7 +177,7 @@ export default function ProductDetailsPage() {
           <section className="mt-14 border-t border-furni-primary/10 pt-12">
             <h2 className="font-display text-2xl text-furni-primary">You may also like</h2>
             <p className="mt-1 text-sm text-furni-muted">More from {displayCategory}</p>
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-1 gap-4 min-[400px]:grid-cols-2 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
               {relatedProducts.map((item) => (
                 <ProductCard
                   key={item.id}

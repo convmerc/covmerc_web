@@ -27,7 +27,7 @@ const returnSteps = [
   },
   {
     title: "Pickup or drop-off",
-    description: "We arrange logistics in Lagos or provide instructions for other regions."
+    description: "We arrange logistics in Ibadan or provide instructions for other regions."
   },
   {
     title: "Inspection & refund",

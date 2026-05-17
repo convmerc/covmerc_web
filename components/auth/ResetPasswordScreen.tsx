@@ -5,7 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { AuthFormLayout } from "@/components/auth/AuthFormLayout";
 import { FurniButton } from "@/components/ui/FurniButton";
-import { LoadingState } from "@/components/ui/LoadingState";
+import { AuthLoadingState } from "@/components/auth/AuthLoadingState";
+import { AuthSubmitButton } from "@/components/auth/AuthSubmitButton";
 import { useAuthSession } from "@/components/providers/AuthSessionProvider";
 
 type ResetPhase = "loading" | "invalid" | "ready" | "success";
@@ -79,29 +80,29 @@ export function ResetPasswordScreen() {
     }
 
     setPending(true);
-    const result = await completePasswordReset(oobCode, password);
-    setPending(false);
-
-    if (!result.success) {
-      setError(result.message ?? "Unable to reset password.");
-      return;
+    try {
+      const result = await completePasswordReset(oobCode, password);
+      if (!result.success) {
+        setError(result.message ?? "Unable to reset password.");
+        return;
+      }
+      setPhase("success");
+      window.setTimeout(() => {
+        router.replace("/auth/login?reset=success");
+      }, 2000);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
     }
-
-    setPhase("success");
-    window.setTimeout(() => {
-      router.replace("/auth/login?reset=success");
-    }, 2000);
   }
 
   if (authLoading || phase === "loading") {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-furni-surface covmerc-surface-texture px-4">
-        <LoadingState
-          variant="page"
-          message="Verifying reset link…"
-          description="Checking that your link is still valid"
-        />
-      </div>
+      <AuthLoadingState
+        message="Verifying reset link"
+        description="Checking that your link is still valid"
+      />
     );
   }
 
@@ -195,9 +196,9 @@ export function ResetPasswordScreen() {
             </p>
           ) : null}
 
-          <FurniButton type="submit" fullWidth disabled={pending}>
-            {pending ? "Updating…" : "Update password"}
-          </FurniButton>
+          <AuthSubmitButton loading={pending} loadingLabel="Updating password…">
+            Update password
+          </AuthSubmitButton>
         </form>
       ) : null}
     </AuthFormLayout>

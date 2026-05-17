@@ -14,84 +14,140 @@ type ProductCardProps = {
   layout?: "grid" | "compact";
 };
 
+function ProductRating({ rating }: { rating: number }) {
+  if (rating <= 0) return null;
+
+  const filled = Math.round(rating);
+  return (
+    <div
+      className="flex items-center gap-1 text-xs text-furni-muted"
+      aria-label={`Rated ${rating.toFixed(1)} out of 5`}
+    >
+      <span className="flex text-furni-accent" aria-hidden>
+        {Array.from({ length: 5 }).map((_, index) => (
+          <span key={index} className={index < filled ? "opacity-100" : "opacity-30"}>
+            ★
+          </span>
+        ))}
+      </span>
+      <span className="tabular-nums">{rating.toFixed(1)}</span>
+    </div>
+  );
+}
+
 export function ProductCard({
   product,
   onAddToCart,
   layout = "grid"
 }: ProductCardProps) {
+  const isCompact = layout === "compact";
+  const outOfStock = product.stock <= 0;
+  const lowStock = product.stock > 0 && product.stock <= 3;
   const hasDiscount = product.discount > 0 && product.originalPrice > product.price;
   const displayCategory = product.categoryName || product.category;
 
   return (
-    <FurniCard className="group overflow-hidden p-0">
-      <Link href={`/product/${product.id}`} className="relative block">
+    <FurniCard
+      interactive
+      className="group flex h-full flex-col overflow-hidden !p-0"
+    >
+      <Link
+        href={`/product/${product.id}`}
+        className="relative block shrink-0 overflow-hidden"
+      >
         <FurniImage
           src={product.image}
           alt={product.name}
           variant="card"
-          imageClassName="transition duration-500 group-hover:scale-[1.03]"
+          imageClassName={`transition duration-500 ${
+            outOfStock ? "opacity-70" : "group-hover:scale-[1.02]"
+          }`}
         />
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+
+        {outOfStock ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-furni-primary/35">
+            <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-furni-primary">
+              Out of stock
+            </span>
+          </div>
+        ) : null}
+
+        <div className="absolute left-2 top-2 flex flex-wrap gap-1 sm:left-3 sm:top-3">
           {product.featured ? (
-            <span className="rounded-full bg-furni-accent px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-furni-primary">
+            <span className="rounded-full bg-furni-accent px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-furni-primary">
               Featured
             </span>
           ) : null}
           {hasDiscount ? (
-            <span className="rounded-full bg-furni-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
+            <span className="rounded-full bg-furni-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
               Sale
             </span>
           ) : null}
-          {product.stock <= 3 && product.stock > 0 ? (
-            <span className="rounded-full bg-white/90 px-2.5 py-0.5 text-[10px] font-semibold text-furni-ink">
+          {lowStock ? (
+            <span className="rounded-full bg-white/95 px-2 py-0.5 text-[10px] font-semibold text-furni-ink ring-1 ring-furni-primary/10">
               {product.stock} left
             </span>
           ) : null}
         </div>
+
         <WishlistButton
           productId={product.id}
-          className="absolute right-3 top-3"
+          className="absolute right-2 top-2 sm:right-3 sm:top-3"
           size="sm"
         />
       </Link>
 
-      <div className={`space-y-2 ${layout === "compact" ? "p-3" : "p-4"}`}>
-        <p className="text-[11px] font-medium uppercase tracking-[0.12em] text-furni-muted">
-          {displayCategory}
-        </p>
-        <Link href={`/product/${product.id}`}>
-          <h3 className="text-lg font-semibold text-furni-primary transition group-hover:text-furni-ink">
-            {product.name}
-          </h3>
-        </Link>
-        {layout === "grid" ? (
-          <p className="line-clamp-2 text-sm text-furni-muted">{product.shortDescription}</p>
-        ) : null}
+      <div className={`flex flex-1 flex-col ${isCompact ? "p-3" : "p-4"}`}>
+        <div className="flex-1 space-y-1.5">
+          <p className="truncate text-[11px] font-medium uppercase tracking-wide text-furni-muted">
+            {displayCategory}
+          </p>
 
-        <div className="flex items-end justify-between gap-2 pt-1">
+          <Link href={`/product/${product.id}`} className="block">
+            <h3
+              className={`line-clamp-2 font-semibold leading-snug text-furni-primary transition group-hover:text-furni-ink ${
+                isCompact ? "text-sm" : "text-base sm:text-lg"
+              }`}
+            >
+              {product.name}
+            </h3>
+          </Link>
+
+          {!isCompact && product.shortDescription ? (
+            <p className="line-clamp-2 text-sm text-furni-muted">{product.shortDescription}</p>
+          ) : null}
+
+          {!isCompact ? <ProductRating rating={product.rating} /> : null}
+        </div>
+
+        <div className="mt-4 space-y-3 border-t border-furni-primary/10 pt-3">
           <div>
-            <p className="text-lg font-semibold text-furni-ink">{formatNgn(product.price)}</p>
+            <p className="text-lg font-semibold tabular-nums text-furni-ink">
+              {formatNgn(product.price)}
+            </p>
             {hasDiscount ? (
               <p className="text-xs text-furni-muted line-through">
                 {formatNgn(product.originalPrice)}
               </p>
             ) : null}
           </div>
-          <div className="flex shrink-0 items-center gap-1.5">
-            <Link href={`/product/${product.id}`}>
-              <FurniButton variant="outline" className="px-2.5 py-1.5 text-xs">
+
+          <div className={`grid gap-2 ${onAddToCart ? "grid-cols-2" : "grid-cols-1"}`}>
+            <Link href={`/product/${product.id}`} className="block">
+              <FurniButton variant="outline" fullWidth className="text-xs sm:text-sm">
                 View
               </FurniButton>
             </Link>
             {onAddToCart ? (
               <FurniButton
                 variant="primary"
-                className="px-2.5 py-1.5 text-xs"
+                fullWidth
+                className="text-xs sm:text-sm"
                 data-testid="product-add"
+                disabled={outOfStock}
                 onClick={() => onAddToCart(product.id)}
-                disabled={product.stock <= 0}
               >
-                {product.stock <= 0 ? "Out" : "Add"}
+                {outOfStock ? "Out" : "Add"}
               </FurniButton>
             ) : null}
           </div>

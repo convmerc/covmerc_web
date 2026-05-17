@@ -38,7 +38,7 @@ function CheckoutPageContent() {
     email: "",
     phone: "",
     address: "",
-    city: "Lagos",
+    city: "Ibadan",
     country: "Nigeria",
     zipCode: ""
   });
